@@ -6,23 +6,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         NSApp.appearance = NSAppearance(named: DocumentStore.shared.theme.appearanceName)
-        applyDockIcon()
+        // Dock icon: CFBundleIconFile only (runtime applicationIconImage scales oddly)
         buildMenus()
         let controller = MainWindowController()
         mainWindowController = controller
         controller.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
-    }
-
-    /// Apply bundled multi-resolution icns to Dock / app switcher.
-    /// Prefer the .icns (all sizes) over a single PNG so Retina Dock stays sharp.
-    private func applyDockIcon() {
-        guard let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
-              let image = NSImage(contentsOf: url), image.isValid else {
-            return
-        }
-        // Keep every representation; do not assign image.size (that forces soft scaling).
-        NSApp.applicationIconImage = image
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -89,6 +78,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(NSMenuItem.separator())
+        let indentItem = NSMenuItem(title: "Indent", action: #selector(EditorTextView.indentSelectedLines(_:)), keyEquivalent: "]")
+        indentItem.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(indentItem)
+        let unindentItem = NSMenuItem(title: "Unindent", action: #selector(EditorTextView.unindentSelectedLines(_:)), keyEquivalent: "[")
+        unindentItem.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(unindentItem)
 
         let findMenuItem = NSMenuItem()
         mainMenu.addItem(findMenuItem)
@@ -199,10 +195,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showAbout() {
+        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.5"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "7"
         var options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "MacText",
-            .applicationVersion: "1.0.0",
-            .version: "1",
+            .applicationVersion: short,
+            .version: build,
             .credits: NSAttributedString(
                 string: "A native Mac text editor.\nThemes: Ink · Black · Paper · Snow",
                 attributes: [

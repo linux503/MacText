@@ -525,10 +525,10 @@
           <div class="accent-bar" aria-hidden="true"></div>
           <h1 data-i18n="hero.h1">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
           <div class="actions">
-            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="hero.cta">Download DMG</a>
+            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg" data-i18n="hero.cta">Download DMG</a>
             <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.src">View source</a>
           </div>
-          <p class="meta">v1.0.4 · macOS 14+ · arm64 + x86_64</p>
+          <p class="meta">v1.0.5 · macOS 14+ · arm64 + x86_64</p>
         </div>
         <aside class="side" aria-label="Highlights">
           <div class="side-item">
@@ -592,7 +592,7 @@
       <div class="sec-head">
         <p class="kicker" data-i18n="f.k">Capabilities</p>
         <h2 class="h2" data-i18n="f.title">Essential, not excessive</h2>
-        <p class="lead" data-i18n="f.lead">Daily workflow — tabs, project tree, search, palette, font size — tuned for native feel and instant launch.</p>
+        <p class="lead" data-i18n="f.lead">Daily workflow — tabs, project tree, search, palette, multi-line indent, font size — tuned for native feel and instant launch.</p>
       </div>
       <div class="matrix">
         <article class="cell"><b data-i18n="f1t">Multi-tab editing</b><p data-i18n="f1d">Open, save, save-as, close with dirty prompts. Middle-click to dismiss.</p></article>
@@ -601,6 +601,7 @@
         <article class="cell"><b data-i18n="f4t">Command palette</b><p data-i18n="f4d">⌘⇧P for themes, go-to-line, sidebar, and actions.</p></article>
         <article class="cell"><b data-i18n="f5t">Syntax highlight</b><p data-i18n="f5d">Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.</p></article>
         <article class="cell"><b data-i18n="f6t">Session restore</b><p data-i18n="f6d">Tabs, unsaved text, caret, folder, theme, window frame.</p></article>
+        <article class="cell"><b>Multi-line indent</b><p>Select any part of multiple lines — Tab / ⇧Tab indents whole lines, Sublime-style.</p></article>
       </div>
     </section>
 
@@ -636,6 +637,8 @@
             <div><span data-i18n="k.theme">Theme</span><kbd>⌘⌥T</kbd></div>
             <div><span>Bigger Font</span><kbd>⌘+</kbd></div>
             <div><span>Smaller Font</span><kbd>⌘−</kbd></div>
+            <div><span>Indent</span><kbd>Tab</kbd> / <kbd>⌘]</kbd></div>
+            <div><span>Unindent</span><kbd>⇧Tab</kbd> / <kbd>⌘[</kbd></div>
           </div>
         </div>
       </div>
@@ -648,14 +651,14 @@
         <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks.</p>
       </div>
       <div class="actions">
-        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="dl.cta">Download MacText 1.0.4</a>
+        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg" data-i18n="dl.cta">Download MacText 1.0.5</a>
         <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
       </div>
     </section>
 
     <footer>
       <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
-      <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a href="https://github.com/linux503/MacText/releases/tag/v1.0.4">v1.0.4</a></span>
+      <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a href="https://github.com/linux503/MacText/releases/tag/v1.0.5">v1.0.5</a></span>
     </footer>
   </div>
 
@@ -676,7 +679,7 @@
         "shot2.t": "Command Palette", "shot2.d": "⌘⇧P · themes · actions", "shot2.alt": "MacText command palette",
         "shot3.t": "Find & Replace", "shot3.d": "Inline search · matches", "shot3.alt": "MacText find and replace",
         "f.k": "Capabilities", "f.title": "Essential, not excessive",
-        "f.lead": "Daily workflow — tabs, project tree, search, palette, font size — tuned for native feel and instant launch.",
+        "f.lead": "Daily workflow — tabs, project tree, search, palette, multi-line indent, font size — tuned for native feel and instant launch.",
         "f1t": "Multi-tab editing", "f1d": "Open, save, save-as, close with dirty prompts. Middle-click to dismiss.",
         "f2t": "Project sidebar", "f2d": "Browse a folder tree. Hide fully with ⌘B — no leftover gutter.",
         "f3t": "Find & replace", "f3d": "Inline find bar, next/previous match, Esc to close.",
@@ -691,7 +694,7 @@
         "k.find": "Find", "k.pal": "Palette", "k.side": "Sidebar", "k.theme": "Theme",
         "dl.k": "Install", "dl.title": "One drag to Applications",
         "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks.",
-        "dl.cta": "Download MacText 1.0.4", "dl.all": "All releases",
+        "dl.cta": "Download MacText 1.0.5", "dl.all": "All releases",
         "ft": "© 2026 MacText · Native AppKit"
       },
       zh: {
@@ -709,7 +712,7 @@
         "shot2.t": "命令面板", "shot2.d": "⌘⇧P · 主题 · 操作", "shot2.alt": "MacText 命令面板",
         "shot3.t": "查找替换", "shot3.d": "内联搜索 · 匹配", "shot3.alt": "MacText 查找替换",
         "f.k": "能力", "f.title": "够用，不过度",
-        "f.lead": "日常真正会用到的能力——标签、项目树、搜索、命令面板、字体大小——为原生体验与秒开而打磨。",
+        "f.lead": "日常真正会用到的能力——标签、项目树、搜索、命令面板、多行缩进、字体大小——为原生体验与秒开而打磨。",
         "f1t": "多标签编辑", "f1d": "打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。",
         "f2t": "项目侧边栏", "f2d": "浏览文件夹树。⌘B 完全隐藏，不留空白边条。",
         "f3t": "查找与替换", "f3d": "内联查找栏，上一个 / 下一个，Esc 关闭。",
@@ -724,7 +727,7 @@
         "k.find": "查找", "k.pal": "命令面板", "k.side": "侧边栏", "k.theme": "主题",
         "dl.k": "安装", "dl.title": "拖进应用程序即可",
         "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。",
-        "dl.cta": "下载 MacText 1.0.4", "dl.all": "全部版本",
+        "dl.cta": "下载 MacText 1.0.5", "dl.all": "全部版本",
         "ft": "© 2026 MacText · 原生 AppKit"
       }
     };

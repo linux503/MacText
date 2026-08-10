@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Native macOS text editor</strong> — Sublime-like core, AppKit performance.<br/>
-  Multi-tab · Sidebar · Find/Replace · Command Palette · Syntax Highlight · Session Restore
+  Multi-tab · Sidebar · Find/Replace · Indent · Command Palette · Syntax Highlight · Session Restore
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg"><strong>Download DMG</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg"><strong>Download DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/">Website</a>
   ·
@@ -34,7 +34,7 @@
 
 | | |
 |---|---|
-| **Editing** | Multi-tab open / save / save-as / close, dirty-file prompts, line numbers |
+| **Editing** | Multi-tab open / save / save-as / close, dirty-file prompts, line numbers, multi-line indent |
 | **Navigation** | Folder sidebar (⌘B), go-to-line, command palette (⌘⇧P) |
 | **Search** | Find & replace with next / previous match |
 | **Appearance** | Themes: **Ink** · **Black** · **Paper** · **Snow** |
@@ -45,12 +45,12 @@ Built with native **AppKit** — no Electron. Ships as a **Universal Binary** (`
 
 ## Install
 
-1. Download [`MacText-1.0.4.dmg`](https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg)
+1. Download [`MacText-1.0.5.dmg`](https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg)
 2. Drag **MacText** into **Applications**
 3. If Gatekeeper blocks: **System Settings → Privacy & Security → Open Anyway**
 
 ```text
-SHA-256  0f6ffbd4210be6db207fd41dfcd52c625e132122a68708a25d3b3a24dd1fc876
+SHA-256  c21f0ed5a783861b3e23089145e1012ef6951f5f4297a1dd925b7811836a33a4
 ```
 
 ## Shortcuts
@@ -62,6 +62,7 @@ SHA-256  0f6ffbd4210be6db207fd41dfcd52c625e132122a68708a25d3b3a24dd1fc876
 | Open Folder | ⌘⇧O | Command Palette | ⌘⇧P |
 | Save | ⌘S | Go to Line | ⌘⌥G |
 | Close Tab | ⌘W | Toggle Sidebar | ⌘B |
+| Indent | Tab / ⌘] | Unindent | ⇧Tab / ⌘[ |
 
 Theme cycle: **⌘⌥T** · Settings: **⌘,**
 

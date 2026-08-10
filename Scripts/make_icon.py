@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Build a complete macOS AppIcon.icns for MacText.
 
-Avoids shell/@2x filename corruption and produces a Dock-ready squircle icon
-with transparent corners (matches system masking even without Asset Catalog).
+Avoids shell/@2x filename corruption. Ships a FULL-BLEED opaque square —
+do not pre-mask a squircle. Dock/Finder apply Apple's mask once; pre-masking
+plus system masking makes the tile look smaller than other apps.
 """
 from __future__ import annotations
 
@@ -66,54 +67,15 @@ def run(cmd: list[str]) -> None:
 
 
 def render_master(src: Path, out: Path, size: int = 1024) -> None:
-    """Composite flat art into a transparent-corner squircle at exact pixel size."""
-    import AppKit
-
-    source = AppKit.NSImage.alloc().initWithContentsOfFile_(str(src))
-    if source is None or not source.isValid():
-        raise SystemExit(f"Cannot load source icon: {src}")
-
-    # Draw into a 1x bitmap so Retina lockFocus does not produce 2x canvases
-    rep = AppKit.NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
-        None,
-        size,
-        size,
-        8,
-        4,
-        True,
-        False,
-        AppKit.NSCalibratedRGBColorSpace,
-        0,
-        0,
-    )
-    AppKit.NSGraphicsContext.saveGraphicsState()
-    ctx = AppKit.NSGraphicsContext.graphicsContextWithBitmapImageRep_(rep)
-    AppKit.NSGraphicsContext.setCurrentContext_(ctx)
-    ctx.setImageInterpolation_(AppKit.NSImageInterpolationHigh)
-
-    AppKit.NSColor.clearColor().set()
-    AppKit.NSRectFill(AppKit.NSMakeRect(0, 0, size, size))
-
-    radius = size * 0.2237
-    path = AppKit.NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
-        AppKit.NSMakeRect(0, 0, size, size), radius, radius
-    )
-    path.addClip()
-    source.drawInRect_fromRect_operation_fraction_(
-        AppKit.NSMakeRect(0, 0, size, size),
-        AppKit.NSZeroRect,
-        AppKit.NSCompositingOperationSourceOver,
-        1.0,
-    )
-    AppKit.NSGraphicsContext.restoreGraphicsState()
-
-    png = bytes(rep.representationUsingType_properties_(AppKit.NSBitmapImageFileTypePNG, None))
-    # Guard against accidental Retina 2x PNG headers
-    w, h = struct.unpack(">II", png[16:24])
+    """Scale source to a full-bleed opaque square. System applies the squircle."""
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(png)
+    run(["sips", "-s", "format", "png", "-z", str(size), str(size), str(src), "--out", str(out)])
+    data = out.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise SystemExit(f"Master is not PNG: {out}")
+    w, h = struct.unpack(">II", data[16:24])
     if (w, h) != (size, size):
-        run(["sips", "-z", str(size), str(size), str(out), "--out", str(out)])
+        raise SystemExit(f"Master size mismatch: {w}x{h} != {size}x{size}")
 
 
 def write_icns(iconset: Path, dest: Path) -> list[str]:
@@ -145,13 +107,8 @@ def main() -> int:
     RES.mkdir(parents=True, exist_ok=True)
     master = RES / "MacTextIcon.png"
 
-    # Render squircle-masked master
-    try:
-        render_master(src, master, 1024)
-        print("    master: squircle + transparent corners")
-    except Exception as exc:  # noqa: BLE001
-        print(f"    AppKit render failed ({exc}); falling back to flat copy")
-        run(["sips", "-s", "format", "png", "-z", "1024", "1024", str(src), "--out", str(master)])
+    render_master(src, master, 1024)
+    print("    master: full-bleed square (system masks Dock/Finder)")
 
     with tempfile.TemporaryDirectory(prefix="mactext-icon-") as tmp:
         tmp_path = Path(tmp)
