@@ -3,783 +3,644 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>MacText — Native macOS Text Editor | Sublime-like Speed</title>
-  <meta name="description" id="meta-desc" content="MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find &amp; replace, command palette, syntax highlight, and session restore. Universal Binary for Apple Silicon &amp; Intel." />
-  <meta name="keywords" content="MacText, macOS text editor, native editor, AppKit, Sublime Text alternative, 原生文本编辑器, Mac 编辑器" />
-  <meta name="author" content="linux503" />
+  <meta name="description" id="meta-desc" content="MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find &amp; replace, command palette, syntax highlight, and session restore." />
+  <meta name="keywords" content="MacText, macOS text editor, AppKit, Sublime alternative, 原生编辑器" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://linux503.github.io/MacText/" />
   <link rel="alternate" hreflang="en" href="https://linux503.github.io/MacText/?lang=en" />
   <link rel="alternate" hreflang="zh-CN" href="https://linux503.github.io/MacText/?lang=zh" />
   <link rel="alternate" hreflang="x-default" href="https://linux503.github.io/MacText/" />
-
   <meta property="og:type" content="website" />
   <meta property="og:title" id="og-title" content="MacText — Native macOS Text Editor" />
   <meta property="og:description" id="og-desc" content="Sublime-like core. Native AppKit. Universal Binary." />
   <meta property="og:url" content="https://linux503.github.io/MacText/" />
   <meta property="og:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
-  <meta property="og:site_name" content="MacText" />
-  <meta property="og:locale" content="en_US" />
-  <meta property="og:locale:alternate" content="zh_CN" />
-
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MacText — Native macOS Text Editor" />
-  <meta name="twitter:description" content="Native AppKit editor with tabs, sidebar, find/replace, command palette, and syntax highlight." />
-  <meta name="twitter:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
-
-  <link rel="icon" type="image/png" href="assets/icon-256.png" />
-  <link rel="apple-touch-icon" href="assets/icon-256.png" />
-
+  <link rel="icon" href="assets/icon-256.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0c0a;
-      --bg-2: #12140f;
-      --panel: #161812;
-      --fog: #f4f4ee;
-      --muted: rgba(244, 244, 238, 0.58);
-      --muted-2: rgba(244, 244, 238, 0.38);
-      --lime: #a6e22e;
-      --lime-soft: rgba(166, 226, 46, 0.14);
-      --amber: #fd971f;
-      --line: rgba(244, 244, 238, 0.09);
-      --line-strong: rgba(244, 244, 238, 0.16);
-      --max: 1080px;
-      --ease: cubic-bezier(0.22, 1, 0.36, 1);
-      --radius: 18px;
+      --void: #070806;
+      --bg: #0c0d0a;
+      --elev: #12140f;
+      --elev-2: #181b14;
+      --fog: #f3f3ec;
+      --mute: rgba(243, 243, 236, 0.58);
+      --faint: rgba(243, 243, 236, 0.34);
+      --lime: #b4e833;
+      --lime-dim: rgba(180, 232, 51, 0.12);
+      --amber: #f0a020;
+      --hair: rgba(243, 243, 236, 0.08);
+      --hair-2: rgba(243, 243, 236, 0.14);
+      --max: 1120px;
+      --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --font: "Instrument Sans", "Noto Sans SC", "PingFang SC", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: "Instrument Sans", "Noto Sans SC", "PingFang SC", "Helvetica Neue", sans-serif;
-      background: var(--bg);
+      font-family: var(--font);
+      background: var(--void);
       color: var(--fog);
       line-height: 1.55;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
-    html[lang="zh"] body { letter-spacing: 0.01em; }
     a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
-    button {
-      font: inherit;
-      color: inherit;
-      background: none;
-      border: 0;
-      cursor: pointer;
-    }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    img { display: block; max-width: 100%; }
 
-    .atmosphere {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    .fx {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse 70% 45% at 78% -8%, rgba(166, 226, 46, 0.16), transparent 55%),
-        radial-gradient(ellipse 45% 35% at 8% 18%, rgba(253, 151, 31, 0.07), transparent 50%),
-        radial-gradient(ellipse 55% 40% at 50% 110%, rgba(166, 226, 46, 0.05), transparent 55%),
-        linear-gradient(180deg, #080907 0%, var(--bg) 38%, #0d0f0b 100%);
+        radial-gradient(ellipse 60% 40% at 85% 0%, rgba(180,232,51,0.11), transparent 55%),
+        radial-gradient(ellipse 40% 30% at 5% 30%, rgba(240,160,32,0.06), transparent 50%),
+        linear-gradient(180deg, #050605 0%, var(--bg) 45%, #080907 100%);
     }
-    .atmosphere::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      opacity: 0.04;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    .fx::after {
+      content: ""; position: absolute; inset: 0; opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    /* subtle grid */
+    .fx::before {
+      content: ""; position: absolute; inset: 0; opacity: 0.35;
+      background-image:
+        linear-gradient(var(--hair) 1px, transparent 1px),
+        linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, #000 20%, transparent 75%);
     }
 
-    .shell {
-      position: relative;
-      z-index: 1;
+    .wrap {
+      position: relative; z-index: 1;
       width: min(100% - 2rem, var(--max));
       margin-inline: auto;
     }
 
-    /* Nav */
+    /* —— Nav —— */
     .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.35rem 0 0.5rem;
-      animation: rise 0.7s var(--ease) both;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 0 0.4rem;
+      animation: in 0.7s var(--ease) both;
     }
     .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.7rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      font-size: 1.02rem;
+      display: inline-flex; align-items: center; gap: 0.65rem;
+      font-weight: 700; letter-spacing: -0.03em;
     }
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-    }
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-    }
+    .brand img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-end { display: flex; align-items: center; gap: 0.75rem; }
     .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.35rem;
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 500;
+      display: flex; gap: 1.4rem; color: var(--mute); font-size: 0.88rem; font-weight: 500;
     }
     .nav-links a:hover { color: var(--fog); }
-    .lang-switch {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.2rem;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      background: rgba(244, 244, 238, 0.03);
+    .lang {
+      display: inline-flex; padding: 3px;
+      border: 1px solid var(--hair-2); border-radius: 999px;
+      background: rgba(243,243,236,0.03);
     }
-    .lang-switch button {
-      min-width: 2.4rem;
-      padding: 0.35rem 0.55rem;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      transition: background 0.2s, color 0.2s;
+    .lang button {
+      min-width: 2.3rem; padding: 0.32rem 0.5rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 650; letter-spacing: 0.04em; color: var(--faint);
     }
-    .lang-switch button[aria-pressed="true"] {
-      background: var(--lime);
-      color: #10120c;
-    }
-    .nav-cta {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.5rem 0.95rem;
-      border-radius: 999px;
-      background: var(--lime);
-      color: #10120c;
-      font-weight: 650;
-      font-size: 0.88rem;
-      transition: transform 0.25s var(--ease), background 0.2s;
-    }
-    .nav-cta:hover { background: #b7ef42; transform: translateY(-1px); }
-
-    /* Hero */
-    .hero {
-      padding: 3.2rem 0 1.5rem;
-      min-height: calc(100svh - 4.5rem);
-      display: grid;
-      align-content: center;
-      gap: 2.75rem;
-    }
-    .hero-copy {
-      max-width: 36rem;
-      animation: rise 0.85s var(--ease) 0.05s both;
-    }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      margin-bottom: 1.15rem;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--amber);
-    }
-    .eyebrow::before {
-      content: "";
-      width: 1.4rem;
-      height: 1px;
-      background: var(--amber);
-    }
-    .hero-brand {
-      font-size: clamp(3.6rem, 10vw, 5.8rem);
-      font-weight: 700;
-      letter-spacing: -0.06em;
-      line-height: 0.92;
-      margin-bottom: 0.35rem;
-    }
-    .hero-brand .m { color: var(--lime); }
-    .hero-rule {
-      width: 3.8rem;
-      height: 0.26rem;
-      margin: 0.9rem 0 1.25rem;
-      border-radius: 2px;
-      background: var(--amber);
-      transform-origin: left center;
-      animation: grow 0.9s var(--ease) 0.28s both;
-    }
-    .hero h1 {
-      font-size: clamp(1.12rem, 2.3vw, 1.38rem);
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: -0.02em;
-      max-width: 28rem;
-      margin-bottom: 1.7rem;
-    }
-    html[lang="zh"] .hero h1 {
-      letter-spacing: 0.01em;
-      font-weight: 500;
-    }
-    .cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem;
-      align-items: center;
-    }
+    .lang button[aria-pressed="true"] { background: var(--lime); color: #0c0e08; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      min-height: 2.85rem;
-      padding: 0.75rem 1.3rem;
-      border-radius: 999px;
-      font-weight: 650;
-      font-size: 0.95rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 2.7rem; padding: 0.65rem 1.2rem; border-radius: 999px;
+      font-weight: 650; font-size: 0.9rem;
       transition: transform 0.25s var(--ease), background 0.2s, border-color 0.2s;
     }
-    .btn-primary {
-      background: var(--lime);
-      color: #10120c;
+    .btn-solid { background: var(--lime); color: #0c0e08; }
+    .btn-solid:hover { background: #c5f24a; transform: translateY(-1px); }
+    .btn-line {
+      border: 1px solid var(--hair-2); background: rgba(243,243,236,0.03);
     }
-    .btn-primary:hover { background: #b7ef42; transform: translateY(-2px); }
-    .btn-ghost {
-      border: 1px solid var(--line-strong);
-      background: rgba(244, 244, 238, 0.03);
+    .btn-line:hover { border-color: rgba(243,243,236,0.3); transform: translateY(-1px); }
+    .btn-sm { min-height: 2.2rem; padding: 0.4rem 0.9rem; font-size: 0.84rem; }
+
+    /* —— Hero —— */
+    .hero {
+      display: grid; gap: 3rem; padding: 3rem 0 2rem;
+      min-height: calc(100svh - 5rem); align-content: center;
     }
-    .btn-ghost:hover {
-      border-color: rgba(244, 244, 238, 0.3);
-      transform: translateY(-2px);
+    .hero-top {
+      display: grid; gap: 2rem;
+      grid-template-columns: 1.05fr 0.95fr; align-items: end;
     }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--amber); margin-bottom: 1rem;
+    }
+    .eyebrow i { width: 1.25rem; height: 1px; background: var(--amber); display: block; }
+    .logo-word {
+      font-size: clamp(3.8rem, 9vw, 5.5rem); font-weight: 700;
+      letter-spacing: -0.055em; line-height: 0.92; margin-bottom: 0.85rem;
+    }
+    .logo-word em { font-style: normal; color: var(--lime); }
+    .rule {
+      width: 3.5rem; height: 3px; background: var(--amber); border-radius: 2px;
+      margin-bottom: 1.2rem; transform-origin: left; animation: grow 0.9s var(--ease) 0.25s both;
+    }
+    .hero h1 {
+      font-size: clamp(1.05rem, 2vw, 1.28rem); font-weight: 500;
+      color: var(--mute); max-width: 26rem; letter-spacing: -0.015em; margin-bottom: 1.5rem;
+    }
+    html[lang="zh"] .hero h1 { letter-spacing: 0.01em; }
+    .cta { display: flex; flex-wrap: wrap; gap: 0.65rem; }
     .meta {
-      margin-top: 1.05rem;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.72rem;
-      color: var(--muted-2);
-      letter-spacing: 0.02em;
+      margin-top: 1rem; font-family: var(--mono); font-size: 0.7rem; color: var(--faint);
+    }
+    .hero-aside {
+      border-left: 1px solid var(--hair-2); padding-left: 1.75rem;
+      display: grid; gap: 1.1rem; align-content: end;
+      animation: in 0.8s var(--ease) 0.1s both;
+    }
+    .stat strong {
+      display: block; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.03em;
+    }
+    .stat span { color: var(--mute); font-size: 0.86rem; }
+
+    /* —— Showcase (3D deck) —— */
+    .showcase {
+      position: relative;
+      min-height: clamp(280px, 48vw, 480px);
+      perspective: 1800px;
+      animation: in 1s var(--ease) 0.15s both;
+    }
+    .deck {
+      position: relative; width: 100%; height: 100%;
+      min-height: inherit;
+      transform-style: preserve-3d;
+    }
+    .card {
+      position: absolute; inset: 0;
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--hair-2);
+      background: var(--elev);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.55);
+      transition: transform 0.7s var(--ease), opacity 0.5s, filter 0.5s, z-index 0s 0.2s;
+      cursor: pointer;
+      will-change: transform;
+    }
+    .card img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+    .card::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.45));
+      pointer-events: none; opacity: 0; transition: opacity 0.4s;
+    }
+    .card .cap {
+      position: absolute; left: 1.1rem; bottom: 1rem; right: 1.1rem; z-index: 2;
+      display: flex; justify-content: space-between; align-items: baseline;
+      opacity: 0; transform: translateY(8px); transition: 0.4s var(--ease);
+      font-size: 0.82rem; font-weight: 600;
+    }
+    .card .cap span:last-child {
+      font-family: var(--mono); font-size: 0.68rem; color: var(--lime); font-weight: 500;
     }
 
-    .hero-visual {
-      position: relative;
-      animation: rise 1s var(--ease) 0.14s both;
+    /* positions by data-pos */
+    .card[data-pos="0"] {
+      z-index: 3; opacity: 1; filter: none;
+      transform: translate3d(0, 0, 0) rotateY(0deg) scale(1);
     }
-    .hero-visual::before {
-      content: "";
-      position: absolute;
-      inset: 12% 8% auto;
-      height: 55%;
-      background: radial-gradient(ellipse at center, rgba(166, 226, 46, 0.2), transparent 70%);
-      filter: blur(36px);
-      z-index: 0;
-      pointer-events: none;
-    }
-    .frame {
-      position: relative;
-      z-index: 1;
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 1px solid var(--line-strong);
-      background: var(--panel);
-      box-shadow:
-        0 50px 100px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(166, 226, 46, 0.05);
-      transform: perspective(1400px) rotateX(1.5deg);
-      transition: transform 0.7s var(--ease);
-    }
-    .frame:hover { transform: perspective(1400px) rotateX(0) translateY(-5px); }
-    .frame img { width: 100%; }
+    .card[data-pos="0"]::after { opacity: 1; }
+    .card[data-pos="0"] .cap { opacity: 1; transform: none; }
 
-    /* Sections */
-    section {
-      padding: 5rem 0;
-      border-top: 1px solid var(--line);
+    .card[data-pos="1"] {
+      z-index: 2; opacity: 0.92; filter: brightness(0.75);
+      transform: translate3d(12%, -4%, -80px) rotateY(-12deg) scale(0.9);
     }
+    .card[data-pos="2"] {
+      z-index: 1; opacity: 0.75; filter: brightness(0.55);
+      transform: translate3d(-12%, 5%, -160px) rotateY(14deg) scale(0.82);
+    }
+
+    .stage-glow {
+      position: absolute; left: 15%; right: 15%; top: 20%; height: 50%;
+      background: radial-gradient(ellipse at center, rgba(180,232,51,0.18), transparent 70%);
+      filter: blur(40px); z-index: 0; pointer-events: none;
+    }
+
+    .dots {
+      display: flex; justify-content: center; gap: 0.45rem; margin-top: 1.4rem;
+    }
+    .dots button {
+      width: 1.6rem; height: 3px; border-radius: 2px; background: var(--hair-2);
+      transition: background 0.25s, width 0.25s;
+    }
+    .dots button[aria-current="true"] { background: var(--lime); width: 2.2rem; }
+
+    .rail {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 1.25rem;
+    }
+    .rail button {
+      text-align: left; padding: 0.85rem 1rem;
+      border: 1px solid var(--hair); border-radius: 12px;
+      background: rgba(243,243,236,0.02);
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .rail button[aria-current="true"] {
+      border-color: rgba(180,232,51,0.45); background: var(--lime-dim);
+    }
+    .rail .n {
+      font-family: var(--mono); font-size: 0.65rem; color: var(--lime); display: block; margin-bottom: 0.25rem;
+    }
+    .rail .t { font-size: 0.88rem; font-weight: 600; letter-spacing: -0.02em; }
+    .rail .d { font-size: 0.78rem; color: var(--mute); margin-top: 0.2rem; }
+
+    /* —— Sections —— */
+    section { padding: 5rem 0; border-top: 1px solid var(--hair); }
     .kicker {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 0.8rem;
+      font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--amber); margin-bottom: 0.75rem;
     }
-    .section-title {
-      font-size: clamp(1.7rem, 3.8vw, 2.45rem);
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 1.15;
-      margin-bottom: 0.7rem;
-      max-width: 16ch;
+    .h2 {
+      font-size: clamp(1.65rem, 3.5vw, 2.35rem); font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1.12; margin-bottom: 0.65rem; max-width: 14ch;
     }
-    html[lang="zh"] .section-title {
-      letter-spacing: -0.01em;
-      max-width: 12em;
-    }
-    .section-lead {
-      color: var(--muted);
-      max-width: 34rem;
-      margin-bottom: 2.4rem;
-      font-size: 1.02rem;
-    }
+    html[lang="zh"] .h2 { letter-spacing: -0.01em; max-width: 12em; }
+    .lead { color: var(--mute); max-width: 34rem; margin-bottom: 2.2rem; font-size: 1rem; }
 
-    .specs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--line);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
+    .matrix {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0; border: 1px solid var(--hair); border-radius: 14px; overflow: hidden;
     }
-    .spec {
-      background: rgba(18, 20, 15, 0.92);
-      padding: 1.45rem 1.35rem;
+    .cell {
+      padding: 1.4rem 1.3rem; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+      background: var(--elev);
       transition: background 0.25s;
     }
-    .spec:hover { background: #171a13; }
-    .spec strong {
-      display: block;
-      font-size: 0.98rem;
-      font-weight: 650;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
+    .cell:nth-child(3n) { border-right: 0; }
+    .cell:nth-child(n+4) { border-bottom: 0; }
+    .cell:hover { background: var(--elev-2); }
+    .cell b {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.95rem; font-weight: 650; letter-spacing: -0.02em; margin-bottom: 0.4rem;
     }
-    .spec p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
+    .cell b::before {
+      content: ""; width: 6px; height: 6px; background: var(--lime); border-radius: 1px; flex: none;
     }
-    .spec .mark {
-      width: 0.4rem;
-      height: 0.4rem;
-      background: var(--lime);
-      display: inline-block;
-      margin-right: 0.45rem;
-      vertical-align: 0.15em;
-      border-radius: 1px;
-    }
+    .cell p { color: var(--mute); font-size: 0.86rem; padding-left: 0.9rem; }
 
-    .split {
-      display: grid;
-      gap: 2rem;
-      align-items: end;
+    .two {
+      display: grid; gap: 2.5rem;
+      grid-template-columns: 1fr 1fr; align-items: start;
     }
-    @media (min-width: 860px) {
-      .split {
-        grid-template-columns: 0.9fr 1.1fr;
-        gap: 3rem;
-      }
+    .themes { display: grid; gap: 0.55rem; margin-top: 0.5rem; }
+    .theme {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; border: 1px solid var(--hair); border-radius: 10px;
+      background: rgba(243,243,236,0.02);
     }
-    .theme-list {
-      display: grid;
-      gap: 0.7rem;
-      margin-top: 1.5rem;
-    }
-    .theme-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: rgba(244, 244, 238, 0.02);
-    }
-    .theme-item span:first-child { font-weight: 600; }
-    .theme-item span:last-child {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-    .swatches {
-      display: flex;
-      gap: 0.35rem;
-    }
-    .swatch {
-      width: 0.7rem;
-      height: 0.7rem;
-      border-radius: 2px;
-    }
+    .theme strong { font-weight: 650; }
+    .theme em { font-style: normal; font-family: var(--mono); font-size: 0.7rem; color: var(--faint); }
+    .sw { display: flex; gap: 4px; }
+    .sw i { width: 10px; height: 10px; border-radius: 2px; display: block; }
 
-    .keys {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.15rem 2rem;
-    }
+    .keys { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
     .keys div {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.78rem 0;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 0.92rem;
+      display: flex; justify-content: space-between; padding: 0.72rem 0;
+      border-bottom: 1px solid var(--hair); color: var(--mute); font-size: 0.9rem;
     }
-    .keys kbd {
-      font-family: "JetBrains Mono", monospace;
-      color: var(--lime);
-      font-size: 0.82rem;
-      font-weight: 500;
-    }
+    .keys kbd { font-family: var(--mono); color: var(--lime); font-size: 0.8rem; }
 
-    .download {
-      padding-bottom: 4.5rem;
-    }
-    .download .section-title { max-width: none; }
-
+    .dl .h2 { max-width: none; }
     footer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1.8rem 0 2.8rem;
-      border-top: 1px solid var(--line);
-      color: var(--muted-2);
-      font-size: 0.85rem;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+      padding: 1.6rem 0 2.6rem; border-top: 1px solid var(--hair);
+      color: var(--faint); font-size: 0.82rem;
     }
     footer a:hover { color: var(--lime); }
 
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes in {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: none; }
     }
     @keyframes grow {
       from { transform: scaleX(0); opacity: 0; }
-      to { transform: scaleX(1); opacity: 1; }
+      to { transform: none; opacity: 1; }
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 900px) {
+      .hero-top, .two { grid-template-columns: 1fr; }
+      .hero-aside { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); padding-top: 1.25rem; grid-template-columns: repeat(3, 1fr); }
+      .matrix { grid-template-columns: 1fr; }
+      .cell { border-right: 0; }
+      .cell:nth-child(n+4) { border-bottom: 1px solid var(--hair); }
+      .cell:last-child { border-bottom: 0; }
       .nav-links { display: none; }
-      .specs { grid-template-columns: 1fr; }
+      .card[data-pos="1"] { transform: translate3d(8%, -2%, -40px) rotateY(-8deg) scale(0.92); }
+      .card[data-pos="2"] { transform: translate3d(-8%, 3%, -80px) rotateY(10deg) scale(0.86); }
+    }
+    @media (max-width: 600px) {
+      .rail { grid-template-columns: 1fr; }
       .keys { grid-template-columns: 1fr; }
-      .hero { min-height: auto; padding-top: 2rem; }
-      .frame { transform: none; }
+      .hero-aside { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
     }
   </style>
 </head>
 <body>
-  <div class="atmosphere" aria-hidden="true"></div>
-
-  <div class="shell">
-    <nav class="nav" aria-label="Primary">
+  <div class="fx" aria-hidden="true"></div>
+  <div class="wrap">
+    <nav class="nav">
       <a class="brand" href="./">
-        <img src="assets/icon-256.png" width="34" height="34" alt="" />
+        <img src="assets/icon-256.png" width="32" height="32" alt="" />
         MacText
       </a>
-      <div class="nav-right">
+      <div class="nav-end">
         <div class="nav-links">
+          <a href="#showcase" data-i18n="nav.shots">Showcase</a>
           <a href="#features" data-i18n="nav.features">Features</a>
-          <a href="#themes" data-i18n="nav.themes">Themes</a>
           <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
-        <div class="lang-switch" role="group" aria-label="Language">
+        <div class="lang" role="group" aria-label="Language">
           <button type="button" data-lang="en" aria-pressed="true">EN</button>
           <button type="button" data-lang="zh" aria-pressed="false">中文</button>
         </div>
-        <a class="nav-cta" href="https://github.com/linux503/MacText/releases/latest" data-i18n="nav.download">Download</a>
+        <a class="btn btn-solid btn-sm" href="https://github.com/linux503/MacText/releases/latest" data-i18n="nav.dl">Download</a>
       </div>
     </nav>
 
     <header class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow" data-i18n="hero.eyebrow">Native · AppKit · Universal</p>
-        <p class="hero-brand" aria-label="MacText"><span class="m">Mac</span>Text</p>
-        <div class="hero-rule" aria-hidden="true"></div>
-        <h1 data-i18n="hero.headline">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg" data-i18n="hero.cta">Download DMG</a>
-          <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.secondary">View source</a>
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow"><i></i><span data-i18n="hero.eye">Native · AppKit · Universal</span></p>
+          <p class="logo-word"><em>Mac</em>Text</p>
+          <div class="rule" aria-hidden="true"></div>
+          <h1 data-i18n="hero.h1">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
+          <div class="cta">
+            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg" data-i18n="hero.cta">Download DMG</a>
+            <a class="btn btn-line" href="https://github.com/linux503/MacText" data-i18n="hero.src">View source</a>
+          </div>
+          <p class="meta">v1.0.3 · macOS 14+ · arm64 + x86_64</p>
         </div>
-        <p class="meta" data-i18n="hero.meta">v1.0.3 · macOS 14+ · arm64 + x86_64</p>
+        <aside class="hero-aside" aria-label="Highlights">
+          <div class="stat"><strong>AppKit</strong><span data-i18n="stat.1">Native runtime</span></div>
+          <div class="stat"><strong>Universal</strong><span data-i18n="stat.2">Apple Silicon &amp; Intel</span></div>
+          <div class="stat"><strong>1A</strong><span data-i18n="stat.3">Core editor workflow</span></div>
+        </aside>
       </div>
-      <div class="hero-visual">
-        <div class="frame">
-          <img
-            src="screenshots/editor-ink.png"
-            width="1440"
-            height="900"
-            alt="MacText editor with Ink theme"
-            data-i18n-alt="hero.imageAlt"
-            fetchpriority="high"
-          />
+
+      <div id="showcase" class="showcase" aria-roledescription="carousel">
+        <div class="stage-glow" aria-hidden="true"></div>
+        <div class="deck" id="deck">
+          <figure class="card" data-index="0" data-pos="0" tabindex="0" role="group" aria-roledescription="slide">
+            <img src="screenshots/editor-ink.png" alt="" data-i18n-alt="shot1.alt" />
+            <figcaption class="cap"><span data-i18n="shot1.t">Editor</span><span>01</span></figcaption>
+          </figure>
+          <figure class="card" data-index="1" data-pos="1" tabindex="0" role="group" aria-roledescription="slide">
+            <img src="screenshots/command-palette.png" alt="" data-i18n-alt="shot2.alt" />
+            <figcaption class="cap"><span data-i18n="shot2.t">Command Palette</span><span>02</span></figcaption>
+          </figure>
+          <figure class="card" data-index="2" data-pos="2" tabindex="0" role="group" aria-roledescription="slide">
+            <img src="screenshots/editor-find.png" alt="" data-i18n-alt="shot3.alt" />
+            <figcaption class="cap"><span data-i18n="shot3.t">Find &amp; Replace</span><span>03</span></figcaption>
+          </figure>
+        </div>
+        <div class="dots" id="dots" role="tablist" aria-label="Screenshots"></div>
+        <div class="rail" id="rail" role="tablist">
+          <button type="button" data-go="0" aria-current="true">
+            <span class="n">01</span>
+            <span class="t" data-i18n="shot1.t">Editor</span>
+            <span class="d" data-i18n="shot1.d">Ink theme · sidebar · tabs</span>
+          </button>
+          <button type="button" data-go="1">
+            <span class="n">02</span>
+            <span class="t" data-i18n="shot2.t">Command Palette</span>
+            <span class="d" data-i18n="shot2.d">⌘⇧P · themes · actions</span>
+          </button>
+          <button type="button" data-go="2">
+            <span class="n">03</span>
+            <span class="t" data-i18n="shot3.t">Find &amp; Replace</span>
+            <span class="d" data-i18n="shot3.d">Inline search · matches</span>
+          </button>
         </div>
       </div>
     </header>
 
     <section id="features">
-      <p class="kicker" data-i18n="features.kicker">Capabilities</p>
-      <h2 class="section-title" data-i18n="features.title">Essential, not excessive</h2>
-      <p class="section-lead" data-i18n="features.lead">The core workflow you use every day — tabs, project tree, search, palette — tuned for native feel and instant launch.</p>
-      <div class="specs">
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f1t">Multi-tab editing</span></strong>
-          <p data-i18n="features.f1d">Open, save, save-as, close with dirty prompts. Middle-click to dismiss a tab.</p>
-        </article>
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f2t">Project sidebar</span></strong>
-          <p data-i18n="features.f2d">Browse a folder tree. Hide fully with ⌘B — no leftover gutter strip.</p>
-        </article>
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f3t">Find &amp; replace</span></strong>
-          <p data-i18n="features.f3d">Inline find bar, next/previous match, Esc to close without friction.</p>
-        </article>
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f4t">Command palette</span></strong>
-          <p data-i18n="features.f4d">⌘⇧P for themes, go-to-line, sidebar, and everyday actions.</p>
-        </article>
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f5t">Syntax highlight</span></strong>
-          <p data-i18n="features.f5d">Swift, Python, JS/TS, JSON, Markdown — colors matched to Ink.</p>
-        </article>
-        <article class="spec">
-          <strong><span class="mark"></span><span data-i18n="features.f6t">Session restore</span></strong>
-          <p data-i18n="features.f6d">Tabs, unsaved text, caret, folder, theme, and window frame return intact.</p>
-        </article>
+      <p class="kicker" data-i18n="f.k">Capabilities</p>
+      <h2 class="h2" data-i18n="f.title">Essential, not excessive</h2>
+      <p class="lead" data-i18n="f.lead">Daily workflow — tabs, project tree, search, palette — tuned for native feel and instant launch.</p>
+      <div class="matrix">
+        <article class="cell"><b data-i18n="f1t">Multi-tab editing</b><p data-i18n="f1d">Open, save, save-as, close with dirty prompts. Middle-click to dismiss.</p></article>
+        <article class="cell"><b data-i18n="f2t">Project sidebar</b><p data-i18n="f2d">Browse a folder tree. Hide fully with ⌘B — no leftover gutter.</p></article>
+        <article class="cell"><b data-i18n="f3t">Find &amp; replace</b><p data-i18n="f3d">Inline find bar, next/previous match, Esc to close.</p></article>
+        <article class="cell"><b data-i18n="f4t">Command palette</b><p data-i18n="f4d">⌘⇧P for themes, go-to-line, sidebar, and actions.</p></article>
+        <article class="cell"><b data-i18n="f5t">Syntax highlight</b><p data-i18n="f5d">Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.</p></article>
+        <article class="cell"><b data-i18n="f6t">Session restore</b><p data-i18n="f6d">Tabs, unsaved text, caret, folder, theme, window frame.</p></article>
       </div>
     </section>
 
-    <section id="themes">
-      <div class="split">
+    <section id="more">
+      <div class="two">
         <div>
-          <p class="kicker" data-i18n="themes.kicker">Appearance</p>
-          <h2 class="section-title" data-i18n="themes.title">Four calibrated themes</h2>
-          <p class="section-lead" data-i18n="themes.lead">Ink is the signature look — charcoal field, lime accents, amber caret — aligned with the Dock icon.</p>
-          <div class="theme-list">
-            <div class="theme-item">
-              <span>Ink</span>
-              <span class="swatches" aria-hidden="true">
-                <i class="swatch" style="background:#1a1b18"></i>
-                <i class="swatch" style="background:#a6e22e"></i>
-                <i class="swatch" style="background:#fd971f"></i>
-              </span>
-            </div>
-            <div class="theme-item">
-              <span>Black</span>
-              <span data-i18n="themes.black">Pure OLED black</span>
-            </div>
-            <div class="theme-item">
-              <span>Paper</span>
-              <span data-i18n="themes.paper">Warm light</span>
-            </div>
-            <div class="theme-item">
-              <span>Snow</span>
-              <span data-i18n="themes.snow">Cool light</span>
-            </div>
+          <p class="kicker" data-i18n="th.k">Appearance</p>
+          <h2 class="h2" data-i18n="th.title">Four calibrated themes</h2>
+          <p class="lead" data-i18n="th.lead">Ink is the signature — charcoal, lime, amber — aligned with the Dock icon.</p>
+          <div class="themes">
+            <div class="theme"><strong>Ink</strong><span class="sw" aria-hidden="true"><i style="background:#1a1b18"></i><i style="background:#a6e22e"></i><i style="background:#fd971f"></i></span></div>
+            <div class="theme"><strong>Black</strong><em data-i18n="th.black">Pure OLED</em></div>
+            <div class="theme"><strong>Paper</strong><em data-i18n="th.paper">Warm light</em></div>
+            <div class="theme"><strong>Snow</strong><em data-i18n="th.snow">Cool light</em></div>
           </div>
         </div>
         <div>
-          <p class="kicker" data-i18n="keys.kicker">Keyboard</p>
-          <h2 class="section-title" data-i18n="keys.title">Muscle memory intact</h2>
-          <p class="section-lead" data-i18n="keys.lead">Familiar shortcuts for anyone coming from Sublime Text.</p>
+          <p class="kicker" data-i18n="k.k">Keyboard</p>
+          <h2 class="h2" data-i18n="k.title">Muscle memory intact</h2>
+          <p class="lead" data-i18n="k.lead">Familiar shortcuts if you know Sublime Text.</p>
           <div class="keys">
-            <div><span data-i18n="keys.new">New</span><kbd>⌘N</kbd></div>
-            <div><span data-i18n="keys.open">Open</span><kbd>⌘O</kbd></div>
-            <div><span data-i18n="keys.folder">Open Folder</span><kbd>⌘⇧O</kbd></div>
-            <div><span data-i18n="keys.save">Save</span><kbd>⌘S</kbd></div>
-            <div><span data-i18n="keys.find">Find</span><kbd>⌘F</kbd></div>
-            <div><span data-i18n="keys.palette">Command Palette</span><kbd>⌘⇧P</kbd></div>
-            <div><span data-i18n="keys.sidebar">Sidebar</span><kbd>⌘B</kbd></div>
-            <div><span data-i18n="keys.theme">Theme</span><kbd>⌘⌥T</kbd></div>
+            <div><span data-i18n="k.new">New</span><kbd>⌘N</kbd></div>
+            <div><span data-i18n="k.open">Open</span><kbd>⌘O</kbd></div>
+            <div><span data-i18n="k.folder">Open Folder</span><kbd>⌘⇧O</kbd></div>
+            <div><span data-i18n="k.save">Save</span><kbd>⌘S</kbd></div>
+            <div><span data-i18n="k.find">Find</span><kbd>⌘F</kbd></div>
+            <div><span data-i18n="k.pal">Palette</span><kbd>⌘⇧P</kbd></div>
+            <div><span data-i18n="k.side">Sidebar</span><kbd>⌘B</kbd></div>
+            <div><span data-i18n="k.theme">Theme</span><kbd>⌘⌥T</kbd></div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="download" id="download">
-      <p class="kicker" data-i18n="dl.kicker">Install</p>
-      <h2 class="section-title" data-i18n="dl.title">One drag to Applications</h2>
-      <p class="section-lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. If Gatekeeper prompts, allow it under Privacy &amp; Security.</p>
-      <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg" data-i18n="dl.cta">Download MacText 1.0.3</a>
-        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
+    <section class="dl" id="download">
+      <p class="kicker" data-i18n="dl.k">Install</p>
+      <h2 class="h2" data-i18n="dl.title">One drag to Applications</h2>
+      <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks.</p>
+      <div class="cta">
+        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg" data-i18n="dl.cta">Download MacText 1.0.3</a>
+        <a class="btn btn-line" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
       </div>
     </section>
 
     <footer>
-      <span data-i18n="footer.left">© 2026 MacText · Native AppKit</span>
-      <span>
-        <a href="https://github.com/linux503/MacText">GitHub</a>
-        ·
-        <a href="https://github.com/linux503/MacText/releases/tag/v1.0.3">v1.0.3</a>
-      </span>
+      <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
+      <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a href="https://github.com/linux503/MacText/releases/tag/v1.0.3">v1.0.3</a></span>
     </footer>
   </div>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "MacText",
-    "operatingSystem": "macOS 14+",
-    "applicationCategory": "DeveloperApplication",
-    "inLanguage": ["en", "zh-CN"],
-    "description": "Native macOS text editor with multi-tabs, sidebar, find/replace, command palette, and syntax highlight.",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "downloadUrl": "https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg",
-    "softwareVersion": "1.0.3",
-    "url": "https://linux503.github.io/MacText/"
-  }
-  </script>
 
   <script>
     const I18N = {
       en: {
         title: "MacText — Native macOS Text Editor | Sublime-like Speed",
-        desc: "MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find & replace, command palette, syntax highlight, and session restore. Universal Binary for Apple Silicon & Intel.",
+        desc: "Native AppKit text editor for macOS: multi-tabs, sidebar, find & replace, command palette, syntax highlight, session restore.",
         ogTitle: "MacText — Native macOS Text Editor",
         ogDesc: "Sublime-like core. Native AppKit. Universal Binary.",
-        "nav.features": "Features",
-        "nav.themes": "Themes",
-        "nav.download": "Download",
-        "hero.eyebrow": "Native · AppKit · Universal",
-        "hero.headline": "A focused macOS editor with Sublime-like speed — without the Electron tax.",
-        "hero.cta": "Download DMG",
-        "hero.secondary": "View source",
-        "hero.meta": "v1.0.3 · macOS 14+ · arm64 + x86_64",
-        "hero.imageAlt": "MacText editor with Ink theme, sidebar, and Swift syntax highlight",
-        "features.kicker": "Capabilities",
-        "features.title": "Essential, not excessive",
-        "features.lead": "The core workflow you use every day — tabs, project tree, search, palette — tuned for native feel and instant launch.",
-        "features.f1t": "Multi-tab editing",
-        "features.f1d": "Open, save, save-as, close with dirty prompts. Middle-click to dismiss a tab.",
-        "features.f2t": "Project sidebar",
-        "features.f2d": "Browse a folder tree. Hide fully with ⌘B — no leftover gutter strip.",
-        "features.f3t": "Find & replace",
-        "features.f3d": "Inline find bar, next/previous match, Esc to close without friction.",
-        "features.f4t": "Command palette",
-        "features.f4d": "⌘⇧P for themes, go-to-line, sidebar, and everyday actions.",
-        "features.f5t": "Syntax highlight",
-        "features.f5d": "Swift, Python, JS/TS, JSON, Markdown — colors matched to Ink.",
-        "features.f6t": "Session restore",
-        "features.f6d": "Tabs, unsaved text, caret, folder, theme, and window frame return intact.",
-        "themes.kicker": "Appearance",
-        "themes.title": "Four calibrated themes",
-        "themes.lead": "Ink is the signature look — charcoal field, lime accents, amber caret — aligned with the Dock icon.",
-        "themes.black": "Pure OLED black",
-        "themes.paper": "Warm light",
-        "themes.snow": "Cool light",
-        "keys.kicker": "Keyboard",
-        "keys.title": "Muscle memory intact",
-        "keys.lead": "Familiar shortcuts for anyone coming from Sublime Text.",
-        "keys.new": "New",
-        "keys.open": "Open",
-        "keys.folder": "Open Folder",
-        "keys.save": "Save",
-        "keys.find": "Find",
-        "keys.palette": "Command Palette",
-        "keys.sidebar": "Sidebar",
-        "keys.theme": "Theme",
-        "dl.kicker": "Install",
-        "dl.title": "One drag to Applications",
-        "dl.lead": "Open the DMG and drop MacText into Applications. If Gatekeeper prompts, allow it under Privacy & Security.",
-        "dl.cta": "Download MacText 1.0.3",
-        "dl.all": "All releases",
-        "footer.left": "© 2026 MacText · Native AppKit"
+        "nav.shots": "Showcase", "nav.features": "Features", "nav.dl": "Download",
+        "hero.eye": "Native · AppKit · Universal",
+        "hero.h1": "A focused macOS editor with Sublime-like speed — without the Electron tax.",
+        "hero.cta": "Download DMG", "hero.src": "View source",
+        "stat.1": "Native runtime", "stat.2": "Apple Silicon & Intel", "stat.3": "Core editor workflow",
+        "shot1.t": "Editor", "shot1.d": "Ink theme · sidebar · tabs", "shot1.alt": "MacText editor with Ink theme",
+        "shot2.t": "Command Palette", "shot2.d": "⌘⇧P · themes · actions", "shot2.alt": "MacText command palette",
+        "shot3.t": "Find & Replace", "shot3.d": "Inline search · matches", "shot3.alt": "MacText find and replace",
+        "f.k": "Capabilities", "f.title": "Essential, not excessive",
+        "f.lead": "Daily workflow — tabs, project tree, search, palette — tuned for native feel and instant launch.",
+        "f1t": "Multi-tab editing", "f1d": "Open, save, save-as, close with dirty prompts. Middle-click to dismiss.",
+        "f2t": "Project sidebar", "f2d": "Browse a folder tree. Hide fully with ⌘B — no leftover gutter.",
+        "f3t": "Find & replace", "f3d": "Inline find bar, next/previous match, Esc to close.",
+        "f4t": "Command palette", "f4d": "⌘⇧P for themes, go-to-line, sidebar, and actions.",
+        "f5t": "Syntax highlight", "f5d": "Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.",
+        "f6t": "Session restore", "f6d": "Tabs, unsaved text, caret, folder, theme, window frame.",
+        "th.k": "Appearance", "th.title": "Four calibrated themes",
+        "th.lead": "Ink is the signature — charcoal, lime, amber — aligned with the Dock icon.",
+        "th.black": "Pure OLED", "th.paper": "Warm light", "th.snow": "Cool light",
+        "k.k": "Keyboard", "k.title": "Muscle memory intact", "k.lead": "Familiar shortcuts if you know Sublime Text.",
+        "k.new": "New", "k.open": "Open", "k.folder": "Open Folder", "k.save": "Save",
+        "k.find": "Find", "k.pal": "Palette", "k.side": "Sidebar", "k.theme": "Theme",
+        "dl.k": "Install", "dl.title": "One drag to Applications",
+        "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks.",
+        "dl.cta": "Download MacText 1.0.3", "dl.all": "All releases",
+        "ft": "© 2026 MacText · Native AppKit"
       },
       zh: {
         title: "MacText — 原生 macOS 文本编辑器 | Sublime 级效率",
-        desc: "MacText 是面向 macOS 的原生 AppKit 文本编辑器：多标签、侧边栏、查找替换、命令面板、语法高亮与会话恢复。支持 Apple Silicon 与 Intel 通用二进制。",
+        desc: "面向 macOS 的原生 AppKit 文本编辑器：多标签、侧边栏、查找替换、命令面板、语法高亮与会话恢复。",
         ogTitle: "MacText — 原生 macOS 文本编辑器",
         ogDesc: "Sublime 核心体验。原生 AppKit。Universal Binary。",
-        "nav.features": "功能",
-        "nav.themes": "主题",
-        "nav.download": "下载",
-        "hero.eyebrow": "原生 · AppKit · 通用二进制",
-        "hero.headline": "专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。",
-        "hero.cta": "下载 DMG",
-        "hero.secondary": "查看源码",
-        "hero.meta": "v1.0.3 · macOS 14+ · arm64 + x86_64",
-        "hero.imageAlt": "MacText 编辑器：Ink 主题、侧边栏与 Swift 语法高亮",
-        "features.kicker": "能力",
-        "features.title": "够用，不过度",
-        "features.lead": "日常真正会用到的能力——标签、项目树、搜索、命令面板——为原生体验与秒开而打磨。",
-        "features.f1t": "多标签编辑",
-        "features.f1d": "打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭标签。",
-        "features.f2t": "项目侧边栏",
-        "features.f2d": "浏览文件夹树。⌘B 可完全隐藏，不留空白边条。",
-        "features.f3t": "查找与替换",
-        "features.f3d": "内联查找栏，上一个 / 下一个匹配，Esc 即可关闭。",
-        "features.f4t": "命令面板",
-        "features.f4d": "⌘⇧P 切换主题、跳转行、侧边栏等常用操作。",
-        "features.f5t": "语法高亮",
-        "features.f5d": "Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。",
-        "features.f6t": "会话恢复",
-        "features.f6d": "标签、未保存内容、光标、文件夹、主题与窗口位置自动还原。",
-        "themes.kicker": "外观",
-        "themes.title": "四套校准主题",
-        "themes.lead": "Ink 是标志性外观——炭黑底、石灰绿强调、琥珀光标——与程序坞图标一致。",
-        "themes.black": "纯黑 OLED",
-        "themes.paper": "暖色浅色",
-        "themes.snow": "冷色浅色",
-        "keys.kicker": "快捷键",
-        "keys.title": "肌肉记忆不浪费",
-        "keys.lead": "从 Sublime Text 过来的人会立刻熟悉。",
-        "keys.new": "新建",
-        "keys.open": "打开",
-        "keys.folder": "打开文件夹",
-        "keys.save": "保存",
-        "keys.find": "查找",
-        "keys.palette": "命令面板",
-        "keys.sidebar": "侧边栏",
-        "keys.theme": "主题",
-        "dl.kicker": "安装",
-        "dl.title": "拖进应用程序即可",
-        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被 Gatekeeper 拦截，请在「隐私与安全性」中允许打开。",
-        "dl.cta": "下载 MacText 1.0.3",
-        "dl.all": "全部版本",
-        "footer.left": "© 2026 MacText · 原生 AppKit"
+        "nav.shots": "界面", "nav.features": "功能", "nav.dl": "下载",
+        "hero.eye": "原生 · AppKit · 通用二进制",
+        "hero.h1": "专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。",
+        "hero.cta": "下载 DMG", "hero.src": "查看源码",
+        "stat.1": "原生运行时", "stat.2": "Apple Silicon 与 Intel", "stat.3": "核心编辑工作流",
+        "shot1.t": "编辑器", "shot1.d": "Ink 主题 · 侧边栏 · 标签", "shot1.alt": "MacText Ink 主题编辑器",
+        "shot2.t": "命令面板", "shot2.d": "⌘⇧P · 主题 · 操作", "shot2.alt": "MacText 命令面板",
+        "shot3.t": "查找替换", "shot3.d": "内联搜索 · 匹配", "shot3.alt": "MacText 查找替换",
+        "f.k": "能力", "f.title": "够用，不过度",
+        "f.lead": "日常真正会用到的能力——标签、项目树、搜索、命令面板——为原生体验与秒开而打磨。",
+        "f1t": "多标签编辑", "f1d": "打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。",
+        "f2t": "项目侧边栏", "f2d": "浏览文件夹树。⌘B 完全隐藏，不留空白边条。",
+        "f3t": "查找与替换", "f3d": "内联查找栏，上一个 / 下一个，Esc 关闭。",
+        "f4t": "命令面板", "f4d": "⌘⇧P 切换主题、跳转行、侧边栏等。",
+        "f5t": "语法高亮", "f5d": "Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。",
+        "f6t": "会话恢复", "f6d": "标签、未保存内容、光标、文件夹、主题与窗口。",
+        "th.k": "外观", "th.title": "四套校准主题",
+        "th.lead": "Ink 是标志性外观——炭黑、石灰绿、琥珀——与程序坞图标一致。",
+        "th.black": "纯黑 OLED", "th.paper": "暖色浅色", "th.snow": "冷色浅色",
+        "k.k": "快捷键", "k.title": "肌肉记忆不浪费", "k.lead": "熟悉 Sublime 的人会立刻上手。",
+        "k.new": "新建", "k.open": "打开", "k.folder": "打开文件夹", "k.save": "保存",
+        "k.find": "查找", "k.pal": "命令面板", "k.side": "侧边栏", "k.theme": "主题",
+        "dl.k": "安装", "dl.title": "拖进应用程序即可",
+        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。",
+        "dl.cta": "下载 MacText 1.0.3", "dl.all": "全部版本",
+        "ft": "© 2026 MacText · 原生 AppKit"
       }
     };
 
+    /* i18n */
     function detectLang() {
       const q = new URLSearchParams(location.search).get("lang");
       if (q === "en" || q === "zh") return q;
-      const saved = localStorage.getItem("mactext-lang");
-      if (saved === "en" || saved === "zh") return saved;
+      const s = localStorage.getItem("mactext-lang");
+      if (s === "en" || s === "zh") return s;
       return (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh" : "en";
     }
-
     function applyLang(lang) {
-      const dict = I18N[lang] || I18N.en;
+      const d = I18N[lang] || I18N.en;
       document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
-      document.title = dict.title;
-      const desc = document.getElementById("meta-desc");
-      if (desc) desc.setAttribute("content", dict.desc);
-      const ogTitle = document.getElementById("og-title");
-      const ogDesc = document.getElementById("og-desc");
-      if (ogTitle) ogTitle.setAttribute("content", dict.ogTitle);
-      if (ogDesc) ogDesc.setAttribute("content", dict.ogDesc);
-
+      document.title = d.title;
+      document.getElementById("meta-desc")?.setAttribute("content", d.desc);
+      document.getElementById("og-title")?.setAttribute("content", d.ogTitle);
+      document.getElementById("og-desc")?.setAttribute("content", d.ogDesc);
       document.querySelectorAll("[data-i18n]").forEach((el) => {
-        const key = el.getAttribute("data-i18n");
-        if (dict[key] != null) el.textContent = dict[key];
+        const k = el.getAttribute("data-i18n");
+        if (d[k] != null) el.textContent = d[k];
       });
       document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
-        const key = el.getAttribute("data-i18n-alt");
-        if (dict[key] != null) el.setAttribute("alt", dict[key]);
+        const k = el.getAttribute("data-i18n-alt");
+        if (d[k] != null) el.setAttribute("alt", d[k]);
       });
-
-      document.querySelectorAll(".lang-switch button").forEach((btn) => {
-        btn.setAttribute("aria-pressed", btn.dataset.lang === lang ? "true" : "false");
+      document.querySelectorAll(".lang button").forEach((b) => {
+        b.setAttribute("aria-pressed", b.dataset.lang === lang ? "true" : "false");
       });
-
       localStorage.setItem("mactext-lang", lang);
-      const url = new URL(location.href);
-      url.searchParams.set("lang", lang);
-      history.replaceState(null, "", url);
+      const u = new URL(location.href); u.searchParams.set("lang", lang);
+      history.replaceState(null, "", u);
     }
-
-    document.querySelectorAll(".lang-switch button").forEach((btn) => {
-      btn.addEventListener("click", () => applyLang(btn.dataset.lang));
-    });
-
+    document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
     applyLang(detectLang());
+
+    /* 3D deck showcase */
+    (function () {
+      const cards = [...document.querySelectorAll(".card")];
+      const rail = document.getElementById("rail");
+      const dots = document.getElementById("dots");
+      let active = 0;
+      let timer;
+
+      cards.forEach((_, i) => {
+        const d = document.createElement("button");
+        d.type = "button";
+        d.setAttribute("aria-label", "Shot " + (i + 1));
+        d.addEventListener("click", () => go(i));
+        dots.appendChild(d);
+      });
+
+      function layout() {
+        const order = [0, 1, 2].map((o) => (active + o) % 3);
+        cards.forEach((card) => {
+          const idx = Number(card.dataset.index);
+          const pos = order.indexOf(idx);
+          card.dataset.pos = String(pos);
+        });
+        dots.querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-current", i === active ? "true" : "false"));
+        rail.querySelectorAll("button").forEach((b) => b.setAttribute("aria-current", Number(b.dataset.go) === active ? "true" : "false"));
+      }
+
+      function go(i) {
+        active = ((i % 3) + 3) % 3;
+        layout();
+        restart();
+      }
+
+      function next() { go(active + 1); }
+      function restart() {
+        clearInterval(timer);
+        timer = setInterval(next, 4500);
+      }
+
+      cards.forEach((card) => {
+        card.addEventListener("click", () => go(Number(card.dataset.index)));
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(Number(card.dataset.index)); }
+        });
+      });
+      rail.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => go(Number(b.dataset.go))));
+
+      const stage = document.getElementById("showcase");
+      stage.addEventListener("mouseenter", () => clearInterval(timer));
+      stage.addEventListener("mouseleave", restart);
+      stage.addEventListener("focusin", () => clearInterval(timer));
+      stage.addEventListener("focusout", (e) => { if (!stage.contains(e.relatedTarget)) restart(); });
+
+      layout();
+      restart();
+    })();
   </script>
 </body>
 </html>
