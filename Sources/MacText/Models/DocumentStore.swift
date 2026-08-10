@@ -25,6 +25,8 @@ enum EditorAction: String, CaseIterable {
     case toggleSidebar
     case softWrap
     case nextTheme
+    case biggerFont
+    case smallerFont
     case preferences
 
     var title: String {
@@ -42,6 +44,8 @@ enum EditorAction: String, CaseIterable {
         case .toggleSidebar: return "Toggle Sidebar"
         case .softWrap: return "Toggle Soft Wrap"
         case .nextTheme: return "Cycle Color Theme"
+        case .biggerFont: return "Bigger Font"
+        case .smallerFont: return "Smaller Font"
         case .preferences: return "Settings…"
         }
     }
@@ -61,7 +65,9 @@ enum EditorAction: String, CaseIterable {
         case .toggleSidebar: return ["sidebar", "toggle", "panel"]
         case .softWrap: return ["wrap", "soft"]
         case .nextTheme: return ["theme", "color", "appearance", "ink", "black", "paper", "snow", "dark", "light"]
-        case .preferences: return ["settings", "preferences", "theme", "options"]
+        case .biggerFont: return ["font", "size", "bigger", "larger", "zoom", "increase"]
+        case .smallerFont: return ["font", "size", "smaller", "zoom", "decrease"]
+        case .preferences: return ["settings", "preferences", "theme", "options", "font"]
         }
     }
 }
@@ -97,8 +103,15 @@ final class DocumentStore {
     var findQuery = ""
     var replaceQuery = ""
     var theme = EditorTheme.ink
+    /// Editor monospaced font size in points (clamped 10…36).
+    var fontSize: CGFloat = 13
     var findDirectionForward = true
     var windowFrame: NSRect?
+
+    static let fontSizeMin: CGFloat = 10
+    static let fontSizeMax: CGFloat = 36
+    static let fontSizeDefault: CGFloat = 13
+    static let fontSizeStep: CGFloat = 1
 
     private var persistWorkItem: DispatchWorkItem?
     private var isRestoring = false
@@ -199,20 +212,21 @@ final class DocumentStore {
         }
 
         do {
-            let content = try String(contentsOf: standardized, encoding: .utf8)
+            let loaded = try TextFileLoader.load(url: standardized)
             let doc = TextDocument(
                 title: standardized.lastPathComponent,
                 fileURL: standardized,
-                content: content,
+                content: loaded.content,
                 isDirty: false,
-                language: LanguageKind.detect(from: standardized)
+                language: LanguageKind.detect(from: standardized),
+                enableHighlight: loaded.shouldHighlight
             )
             documents.append(doc)
             selectedDocumentID = doc.id
             notify()
             return doc
         } catch {
-            presentError("Could not open \(standardized.lastPathComponent): \(error.localizedDescription)")
+            presentError("Could not open \(standardized.lastPathComponent):\n\(error.localizedDescription)")
             return nil
         }
     }
@@ -359,9 +373,24 @@ final class DocumentStore {
             notify()
         case .nextTheme:
             cycleTheme()
+        case .biggerFont:
+            adjustFontSize(by: Self.fontSizeStep)
+        case .smallerFont:
+            adjustFontSize(by: -Self.fontSizeStep)
         case .preferences:
             showPreferences()
         }
+    }
+
+    func setFontSize(_ size: CGFloat) {
+        let clamped = min(Self.fontSizeMax, max(Self.fontSizeMin, size.rounded()))
+        guard abs(clamped - fontSize) > 0.01 else { return }
+        fontSize = clamped
+        notify()
+    }
+
+    func adjustFontSize(by delta: CGFloat) {
+        setFontSize(fontSize + delta)
     }
 
     func cycleTheme() {
@@ -468,16 +497,19 @@ final class DocumentStore {
             var title = item.title
             var language = LanguageKind(rawValue: item.language) ?? .plain
             var fileURL: URL?
+            var enableHighlight = content.utf8.count <= TextFileLoader.highlightLimitBytes
 
             if let url = candidateURL, fileExists {
                 fileURL = url
                 title = url.lastPathComponent
                 language = LanguageKind.detect(from: url)
-                if !dirty, let disk = try? String(contentsOf: url, encoding: .utf8) {
-                    content = disk
+                if !dirty, let loaded = try? TextFileLoader.load(url: url) {
+                    content = loaded.content
                     dirty = false
+                    enableHighlight = loaded.shouldHighlight
                 } else if dirty {
                     content = item.content
+                    enableHighlight = content.utf8.count <= TextFileLoader.highlightLimitBytes
                 }
             } else if candidateURL != nil {
                 // Path remembered but file is gone — keep buffer as untitled.
@@ -500,7 +532,8 @@ final class DocumentStore {
                 fileURL: fileURL,
                 content: content,
                 isDirty: dirty,
-                language: language
+                language: language,
+                enableHighlight: enableHighlight
             )
             doc.cursorLine = max(1, item.cursorLine)
             doc.cursorColumn = max(1, item.cursorColumn)
@@ -527,6 +560,9 @@ final class DocumentStore {
 
         showSidebar = session.showSidebar
         softWrap = session.softWrap
+        if let size = session.fontSize {
+            fontSize = min(Self.fontSizeMax, max(Self.fontSizeMin, CGFloat(size)))
+        }
         if let match = EditorTheme.named(session.themeName)
             ?? migratedTheme(from: session.themeName) {
             theme = match
@@ -571,7 +607,8 @@ final class DocumentStore {
             showSidebar: showSidebar,
             softWrap: softWrap,
             themeName: theme.name,
-            windowFrame: windowFrame.map { NSStringFromRect($0) }
+            windowFrame: windowFrame.map { NSStringFromRect($0) },
+            fontSize: Double(fontSize)
         )
 
         if isBlankDefault, SessionStore.load() == nil {

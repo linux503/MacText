@@ -205,7 +205,12 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         }
 
         if let doc = store.selectedDocument {
-            editor.load(document: doc, theme: store.theme, softWrap: store.softWrap)
+            editor.load(
+                document: doc,
+                theme: store.theme,
+                softWrap: store.softWrap,
+                fontSize: store.fontSize
+            )
             window?.title = doc.displayTitle + " — MacText"
         }
         statusBar.reload(store: store)

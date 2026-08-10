@@ -155,9 +155,13 @@ struct SyntaxHighlighter {
     private static func commentPatterns(for language: LanguageKind) -> [String] {
         switch language {
         case .python:
-            return [#"#.*"#, #"""[\s\S]*?"""#, #"'''[\s\S]*?'''"#]
+            return [
+                #"#.*"#,
+                #"\"\"\"[\s\S]{0,4000}?\"\"\""#,
+                #"'''[\s\S]{0,4000}?'''"#
+            ]
         case .swift, .javascript, .typescript, .json:
-            return [#"//.*"#, #"/\*[\s\S]*?\*/"#]
+            return [#"//.*"#, #"/\*[\s\S]{0,8000}?\*/"#]
         case .markdown, .plain:
             return [#"#.*"#, #"//.*"#]
         }

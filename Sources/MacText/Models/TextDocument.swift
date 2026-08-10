@@ -46,6 +46,8 @@ final class TextDocument: Identifiable {
     var language: LanguageKind
     var cursorLine: Int
     var cursorColumn: Int
+    /// When false, skip syntax highlight (large files).
+    var enableHighlight: Bool
 
     init(
         id: UUID = UUID(),
@@ -53,7 +55,8 @@ final class TextDocument: Identifiable {
         fileURL: URL? = nil,
         content: String = "",
         isDirty: Bool = false,
-        language: LanguageKind = .plain
+        language: LanguageKind = .plain,
+        enableHighlight: Bool = true
     ) {
         self.id = id
         self.title = title
@@ -63,6 +66,7 @@ final class TextDocument: Identifiable {
         self.language = language
         self.cursorLine = 1
         self.cursorColumn = 1
+        self.enableHighlight = enableHighlight
     }
 
     var displayTitle: String {

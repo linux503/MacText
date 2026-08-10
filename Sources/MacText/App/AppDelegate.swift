@@ -109,6 +109,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             item.title = DocumentStore.shared.showSidebar ? "Hide Sidebar" : "Show Sidebar"
         }
         viewMenu.addItem(makeItem("Toggle Soft Wrap", action: #selector(toggleSoftWrap), key: "z", modifiers: [.command, .option]))
+        viewMenu.addItem(NSMenuItem.separator())
+        viewMenu.addItem(makeItem("Bigger", action: #selector(biggerFont), key: "=", modifiers: [.command]))
+        viewMenu.addItem(makeItem("Smaller", action: #selector(smallerFont), key: "-", modifiers: [.command]))
+        let resetFont = NSMenuItem(title: "Reset Font Size", action: #selector(resetFontSize), keyEquivalent: "0")
+        resetFont.keyEquivalentModifierMask = [.command]
+        resetFont.target = self
+        viewMenu.addItem(resetFont)
+        viewMenu.addItem(NSMenuItem.separator())
 
         let themeMenuItem = NSMenuItem(title: "Theme", action: nil, keyEquivalent: "")
         let themeMenu = NSMenu(title: "Theme")
@@ -227,6 +235,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func toggleSidebar() { DocumentStore.shared.perform(.toggleSidebar) }
     @objc private func toggleSoftWrap() { DocumentStore.shared.perform(.softWrap) }
     @objc private func cycleTheme() { DocumentStore.shared.perform(.nextTheme) }
+    @objc private func biggerFont() { DocumentStore.shared.perform(.biggerFont) }
+    @objc private func smallerFont() { DocumentStore.shared.perform(.smallerFont) }
+    @objc private func resetFontSize() { DocumentStore.shared.setFontSize(DocumentStore.fontSizeDefault) }
     @objc private func commandPalette() { DocumentStore.shared.perform(.commandPalette) }
     @objc private func goToLine() { DocumentStore.shared.perform(.goToLine) }
 }

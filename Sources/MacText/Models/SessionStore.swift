@@ -21,6 +21,8 @@ struct EditorSession: Codable {
     var softWrap: Bool
     var themeName: String
     var windowFrame: String?
+    /// Editor monospaced font point size. Optional for older session files.
+    var fontSize: Double?
 }
 
 enum SessionStore {

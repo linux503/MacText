@@ -5,8 +5,20 @@ final class SidebarController: NSObject, NSOutlineViewDataSource, NSOutlineViewD
     private let outlineView = NSOutlineView()
     private var nodes: [FileNode] = []
     private let header = NSTextField(labelWithString: "NO FOLDER")
-    private let openButton = NSButton(image: NSImage(systemSymbolName: "folder.badge.plus", accessibilityDescription: "Open Folder")!, target: nil, action: nil)
-    private let hideButton = NSButton(image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "Hide Sidebar")!, target: nil, action: nil)
+    private let openButton = NSButton(
+        image: NSImage(systemSymbolName: "folder.badge.plus", accessibilityDescription: "Open Folder")
+            ?? NSImage(named: NSImage.folderName)
+            ?? NSImage(),
+        target: nil,
+        action: nil
+    )
+    private let hideButton = NSButton(
+        image: NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "Hide Sidebar")
+            ?? NSImage(named: NSImage.rightFacingTriangleTemplateName)
+            ?? NSImage(),
+        target: nil,
+        action: nil
+    )
     let container = NSView()
 
     override init() {

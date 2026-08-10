@@ -4,13 +4,14 @@ final class PreferencesWindowController: NSWindowController {
     static let shared = PreferencesWindowController()
 
     private let themePopup = NSPopUpButton(frame: .zero, pullsDown: false)
+    private let fontSizePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let softWrapCheckbox = NSButton(checkboxWithTitle: "Soft Wrap", target: nil, action: nil)
     private let sidebarCheckbox = NSButton(checkboxWithTitle: "Show Sidebar", target: nil, action: nil)
     private let preview = ThemePreviewView(frame: .zero)
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 340),
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 400),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -65,6 +66,19 @@ final class PreferencesWindowController: NSWindowController {
         themePopup.action = #selector(themeChanged)
         themePopup.translatesAutoresizingMaskIntoConstraints = false
 
+        let fontLabel = NSTextField(labelWithString: "Font Size")
+        fontLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        fontSizePopup.removeAllItems()
+        let sizes = stride(from: Int(DocumentStore.fontSizeMin), through: Int(DocumentStore.fontSizeMax), by: 1)
+        for size in sizes {
+            fontSizePopup.addItem(withTitle: "\(size) pt")
+            fontSizePopup.lastItem?.tag = size
+        }
+        fontSizePopup.target = self
+        fontSizePopup.action = #selector(fontSizeChanged)
+        fontSizePopup.translatesAutoresizingMaskIntoConstraints = false
+
         softWrapCheckbox.target = self
         softWrapCheckbox.action = #selector(softWrapChanged)
         softWrapCheckbox.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +92,7 @@ final class PreferencesWindowController: NSWindowController {
         preview.layer?.cornerRadius = 8
         preview.layer?.masksToBounds = true
 
-        let hint = NSTextField(labelWithString: "You can also switch themes from View → Theme, or click the theme name in the status bar.")
+        let hint = NSTextField(labelWithString: "Font size also: View → Bigger/Smaller (⌘+ / ⌘−). Themes: View → Theme or status bar.")
         hint.font = NSFont.systemFont(ofSize: 11)
         hint.textColor = .secondaryLabelColor
         hint.maximumNumberOfLines = 3
@@ -88,6 +102,8 @@ final class PreferencesWindowController: NSWindowController {
         content.addSubview(title)
         content.addSubview(themeLabel)
         content.addSubview(themePopup)
+        content.addSubview(fontLabel)
+        content.addSubview(fontSizePopup)
         content.addSubview(preview)
         content.addSubview(softWrapCheckbox)
         content.addSubview(sidebarCheckbox)
@@ -99,13 +115,21 @@ final class PreferencesWindowController: NSWindowController {
 
             themeLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
             themeLabel.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
+            themeLabel.widthAnchor.constraint(equalToConstant: 90),
 
             themePopup.centerYAnchor.constraint(equalTo: themeLabel.centerYAnchor),
             themePopup.leadingAnchor.constraint(equalTo: themeLabel.trailingAnchor, constant: 12),
-            themePopup.trailingAnchor.constraint(lessThanOrEqualTo: content.trailingAnchor, constant: -20),
             themePopup.widthAnchor.constraint(greaterThanOrEqualToConstant: 140),
 
-            preview.topAnchor.constraint(equalTo: themeLabel.bottomAnchor, constant: 14),
+            fontLabel.topAnchor.constraint(equalTo: themeLabel.bottomAnchor, constant: 14),
+            fontLabel.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
+            fontLabel.widthAnchor.constraint(equalToConstant: 90),
+
+            fontSizePopup.centerYAnchor.constraint(equalTo: fontLabel.centerYAnchor),
+            fontSizePopup.leadingAnchor.constraint(equalTo: fontLabel.trailingAnchor, constant: 12),
+            fontSizePopup.widthAnchor.constraint(greaterThanOrEqualToConstant: 100),
+
+            preview.topAnchor.constraint(equalTo: fontLabel.bottomAnchor, constant: 14),
             preview.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
             preview.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -20),
             preview.heightAnchor.constraint(equalToConstant: 120),
@@ -130,21 +154,27 @@ final class PreferencesWindowController: NSWindowController {
     private func reload() {
         let store = DocumentStore.shared
         themePopup.selectItem(withTitle: store.theme.name)
+        fontSizePopup.selectItem(withTag: Int(store.fontSize.rounded()))
         softWrapCheckbox.state = store.softWrap ? .on : .off
         sidebarCheckbox.state = store.showSidebar ? .on : .off
         preview.theme = store.theme
+        preview.fontSize = store.fontSize
         preview.needsDisplay = true
         window?.backgroundColor = store.theme.editorChrome
     }
 
     @objc private func themeChanged() {
         guard let name = themePopup.titleOfSelectedItem else { return }
-        // Ignore section headers
         guard EditorTheme.named(name) != nil else {
             themePopup.selectItem(withTitle: DocumentStore.shared.theme.name)
             return
         }
         DocumentStore.shared.setTheme(named: name)
+    }
+
+    @objc private func fontSizeChanged() {
+        guard let item = fontSizePopup.selectedItem else { return }
+        DocumentStore.shared.setFontSize(CGFloat(item.tag))
     }
 
     @objc private func softWrapChanged() {
@@ -166,15 +196,17 @@ final class PreferencesWindowController: NSWindowController {
 
 final class ThemePreviewView: NSView {
     var theme: EditorTheme = .ink
+    var fontSize: CGFloat = 12
 
     override func draw(_ dirtyRect: NSRect) {
         theme.background.setFill()
         bounds.fill()
 
         let sample = NSMutableAttributedString()
+        let size = min(14, max(11, fontSize - 1))
         func append(_ text: String, color: NSColor) {
             sample.append(NSAttributedString(string: text, attributes: [
-                .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .regular),
+                .font: NSFont.monospacedSystemFont(ofSize: size, weight: .regular),
                 .foregroundColor: color
             ]))
         }

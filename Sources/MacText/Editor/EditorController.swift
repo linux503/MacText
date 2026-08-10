@@ -9,7 +9,11 @@ final class EditorController: NSObject, NSTextViewDelegate {
     private var softWrap = false
     private var isUpdating = false
     private var highlightWorkItem: DispatchWorkItem?
-    private let font = NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
+    private var fontSize: CGFloat = 13
+
+    private var font: NSFont {
+        NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+    }
 
     override init() {
         super.init()
@@ -43,6 +47,7 @@ final class EditorController: NSObject, NSTextViewDelegate {
         scrollView.hasVerticalRuler = true
         scrollView.rulersVisible = true
         ruler = LineNumberRulerView(textView: textView)
+        ruler.fontSize = fontSize
         scrollView.verticalRulerView = ruler
 
         NotificationCenter.default.addObserver(
@@ -91,12 +96,17 @@ final class EditorController: NSObject, NSTextViewDelegate {
         ruler.needsDisplay = true
     }
 
-    func load(document: TextDocument, theme: EditorTheme, softWrap: Bool) {
+    func load(document: TextDocument, theme: EditorTheme, softWrap: Bool, fontSize: CGFloat) {
         let switched = self.document?.id != document.id
+        let fontChanged = abs(self.fontSize - fontSize) > 0.01
         self.document = document
         self.theme = theme
+        self.fontSize = fontSize
         applyThemeColors()
         setSoftWrap(softWrap)
+        if fontChanged {
+            applyFontToStorage()
+        }
 
         if switched || textView.string != document.content {
             isUpdating = true
@@ -105,7 +115,6 @@ final class EditorController: NSObject, NSTextViewDelegate {
             applyHighlight()
             if switched {
                 if document.content.isEmpty {
-                    // New blank file: caret at top of empty canvas
                     textView.setSelectedRange(NSRange(location: 0, length: 0))
                     updateCursorLocation()
                 } else {
@@ -118,6 +127,13 @@ final class EditorController: NSObject, NSTextViewDelegate {
             applyHighlight()
         }
         textView.ensureFillsVisibleArea(in: scrollView)
+    }
+
+    private func applyFontToStorage() {
+        textView.font = font
+        ruler.fontSize = fontSize
+        let thickness = max(36, ceil(fontSize * 2.8))
+        ruler.ruleThickness = thickness
     }
 
     private func restoreCursor(line: Int, column: Int) {
@@ -159,6 +175,7 @@ final class EditorController: NSObject, NSTextViewDelegate {
         textView.backgroundColor = theme.background
         textView.insertionPointColor = theme.caret
         textView.textColor = theme.foreground
+        textView.font = font
         textView.typingAttributes = [
             .font: font,
             .foregroundColor: theme.foreground
@@ -169,6 +186,7 @@ final class EditorController: NSObject, NSTextViewDelegate {
         ]
         scrollView.backgroundColor = theme.background
         ruler.theme = theme
+        ruler.fontSize = fontSize
         textView.needsDisplay = true
     }
 
@@ -232,14 +250,25 @@ final class EditorController: NSObject, NSTextViewDelegate {
     private func applyHighlight() {
         guard let document else { return }
         let selected = textView.selectedRange()
-        let highlighted = SyntaxHighlighter.highlight(
-            text: textView.string,
-            language: document.language,
-            theme: theme,
-            font: font
-        )
+
+        let attributed: NSAttributedString
+        if document.enableHighlight,
+           (document.content.utf8.count) <= TextFileLoader.highlightLimitBytes {
+            attributed = SyntaxHighlighter.highlight(
+                text: textView.string,
+                language: document.language,
+                theme: theme,
+                font: font
+            )
+        } else {
+            attributed = NSAttributedString(string: textView.string, attributes: [
+                .font: font,
+                .foregroundColor: theme.foreground
+            ])
+        }
+
         isUpdating = true
-        textView.textStorage?.setAttributedString(highlighted)
+        textView.textStorage?.setAttributedString(attributed)
         let length = (textView.string as NSString).length
         let loc = min(selected.location, length)
         let len = min(selected.length, max(0, length - loc))

@@ -5,12 +5,18 @@ final class LineNumberRulerView: NSRulerView {
     var theme: EditorTheme = .ink {
         didSet { needsDisplay = true }
     }
+    var fontSize: CGFloat = 13 {
+        didSet {
+            ruleThickness = max(36, ceil(fontSize * 2.8))
+            needsDisplay = true
+        }
+    }
 
     init(textView: NSTextView) {
         self.textView = textView
         super.init(scrollView: textView.enclosingScrollView, orientation: .verticalRuler)
         clientView = textView
-        ruleThickness = 44
+        ruleThickness = max(36, ceil(fontSize * 2.8))
     }
 
     @available(*, unavailable)
@@ -38,7 +44,7 @@ final class LineNumberRulerView: NSRulerView {
         var glyphIndex = glyphRange.location
 
         let attrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+            .font: NSFont.monospacedSystemFont(ofSize: max(9, fontSize - 2), weight: .regular),
             .foregroundColor: theme.lineNumber
         ]
 

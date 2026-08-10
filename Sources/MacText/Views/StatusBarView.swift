@@ -65,7 +65,8 @@ final class StatusBarView: NSView {
             var parts = [
                 "Ln \(doc.cursorLine), Col \(doc.cursorColumn)",
                 languageName,
-                "UTF-8"
+                "UTF-8",
+                "\(Int(store.fontSize.rounded()))pt"
             ]
             if store.softWrap { parts.append("Wrap") }
             leftLabel.stringValue = parts.joined(separator: "  ·  ")
