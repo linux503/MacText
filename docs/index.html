@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO -->
+  <title>MacText — Native macOS Text Editor | Sublime-like Speed</title>
+  <meta name="description" content="MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find &amp; replace, command palette, syntax highlight, and session restore. Universal Binary for Apple Silicon &amp; Intel." />
+  <meta name="keywords" content="MacText, macOS text editor, native editor, AppKit, Sublime Text alternative, Swift editor, code editor Mac" />
+  <meta name="author" content="linux503" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://linux503.github.io/MacText/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MacText — Native macOS Text Editor" />
+  <meta property="og:description" content="Sublime-like core features. Native AppKit. Universal Binary. Themes: Ink · Black · Paper · Snow." />
+  <meta property="og:url" content="https://linux503.github.io/MacText/" />
+  <meta property="og:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
+  <meta property="og:site_name" content="MacText" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MacText — Native macOS Text Editor" />
+  <meta name="twitter:description" content="Native AppKit editor with tabs, sidebar, find/replace, command palette, and syntax highlight." />
+  <meta name="twitter:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
+
+  <link rel="icon" type="image/png" href="assets/icon-256.png" />
+  <link rel="apple-touch-icon" href="assets/icon-256.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #12130f;
+      --ink-2: #1a1b18;
+      --ink-3: #242620;
+      --fog: #f8f8f2;
+      --fog-dim: rgba(248, 248, 242, 0.62);
+      --lime: #a6e22e;
+      --lime-deep: #7fb01a;
+      --amber: #fd971f;
+      --line: rgba(248, 248, 242, 0.1);
+      --max: 1120px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Instrument Sans", "Helvetica Neue", sans-serif;
+      background: var(--ink);
+      color: var(--fog);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 70% -10%, rgba(166, 226, 46, 0.14), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 10% 20%, rgba(253, 151, 31, 0.08), transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(166, 226, 46, 0.05), transparent 60%),
+        linear-gradient(180deg, #0c0d0a 0%, var(--ink) 40%, #0e100c 100%);
+    }
+    .bg-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 2.5rem, var(--max));
+      margin-inline: auto;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 0;
+      animation: rise 0.8s var(--ease) both;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      font-size: 0.92rem;
+      color: var(--fog-dim);
+    }
+    .nav-links a:hover { color: var(--fog); }
+    .nav-cta {
+      color: var(--ink) !important;
+      background: var(--lime);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: transform 0.25s var(--ease), background 0.2s;
+    }
+    .nav-cta:hover { background: #b8ef45; transform: translateY(-1px); }
+
+    /* Hero — one composition */
+    .hero {
+      padding: 2.5rem 0 1rem;
+      display: grid;
+      gap: 2.5rem;
+      min-height: calc(100svh - 5rem);
+      align-content: center;
+    }
+    @media (min-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 1.5rem;
+      }
+    }
+    .hero-copy {
+      max-width: 38rem;
+      animation: rise 0.9s var(--ease) 0.08s both;
+    }
+    .hero-brand {
+      font-size: clamp(3.4rem, 9vw, 5.6rem);
+      font-weight: 700;
+      letter-spacing: -0.055em;
+      line-height: 0.95;
+      margin-bottom: 1rem;
+    }
+    .hero-brand span.m { color: var(--lime); }
+    .hero-brand span.t { color: var(--fog); }
+    .hero-brand .bar {
+      display: block;
+      width: 4.2rem;
+      height: 0.28rem;
+      background: var(--amber);
+      margin-top: 0.85rem;
+      border-radius: 2px;
+      transform-origin: left;
+      animation: grow 1s var(--ease) 0.35s both;
+    }
+    .hero h1 {
+      font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--fog-dim);
+      margin-bottom: 1.6rem;
+      max-width: 28rem;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.35rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.98rem;
+      transition: transform 0.25s var(--ease), background 0.2s, border-color 0.2s;
+    }
+    .btn-primary {
+      background: var(--lime);
+      color: var(--ink);
+    }
+    .btn-primary:hover { background: #b8ef45; transform: translateY(-2px); }
+    .btn-ghost {
+      border: 1px solid var(--line);
+      color: var(--fog);
+      background: rgba(248,248,242,0.03);
+    }
+    .btn-ghost:hover { border-color: rgba(248,248,242,0.28); transform: translateY(-2px); }
+    .meta {
+      margin-top: 1rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.75rem;
+      color: var(--fog-dim);
+      letter-spacing: 0.02em;
+    }
+
+    .hero-visual {
+      animation: rise 1s var(--ease) 0.18s both;
+      position: relative;
+    }
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 8% 5% auto;
+      height: 70%;
+      background: radial-gradient(ellipse at center, rgba(166,226,46,0.22), transparent 70%);
+      filter: blur(28px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .shot {
+      position: relative;
+      z-index: 1;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.45),
+        0 0 0 1px rgba(166,226,46,0.06);
+      transform: perspective(1200px) rotateX(2deg);
+      transition: transform 0.6s var(--ease);
+    }
+    .shot:hover { transform: perspective(1200px) rotateX(0deg) translateY(-4px); }
+    .shot img { width: 100%; height: auto; }
+
+    /* Sections */
+    section {
+      padding: 5.5rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .section-label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.85rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 0.75rem;
+      max-width: 18ch;
+    }
+    .section-lead {
+      color: var(--fog-dim);
+      max-width: 36rem;
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      gap: 1.75rem 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .feature h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+    .feature h3::before {
+      content: "";
+      display: inline-block;
+      width: 0.45rem;
+      height: 0.45rem;
+      background: var(--lime);
+      border-radius: 1px;
+      margin-right: 0.55rem;
+      vertical-align: 0.15rem;
+    }
+    .feature p {
+      color: var(--fog-dim);
+      font-size: 0.95rem;
+      padding-left: 1rem;
+    }
+
+    .gallery {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 800px) {
+      .gallery { grid-template-columns: 1.2fr 1fr; }
+    }
+    .gallery figure {
+      margin: 0;
+    }
+    .gallery img {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      width: 100%;
+    }
+    .gallery figcaption {
+      margin-top: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--fog-dim);
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.85rem 1.5rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.82rem;
+    }
+    .keys div {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--fog-dim);
+    }
+    .keys kbd {
+      color: var(--lime);
+      font-weight: 500;
+    }
+
+    .download-block {
+      text-align: left;
+      padding: 3rem 0 4rem;
+    }
+    .download-block .section-title { max-width: none; }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 0 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      color: var(--fog-dim);
+      font-size: 0.88rem;
+    }
+    footer a:hover { color: var(--lime); }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes grow {
+      from { transform: scaleX(0); opacity: 0; }
+      to { transform: scaleX(1); opacity: 1; }
+    }
+
+    @media (max-width: 700px) {
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { min-height: auto; padding-top: 1.5rem; }
+      .shot { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="./">
+        <img src="assets/icon-256.png" width="36" height="36" alt="" />
+        MacText
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#gallery">Screenshots</a>
+        <a href="https://github.com/linux503/MacText">GitHub</a>
+        <a class="nav-cta" href="https://github.com/linux503/MacText/releases/latest">Download</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="hero-brand" aria-label="MacText">
+          <span class="m">Mac</span><span class="t">Text</span>
+          <span class="bar" aria-hidden="true"></span>
+        </p>
+        <h1>Native macOS text editor. Sublime-like core, AppKit speed.</h1>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg">
+            Download DMG
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/linux503/MacText">
+            View on GitHub
+          </a>
+        </div>
+        <p class="meta">v1.0.3 · macOS 14+ · Universal (arm64 + x86_64)</p>
+      </div>
+      <div class="hero-visual">
+        <div class="shot">
+          <img
+            src="screenshots/editor-ink.png"
+            width="1440"
+            height="900"
+            alt="MacText editor window showing Swift code with Ink theme, sidebar, and tabs"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    </header>
+
+    <section id="features">
+      <p class="section-label">Features</p>
+      <h2 class="section-title">Built for daily writing &amp; code</h2>
+      <p class="section-lead">The 1A essentials—fast to open, light on memory, keyboard-first.</p>
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>Multi-tab editing</h3>
+          <p>Open, save, save-as, close with dirty-file prompts. Middle-click to close.</p>
+        </article>
+        <article class="feature">
+          <h3>Folder sidebar</h3>
+          <p>Browse a project tree. Hide completely with ⌘B—no leftover gutter.</p>
+        </article>
+        <article class="feature">
+          <h3>Find &amp; replace</h3>
+          <p>Inline find bar, next/previous match, Esc to dismiss.</p>
+        </article>
+        <article class="feature">
+          <h3>Command palette</h3>
+          <p>⌘⇧P for themes, go-to-line, sidebar, and common actions.</p>
+        </article>
+        <article class="feature">
+          <h3>Syntax highlight</h3>
+          <p>Swift, Python, JS/TS, JSON, Markdown—with Ink-matched colors.</p>
+        </article>
+        <article class="feature">
+          <h3>Session restore</h3>
+          <p>Tabs, unsaved text, caret, folder, theme, and window frame come back.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <p class="section-label">Screenshots</p>
+      <h2 class="section-title">Ink theme in focus</h2>
+      <p class="section-lead">Charcoal canvas, lime accents, amber caret—matched to the Dock icon.</p>
+      <div class="gallery">
+        <figure>
+          <img src="screenshots/editor-ink.png" alt="MacText main editor with syntax-highlighted Swift and project sidebar" loading="lazy" />
+          <figcaption>Editor · sidebar · line numbers · Ink theme</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/command-palette.png" alt="MacText command palette overlay for switching themes" loading="lazy" />
+          <figcaption>Command palette · theme switching</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/editor-find.png" alt="MacText find and replace bar above the editor" loading="lazy" />
+          <figcaption>Find &amp; replace</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="shortcuts">
+      <p class="section-label">Keyboard</p>
+      <h2 class="section-title">Shortcuts that stick</h2>
+      <p class="section-lead">Familiar muscle memory for anyone coming from Sublime.</p>
+      <div class="keys">
+        <div><span>New</span><kbd>⌘N</kbd></div>
+        <div><span>Open</span><kbd>⌘O</kbd></div>
+        <div><span>Open Folder</span><kbd>⌘⇧O</kbd></div>
+        <div><span>Save</span><kbd>⌘S</kbd></div>
+        <div><span>Find</span><kbd>⌘F</kbd></div>
+        <div><span>Command Palette</span><kbd>⌘⇧P</kbd></div>
+        <div><span>Sidebar</span><kbd>⌘B</kbd></div>
+        <div><span>Theme</span><kbd>⌘⌥T</kbd></div>
+      </div>
+    </section>
+
+    <section class="download-block" id="download">
+      <p class="section-label">Get it</p>
+      <h2 class="section-title">Install in one drag</h2>
+      <p class="section-lead">Open the DMG, drag MacText to Applications. If Gatekeeper asks, allow it under Privacy &amp; Security.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg">Download MacText 1.0.3</a>
+        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases">All releases</a>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 MacText · Native AppKit</span>
+      <span>
+        <a href="https://github.com/linux503/MacText">GitHub</a>
+        ·
+        <a href="https://github.com/linux503/MacText/releases/tag/v1.0.3">v1.0.3</a>
+      </span>
+    </footer>
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MacText",
+    "operatingSystem": "macOS 14+",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Native macOS text editor with multi-tabs, sidebar, find/replace, command palette, and syntax highlight.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg",
+    "softwareVersion": "1.0.3",
+    "url": "https://linux503.github.io/MacText/"
+  }
+  </script>
+</body>
+</html>

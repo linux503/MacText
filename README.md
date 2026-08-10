@@ -2,7 +2,18 @@
 
 原生 macOS 文本编辑器（AppKit），覆盖 Sublime Text 核心能力：多标签、侧边栏、行号、查找替换、命令面板、基础语法高亮。
 
-**下载：** [MacText 1.0.3 DMG](https://github.com/linux503/MacText/releases/tag/v1.0.3) · [Releases](https://github.com/linux503/MacText/releases)
+**官网：** [linux503.github.io/MacText](https://linux503.github.io/MacText/)  
+**下载：** [MacText 1.0.3 DMG](https://github.com/linux503/MacText/releases/download/v1.0.3/MacText-1.0.3.dmg) · [Releases](https://github.com/linux503/MacText/releases)
+
+<p align="center">
+  <img src="docs/screenshots/editor-ink.png" alt="MacText editor with Ink theme, sidebar, and Swift syntax highlight" width="920" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/command-palette.png" alt="MacText command palette" width="440" />
+  &nbsp;
+  <img src="docs/screenshots/editor-find.png" alt="MacText find and replace" width="440" />
+</p>
 
 ## 要求
 
