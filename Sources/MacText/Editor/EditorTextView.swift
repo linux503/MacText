@@ -37,6 +37,7 @@ final class EditorTextView: NSTextView {
         isRichText = true
         importsGraphics = false
         allowsUndo = true
+        allowsCharacterPickerTouchBarItem = true
         isAutomaticQuoteSubstitutionEnabled = false
         isAutomaticDashSubstitutionEnabled = false
         isAutomaticTextReplacementEnabled = false
@@ -46,6 +47,8 @@ final class EditorTextView: NSTextView {
         usesFindBar = false
         isEditable = true
         isSelectable = true
+        // Do not disable smart insert/delete in a way that breaks IMEs;
+        // marked-text composition must reach NSTextInputClient unchanged.
         typingAttributes = [
             .font: NSFont.monospacedSystemFont(ofSize: 13, weight: .regular),
             .foregroundColor: theme.foreground
@@ -105,10 +108,14 @@ final class EditorTextView: NSTextView {
         minSize = NSSize(width: 0, height: visibleHeight)
     }
 
-    // MARK: - Sublime-like indent / unindent
+    // MARK: - Input Method (Pinyin etc.)
 
+    /// While composing (marked text), never steal keys — Tab confirms candidates in many IMEs.
     override func keyDown(with event: NSEvent) {
-        // Catch Tab / Shift+Tab before AppKit inserts a literal tab glyph.
+        if hasMarkedText() {
+            super.keyDown(with: event)
+            return
+        }
         if event.keyCode == 48 { // Tab
             if event.modifierFlags.contains(.shift) {
                 insertBacktab(nil)
@@ -121,6 +128,10 @@ final class EditorTextView: NSTextView {
     }
 
     override func doCommand(by selector: Selector) {
+        if hasMarkedText() {
+            super.doCommand(by: selector)
+            return
+        }
         if selector == #selector(insertTab(_:)) {
             insertTab(nil)
             return
@@ -132,7 +143,13 @@ final class EditorTextView: NSTextView {
         super.doCommand(by: selector)
     }
 
-    /// Tab: indent whole lines when selection covers 2+ lines (even partial); else insert spaces.
+    override func unmarkText() {
+        super.unmarkText()
+        NotificationCenter.default.post(name: .macTextInputDidUnmark, object: self)
+    }
+
+    // MARK: - Sublime-like indent / unindent
+
     override func insertTab(_ sender: Any?) {
         let range = selectedRange()
         if lineCount(intersecting: range) >= 2 {
@@ -295,4 +312,8 @@ final class EditorTextView: NSTextView {
         }
         return remove
     }
+}
+
+extension Notification.Name {
+    static let macTextInputDidUnmark = Notification.Name("MacTextInputDidUnmark")
 }

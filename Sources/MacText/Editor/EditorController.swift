@@ -88,6 +88,20 @@ final class EditorController: NSObject, NSTextViewDelegate {
             name: .macTextGoToLine,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(inputDidUnmark(_:)),
+            name: .macTextInputDidUnmark,
+            object: textView
+        )
+    }
+
+    @objc private func inputDidUnmark(_ note: Notification) {
+        guard !isUpdating, let document else { return }
+        document.updateContent(textView.string)
+        updateCursorLocation()
+        DocumentStore.shared.documentContentDidChange()
+        scheduleHighlight(delay: 0.05)
     }
 
     @objc private func clipViewBoundsChanged(_ note: Notification) {
@@ -214,6 +228,13 @@ final class EditorController: NSObject, NSTextViewDelegate {
 
     func textDidChange(_ notification: Notification) {
         guard !isUpdating, let document else { return }
+        // While the IME is composing (pinyin marked text), do not rewrite
+        // attributes — that aborts composition and leaves raw Latin letters.
+        if textView.hasMarkedText() {
+            updateCursorLocation()
+            ruler.needsDisplay = true
+            return
+        }
         document.updateContent(textView.string)
         updateCursorLocation()
         scheduleHighlight()
@@ -223,6 +244,11 @@ final class EditorController: NSObject, NSTextViewDelegate {
 
     @objc private func selectionDidChange() {
         guard !isUpdating else { return }
+        // Avoid fighting the IME while candidates / marked text are active.
+        if textView.hasMarkedText() {
+            textView.needsDisplay = true
+            return
+        }
         updateCursorLocation()
         textView.needsDisplay = true
         ruler.needsDisplay = true
@@ -238,17 +264,24 @@ final class EditorController: NSObject, NSTextViewDelegate {
         document.cursorColumn = (lines.last?.count ?? 0) + 1
     }
 
-    private func scheduleHighlight() {
+    private func scheduleHighlight(delay: TimeInterval = 0.12) {
         highlightWorkItem?.cancel()
         let work = DispatchWorkItem { [weak self] in
             self?.applyHighlight()
         }
         highlightWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
     private func applyHighlight() {
         guard let document else { return }
+        // Critical for Chinese/Japanese/Korean IMEs: replacing the text storage
+        // while marked text exists commits raw pinyin into the buffer.
+        if textView.hasMarkedText() {
+            scheduleHighlight(delay: 0.2)
+            return
+        }
+
         let selected = textView.selectedRange()
 
         let attributed: NSAttributedString
@@ -267,12 +300,28 @@ final class EditorController: NSObject, NSTextViewDelegate {
             ])
         }
 
+        guard let storage = textView.textStorage else { return }
         isUpdating = true
-        textView.textStorage?.setAttributedString(attributed)
-        let length = (textView.string as NSString).length
+        storage.beginEditing()
+        if storage.string == attributed.string {
+            // In-place attribute update — gentler on the input context than a full replace.
+            let full = NSRange(location: 0, length: storage.length)
+            attributed.enumerateAttributes(in: NSRange(location: 0, length: attributed.length)) { attrs, range, _ in
+                storage.setAttributes(attrs, range: range)
+            }
+            _ = full
+        } else {
+            storage.setAttributedString(attributed)
+        }
+        storage.endEditing()
+        let length = storage.length
         let loc = min(selected.location, length)
         let len = min(selected.length, max(0, length - loc))
         textView.setSelectedRange(NSRange(location: loc, length: len))
+        textView.typingAttributes = [
+            .font: font,
+            .foregroundColor: theme.foreground
+        ]
         isUpdating = false
         ruler.needsDisplay = true
     }
