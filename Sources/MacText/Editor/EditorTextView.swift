@@ -107,13 +107,38 @@ final class EditorTextView: NSTextView {
 
     // MARK: - Sublime-like indent / unindent
 
-    /// Tab: indent whole lines when the selection spans multiple lines; otherwise insert spaces.
+    override func keyDown(with event: NSEvent) {
+        // Catch Tab / Shift+Tab before AppKit inserts a literal tab glyph.
+        if event.keyCode == 48 { // Tab
+            if event.modifierFlags.contains(.shift) {
+                insertBacktab(nil)
+            } else {
+                insertTab(nil)
+            }
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func doCommand(by selector: Selector) {
+        if selector == #selector(insertTab(_:)) {
+            insertTab(nil)
+            return
+        }
+        if selector == #selector(insertBacktab(_:)) {
+            insertBacktab(nil)
+            return
+        }
+        super.doCommand(by: selector)
+    }
+
+    /// Tab: indent whole lines when selection covers 2+ lines (even partial); else insert spaces.
     override func insertTab(_ sender: Any?) {
         let range = selectedRange()
-        if selectionSpansMultipleLines(range) {
+        if lineCount(intersecting: range) >= 2 {
             indentLines(intersecting: range)
         } else {
-            insertText(Self.indentUnit, replacementRange: range)
+            super.insertText(Self.indentUnit, replacementRange: range)
         }
     }
 
@@ -132,15 +157,8 @@ final class EditorTextView: NSTextView {
         unindentLines(intersecting: selectedRange())
     }
 
-    private func selectionSpansMultipleLines(_ range: NSRange) -> Bool {
-        guard range.length > 0 else { return false }
-        let ns = string as NSString
-        let selected = ns.substring(with: range)
-        if selected.contains("\n") { return true }
-        let startLine = ns.lineRange(for: NSRange(location: range.location, length: 0))
-        let endLoc = max(range.location, NSMaxRange(range) - 1)
-        let endLine = ns.lineRange(for: NSRange(location: endLoc, length: 0))
-        return startLine.location != endLine.location
+    private func lineCount(intersecting range: NSRange) -> Int {
+        enumerateLines(in: lineBlock(covering: range)).count
     }
 
     /// Full line block covering every line that intersects `range` (partial front/back still counts).
@@ -162,42 +180,45 @@ final class EditorTextView: NSTextView {
         var idx = block.location
         let limit = NSMaxRange(block)
         while idx < limit {
-            let line = ns.lineRange(for: NSRange(location: min(idx, ns.length - (ns.length > 0 ? 1 : 0)), length: 0))
+            let safe = min(idx, max(0, ns.length - 1))
+            let line = ns.lineRange(for: NSRange(location: safe, length: 0))
+            if let last = lines.last, last == line { break }
             lines.append(line)
             let next = NSMaxRange(line)
             if next <= idx { break }
             idx = next
         }
         if lines.isEmpty {
-            lines.append(ns.lineRange(for: NSRange(location: min(block.location, max(0, ns.length - 1)), length: 0)))
+            let safe = min(block.location, max(0, ns.length - 1))
+            lines.append(ns.lineRange(for: NSRange(location: safe, length: 0)))
         }
         return lines
     }
 
     func indentLines(intersecting range: NSRange) {
-        let ns = string as NSString
         let block = lineBlock(covering: range)
         let lines = enumerateLines(in: block)
         guard !lines.isEmpty else { return }
 
-        var rebuilt = ""
-        rebuilt.reserveCapacity(block.length + lines.count * Self.indentWidth)
-        for line in lines {
-            let text = ns.substring(with: line)
-            rebuilt += Self.indentUnit + text
-        }
+        undoManager?.beginUndoGrouping()
+        defer { undoManager?.endUndoGrouping() }
 
         let oldSel = selectedRange()
-        guard shouldChangeText(in: block, replacementString: rebuilt) else { return }
-        replaceCharacters(in: block, with: rebuilt)
-        didChangeText()
 
-        let deltaPerLine = Self.indentWidth
-        let newStart = shiftedLocation(oldSel.location, lines: lines, deltas: lines.map { _ in deltaPerLine })
-        let newEnd = shiftedLocation(NSMaxRange(oldSel), lines: lines, deltas: lines.map { _ in deltaPerLine })
-        let loc = min(newStart, newEnd)
-        let len = abs(newEnd - newStart)
-        setSelectedRange(NSRange(location: loc, length: len))
+        // Apply from bottom to top so ranges stay valid.
+        for line in lines.reversed() {
+            let insertRange = NSRange(location: line.location, length: 0)
+            if shouldChangeText(in: insertRange, replacementString: Self.indentUnit) {
+                replaceCharacters(in: insertRange, with: Self.indentUnit)
+                didChangeText()
+            }
+        }
+
+        let delta = Self.indentWidth
+        let deltas = Array(repeating: delta, count: lines.count)
+        let newStart = shiftedLocation(oldSel.location, lines: lines, deltas: deltas)
+        let newEnd = shiftedLocation(NSMaxRange(oldSel), lines: lines, deltas: deltas)
+        setSelectedRange(NSRange(location: min(newStart, newEnd), length: abs(newEnd - newStart)))
     }
 
     func unindentLines(intersecting range: NSRange) {
@@ -206,28 +227,37 @@ final class EditorTextView: NSTextView {
         let lines = enumerateLines(in: block)
         guard !lines.isEmpty else { return }
 
-        var rebuilt = ""
-        var deltas: [Int] = []
-        rebuilt.reserveCapacity(block.length)
+        var removals: [(NSRange, Int)] = []
         for line in lines {
             let text = ns.substring(with: line)
-            let (stripped, removed) = Self.stripOneIndent(from: text)
-            rebuilt += stripped
-            deltas.append(-removed)
+            let removed = Self.leadingIndentLength(in: text)
+            if removed > 0 {
+                removals.append((NSRange(location: line.location, length: removed), removed))
+            }
         }
+        guard !removals.isEmpty else { return }
 
-        if deltas.allSatisfy({ $0 == 0 }) { return }
+        undoManager?.beginUndoGrouping()
+        defer { undoManager?.endUndoGrouping() }
 
         let oldSel = selectedRange()
-        guard shouldChangeText(in: block, replacementString: rebuilt) else { return }
-        replaceCharacters(in: block, with: rebuilt)
-        didChangeText()
+        var deltas = Array(repeating: 0, count: lines.count)
+        for (idx, line) in lines.enumerated() {
+            if let match = removals.first(where: { $0.0.location == line.location }) {
+                deltas[idx] = -match.1
+            }
+        }
+
+        for (removal, _) in removals.reversed() {
+            if shouldChangeText(in: removal, replacementString: "") {
+                replaceCharacters(in: removal, with: "")
+                didChangeText()
+            }
+        }
 
         let newStart = shiftedLocation(oldSel.location, lines: lines, deltas: deltas)
         let newEnd = shiftedLocation(NSMaxRange(oldSel), lines: lines, deltas: deltas)
-        let loc = min(newStart, newEnd)
-        let len = abs(newEnd - newStart)
-        setSelectedRange(NSRange(location: loc, length: len))
+        setSelectedRange(NSRange(location: min(newStart, newEnd), length: abs(newEnd - newStart)))
     }
 
     /// Shift a document offset after per-line indent/unindent at each line start.
@@ -252,11 +282,9 @@ final class EditorTextView: NSTextView {
         return max(0, location + add)
     }
 
-    /// Remove one indent level: a leading tab, or up to `indentWidth` spaces.
-    private static func stripOneIndent(from line: String) -> (String, Int) {
-        if line.hasPrefix("\t") {
-            return (String(line.dropFirst()), 1)
-        }
+    /// Length of one indent level at the start of a line (tab, or up to 4 spaces).
+    private static func leadingIndentLength(in line: String) -> Int {
+        if line.hasPrefix("\t") { return 1 }
         var remove = 0
         for ch in line {
             if ch == " ", remove < indentWidth {
@@ -265,7 +293,6 @@ final class EditorTextView: NSTextView {
                 break
             }
         }
-        if remove == 0 { return (line, 0) }
-        return (String(line.dropFirst(remove)), remove)
+        return remove
     }
 }

@@ -47,15 +47,17 @@ final class StatusBarView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func reload(store: DocumentStore) {
+    func reload(store: DocumentStore, document: TextDocument? = nil) {
         let theme = store.theme
         layer?.backgroundColor = theme.statusBar.cgColor
         accentStrip.layer?.backgroundColor = theme.accent.withAlphaComponent(0.55).cgColor
         leftLabel.textColor = theme.lineNumber
         themeButton.contentTintColor = theme.accent
-        themeButton.title = "Theme: \(theme.name) ▾"
+        themeButton.title = L10n.t("主题", "Theme") + ": \(theme.name) ▾"
+        themeButton.toolTip = L10n.t("更改颜色主题", "Change color theme")
 
-        if let doc = store.selectedDocument {
+        let doc = document ?? store.selectedDocument
+        if let doc {
             let languageName: String
             if doc.language == .plain, !doc.content.isEmpty {
                 languageName = SyntaxHighlighter.inferLanguage(from: doc.content).displayName
@@ -63,12 +65,12 @@ final class StatusBarView: NSView {
                 languageName = doc.language.displayName
             }
             var parts = [
-                "Ln \(doc.cursorLine), Col \(doc.cursorColumn)",
+                L10n.t("行", "Ln") + " \(doc.cursorLine), " + L10n.t("列", "Col") + " \(doc.cursorColumn)",
                 languageName,
                 "UTF-8",
                 "\(Int(store.fontSize.rounded()))pt"
             ]
-            if store.softWrap { parts.append("Wrap") }
+            if store.softWrap { parts.append(L10n.t("换行", "Wrap")) }
             leftLabel.stringValue = parts.joined(separator: "  ·  ")
         } else {
             leftLabel.stringValue = ""

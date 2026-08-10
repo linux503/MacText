@@ -23,6 +23,8 @@ struct EditorSession: Codable {
     var windowFrame: String?
     /// Editor monospaced font point size. Optional for older session files.
     var fontSize: Double?
+    /// UI language: "zh" or "en". Optional for older session files.
+    var uiLanguage: String?
 }
 
 enum SessionStore {

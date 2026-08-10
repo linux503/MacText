@@ -1,17 +1,25 @@
 import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var mainWindowController: MainWindowController?
-
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         NSApp.appearance = NSAppearance(named: DocumentStore.shared.theme.appearanceName)
-        // Dock icon: CFBundleIconFile only (runtime applicationIconImage scales oddly)
         buildMenus()
-        let controller = MainWindowController()
-        mainWindowController = controller
-        controller.showWindow(nil)
+        _ = WindowManager.shared.openInitialWindow()
         NSApp.activate(ignoringOtherApps: true)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(rebuildMenus),
+            name: .macTextLanguageChanged,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshThemeMenuChecks),
+            name: .macTextStoreChanged,
+            object: nil
+        )
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -38,6 +46,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    @objc private func rebuildMenus() {
+        buildMenus()
+        refreshThemeMenuChecks()
+    }
+
     private func buildMenus() {
         let mainMenu = NSMenu()
 
@@ -45,79 +58,78 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenuItem)
         let appMenu = NSMenu()
         appMenuItem.submenu = appMenu
-        appMenu.addItem(withTitle: "About MacText", action: #selector(showAbout), keyEquivalent: "")
+        appMenu.addItem(withTitle: L10n.about, action: #selector(showAbout), keyEquivalent: "")
         appMenu.addItem(NSMenuItem.separator())
-        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: L10n.settings, action: #selector(showSettings), keyEquivalent: ",")
         settingsItem.keyEquivalentModifierMask = .command
         settingsItem.target = self
         appMenu.addItem(settingsItem)
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(withTitle: "Quit MacText", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: L10n.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
         let fileMenuItem = NSMenuItem()
         mainMenu.addItem(fileMenuItem)
-        let fileMenu = NSMenu(title: "File")
+        let fileMenu = NSMenu(title: L10n.fileMenu)
         fileMenuItem.submenu = fileMenu
-        fileMenu.addItem(makeItem("New File", action: #selector(newFile), key: "n"))
-        fileMenu.addItem(makeItem("Open File…", action: #selector(openFile), key: "o"))
-        fileMenu.addItem(makeItem("Open Folder…", action: #selector(openFolder), key: "o", modifiers: [.command, .shift]))
+        fileMenu.addItem(makeItem(L10n.newFile, action: #selector(newFile), key: "n"))
+        fileMenu.addItem(makeItem(L10n.openFile, action: #selector(openFile), key: "o"))
+        fileMenu.addItem(makeItem(L10n.openFolder, action: #selector(openFolder), key: "o", modifiers: [.command, .shift]))
         fileMenu.addItem(NSMenuItem.separator())
-        fileMenu.addItem(makeItem("Save", action: #selector(save), key: "s"))
-        fileMenu.addItem(makeItem("Save As…", action: #selector(saveAs), key: "s", modifiers: [.command, .shift]))
+        fileMenu.addItem(makeItem(L10n.save, action: #selector(save), key: "s"))
+        fileMenu.addItem(makeItem(L10n.saveAs, action: #selector(saveAs), key: "s", modifiers: [.command, .shift]))
         fileMenu.addItem(NSMenuItem.separator())
-        fileMenu.addItem(makeItem("Close Tab", action: #selector(closeTab), key: "w"))
+        fileMenu.addItem(makeItem(L10n.closeTab, action: #selector(closeTab), key: "w"))
 
         let editMenuItem = NSMenuItem()
         mainMenu.addItem(editMenuItem)
-        let editMenu = NSMenu(title: "Edit")
+        let editMenu = NSMenu(title: L10n.editMenu)
         editMenuItem.submenu = editMenu
-        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
-        editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(withTitle: L10n.undo, action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: L10n.redo, action: Selector(("redo:")), keyEquivalent: "Z")
         editMenu.addItem(NSMenuItem.separator())
-        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(withTitle: L10n.cut, action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: L10n.copy, action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: L10n.paste, action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: L10n.selectAll, action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editMenu.addItem(NSMenuItem.separator())
-        let indentItem = NSMenuItem(title: "Indent", action: #selector(EditorTextView.indentSelectedLines(_:)), keyEquivalent: "]")
+        let indentItem = NSMenuItem(title: L10n.indent, action: #selector(EditorTextView.indentSelectedLines(_:)), keyEquivalent: "]")
         indentItem.keyEquivalentModifierMask = [.command]
         editMenu.addItem(indentItem)
-        let unindentItem = NSMenuItem(title: "Unindent", action: #selector(EditorTextView.unindentSelectedLines(_:)), keyEquivalent: "[")
+        let unindentItem = NSMenuItem(title: L10n.unindent, action: #selector(EditorTextView.unindentSelectedLines(_:)), keyEquivalent: "[")
         unindentItem.keyEquivalentModifierMask = [.command]
         editMenu.addItem(unindentItem)
 
         let findMenuItem = NSMenuItem()
         mainMenu.addItem(findMenuItem)
-        let findMenu = NSMenu(title: "Find")
+        let findMenu = NSMenu(title: L10n.findMenu)
         findMenuItem.submenu = findMenu
-        findMenu.addItem(makeItem("Find…", action: #selector(find), key: "f"))
-        findMenu.addItem(makeItem("Replace…", action: #selector(replace), key: "f", modifiers: [.command, .option]))
-        findMenu.addItem(makeItem("Find Next", action: #selector(findNext), key: "g"))
-        findMenu.addItem(makeItem("Find Previous", action: #selector(findPrevious), key: "g", modifiers: [.command, .shift]))
+        findMenu.addItem(makeItem(L10n.find, action: #selector(find), key: "f"))
+        findMenu.addItem(makeItem(L10n.replace, action: #selector(replace), key: "f", modifiers: [.command, .option]))
+        findMenu.addItem(makeItem(L10n.findNext, action: #selector(findNext), key: "g"))
+        findMenu.addItem(makeItem(L10n.findPrevious, action: #selector(findPrevious), key: "g", modifiers: [.command, .shift]))
 
         let viewMenuItem = NSMenuItem()
         mainMenu.addItem(viewMenuItem)
-        let viewMenu = NSMenu(title: "View")
+        let viewMenu = NSMenu(title: L10n.viewMenu)
         viewMenuItem.submenu = viewMenu
-        viewMenu.addItem(makeItem("Toggle Sidebar", action: #selector(toggleSidebar), key: "b"))
-        // Title refreshes with checkmark-style show/hide wording via refreshSidebarMenuTitle
-        if let item = viewMenu.item(withTitle: "Toggle Sidebar") {
-            item.title = DocumentStore.shared.showSidebar ? "Hide Sidebar" : "Show Sidebar"
+        viewMenu.addItem(makeItem(L10n.toggleSidebar, action: #selector(toggleSidebar), key: "b"))
+        if let item = viewMenu.items.first(where: { $0.action == #selector(toggleSidebar) }) {
+            item.title = DocumentStore.shared.showSidebar ? L10n.hideSidebar : L10n.showSidebar
         }
-        viewMenu.addItem(makeItem("Toggle Soft Wrap", action: #selector(toggleSoftWrap), key: "z", modifiers: [.command, .option]))
+        viewMenu.addItem(makeItem(L10n.t("切换自动换行", "Toggle Soft Wrap"), action: #selector(toggleSoftWrap), key: "z", modifiers: [.command, .option]))
         viewMenu.addItem(NSMenuItem.separator())
-        viewMenu.addItem(makeItem("Bigger", action: #selector(biggerFont), key: "=", modifiers: [.command]))
-        viewMenu.addItem(makeItem("Smaller", action: #selector(smallerFont), key: "-", modifiers: [.command]))
-        let resetFont = NSMenuItem(title: "Reset Font Size", action: #selector(resetFontSize), keyEquivalent: "0")
+        viewMenu.addItem(makeItem(L10n.biggerFont, action: #selector(biggerFont), key: "=", modifiers: [.command]))
+        viewMenu.addItem(makeItem(L10n.smallerFont, action: #selector(smallerFont), key: "-", modifiers: [.command]))
+        let resetFont = NSMenuItem(title: L10n.resetFont, action: #selector(resetFontSize), keyEquivalent: "0")
         resetFont.keyEquivalentModifierMask = [.command]
         resetFont.target = self
         viewMenu.addItem(resetFont)
         viewMenu.addItem(NSMenuItem.separator())
 
-        let themeMenuItem = NSMenuItem(title: "Theme", action: nil, keyEquivalent: "")
-        let themeMenu = NSMenu(title: "Theme")
+        let themeMenuItem = NSMenuItem(title: L10n.theme, action: nil, keyEquivalent: "")
+        let themeMenu = NSMenu(title: L10n.theme)
 
-        let darkHeader = NSMenuItem(title: "Dark", action: nil, keyEquivalent: "")
+        let darkHeader = NSMenuItem(title: L10n.dark, action: nil, keyEquivalent: "")
         darkHeader.isEnabled = false
         themeMenu.addItem(darkHeader)
         for theme in EditorTheme.darkThemes {
@@ -129,7 +141,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         themeMenu.addItem(NSMenuItem.separator())
-        let lightHeader = NSMenuItem(title: "Light", action: nil, keyEquivalent: "")
+        let lightHeader = NSMenuItem(title: L10n.light, action: nil, keyEquivalent: "")
         lightHeader.isEnabled = false
         themeMenu.addItem(lightHeader)
         for theme in EditorTheme.lightThemes {
@@ -141,24 +153,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         themeMenu.addItem(NSMenuItem.separator())
-        let cycle = NSMenuItem(title: "Cycle Themes", action: #selector(cycleTheme), keyEquivalent: "t")
+        let cycle = NSMenuItem(title: L10n.cycleTheme, action: #selector(cycleTheme), keyEquivalent: "t")
         cycle.keyEquivalentModifierMask = [.command, .option]
         cycle.target = self
         themeMenu.addItem(cycle)
         themeMenuItem.submenu = themeMenu
         viewMenu.addItem(themeMenuItem)
 
-        viewMenu.addItem(makeItem("Command Palette…", action: #selector(commandPalette), key: "p", modifiers: [.command, .shift]))
-        viewMenu.addItem(makeItem("Go to Line…", action: #selector(goToLine), key: "g", modifiers: [.command, .option]))
+        viewMenu.addItem(makeItem(L10n.commandPalette + "…", action: #selector(commandPalette), key: "p", modifiers: [.command, .shift]))
+        viewMenu.addItem(makeItem(L10n.t("跳转到行…", "Go to Line…"), action: #selector(goToLine), key: "g", modifiers: [.command, .option]))
 
         NSApp.mainMenu = mainMenu
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(refreshThemeMenuChecks),
-            name: .macTextStoreChanged,
-            object: nil
-        )
     }
 
     private func makeItem(
@@ -183,11 +188,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func refreshThemeMenuChecks() {
-        guard let viewMenu = NSApp.mainMenu?.item(withTitle: "View")?.submenu else { return }
+        guard let viewMenu = NSApp.mainMenu?.items.first(where: { $0.submenu?.title == L10n.viewMenu })?.submenu
+                ?? NSApp.mainMenu?.item(withTitle: L10n.viewMenu)?.submenu else { return }
         if let sidebarItem = viewMenu.items.first(where: { $0.action == #selector(toggleSidebar) }) {
-            sidebarItem.title = DocumentStore.shared.showSidebar ? "Hide Sidebar" : "Show Sidebar"
+            sidebarItem.title = DocumentStore.shared.showSidebar ? L10n.hideSidebar : L10n.showSidebar
         }
-        guard let themeMenu = viewMenu.item(withTitle: "Theme")?.submenu else { return }
+        guard let themeMenu = viewMenu.items.first(where: { $0.submenu != nil && ($0.title == L10n.theme || $0.title == "Theme") })?.submenu else { return }
         let current = DocumentStore.shared.theme.name
         for item in themeMenu.items where item.action == #selector(selectTheme(_:)) {
             item.state = (item.representedObject as? String) == current ? .on : .off
@@ -195,14 +201,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showAbout() {
-        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.5"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "7"
+        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.6"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "8"
         var options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "MacText",
             .applicationVersion: short,
             .version: build,
             .credits: NSAttributedString(
-                string: "A native Mac text editor.\nThemes: Ink · Black · Paper · Snow",
+                string: L10n.t(
+                    "原生 Mac 文本编辑器。\n主题：Ink · Black · Paper · Snow",
+                    "A native Mac text editor.\nThemes: Ink · Black · Paper · Snow"
+                ),
                 attributes: [
                     .font: NSFont.systemFont(ofSize: 11),
                     .foregroundColor: NSColor.secondaryLabelColor

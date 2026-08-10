@@ -12,8 +12,29 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
     private let commandPalette = CommandPaletteController()
     private var findHeightConstraint: NSLayoutConstraint!
     private var sidebarWidth: CGFloat = 220
+    private let isPrimary: Bool
+
+    private(set) var tabIDs: [UUID]
+    private(set) var selectedTabID: UUID?
+
+    var tabDocuments: [TextDocument] {
+        tabIDs.compactMap { store.document(id: $0) }
+    }
+
+    var selectedDocument: TextDocument? {
+        if let selectedTabID, let doc = store.document(id: selectedTabID) { return doc }
+        return tabDocuments.first
+    }
 
     convenience init() {
+        self.init(tabIDs: [], selectedID: nil, savedFrame: nil, cascadeOrigin: nil, isPrimary: true)
+    }
+
+    init(tabIDs: [UUID], selectedID: UUID?, savedFrame: NSRect?, cascadeOrigin: NSPoint?, isPrimary: Bool) {
+        self.tabIDs = tabIDs
+        self.selectedTabID = selectedID ?? tabIDs.first
+        self.isPrimary = isPrimary
+
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1180, height: 740),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
@@ -21,24 +42,137 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             defer: false
         )
         window.title = "MacText"
-        window.minSize = NSSize(width: 900, height: 560)
-        if let saved = DocumentStore.shared.windowFrame,
-           saved.width >= 900, saved.height >= 560,
+        window.minSize = NSSize(width: 720, height: 480)
+
+        if let saved = savedFrame,
+           saved.width >= 720, saved.height >= 480,
            NSScreen.screens.contains(where: { $0.visibleFrame.intersects(saved) }) {
             window.setFrame(saved, display: false)
+        } else if let origin = cascadeOrigin {
+            var frame = window.frame
+            frame.origin = origin
+            // Keep on-screen
+            if let screen = NSScreen.screens.first(where: { $0.frame.contains(origin) }) ?? NSScreen.main {
+                let vis = screen.visibleFrame
+                frame.origin.x = min(max(frame.origin.x, vis.minX), vis.maxX - 200)
+                frame.origin.y = min(max(frame.origin.y - frame.height, vis.minY), vis.maxY - 100)
+            }
+            window.setFrame(frame, display: false)
         } else {
             window.center()
         }
+
         window.titlebarAppearsTransparent = true
-        window.backgroundColor = EditorTheme.ink.sidebarBackground
-        self.init(window: window)
+        window.backgroundColor = DocumentStore.shared.theme.sidebarBackground
+        window.isReleasedWhenClosed = false
+        super.init(window: window)
         window.delegate = self
+
+        if self.tabIDs.isEmpty {
+            let doc = store.makeUntitledDocument()
+            self.tabIDs = [doc.id]
+            self.selectedTabID = doc.id
+        }
+
         buildUI()
         observe()
         reload(full: true)
         DispatchQueue.main.async { [weak self] in
             self?.editor.focus()
         }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func selectTab(_ id: UUID) {
+        guard tabIDs.contains(id) else { return }
+        selectedTabID = id
+        store.syncActiveSelection(id)
+        reload(full: true)
+        editor.focus()
+    }
+
+    func insertTab(_ id: UUID, at index: Int?) {
+        guard !tabIDs.contains(id) else {
+            selectTab(id)
+            return
+        }
+        if let index, index >= 0, index <= tabIDs.count {
+            tabIDs.insert(id, at: index)
+        } else {
+            tabIDs.append(id)
+        }
+        selectedTabID = id
+        reload(full: true)
+    }
+
+    func reorderTab(_ id: UUID, to index: Int) {
+        guard let from = tabIDs.firstIndex(of: id) else { return }
+        var ids = tabIDs
+        ids.remove(at: from)
+        let clamped = min(max(0, index), ids.count)
+        ids.insert(id, at: clamped)
+        tabIDs = ids
+        selectedTabID = id
+        reload(full: true)
+    }
+
+    /// Remove tab from this window. Optionally close the window if empty.
+    func removeTab(_ id: UUID, destroyIfEmpty: Bool) {
+        guard let idx = tabIDs.firstIndex(of: id) else { return }
+        tabIDs.remove(at: idx)
+        if selectedTabID == id {
+            if tabIDs.isEmpty {
+                selectedTabID = nil
+            } else {
+                selectedTabID = tabIDs[min(idx, tabIDs.count - 1)]
+            }
+        }
+        if tabIDs.isEmpty {
+            if destroyIfEmpty {
+                window?.close()
+            } else {
+                let doc = store.makeUntitledDocument()
+                tabIDs = [doc.id]
+                selectedTabID = doc.id
+                reload(full: true)
+            }
+        } else {
+            if let selectedTabID {
+                store.syncActiveSelection(selectedTabID)
+            }
+            reload(full: true)
+        }
+    }
+
+    func addNewUntitled() {
+        let doc = store.makeUntitledDocument()
+        tabIDs.append(doc.id)
+        selectedTabID = doc.id
+        store.syncActiveSelection(doc.id)
+        store.notify()
+        reload(full: true)
+        editor.focus()
+    }
+
+    func openURLs(_ urls: [URL]) {
+        for url in urls {
+            if let existing = store.document(fileURL: url) {
+                if let host = WindowManager.shared.window(containing: existing.id), host !== self {
+                    WindowManager.shared.moveTab(existing.id, from: host, to: self, at: nil)
+                } else if !tabIDs.contains(existing.id) {
+                    insertTab(existing.id, at: nil)
+                } else {
+                    selectTab(existing.id)
+                }
+            } else if let doc = store.loadFileDocument(url) {
+                insertTab(doc.id, at: nil)
+            }
+        }
+        store.notify()
     }
 
     private func buildUI() {
@@ -58,22 +192,40 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         editorColumn.translatesAutoresizingMaskIntoConstraints = false
 
         tabBar.onSelect = { [weak self] id in
-            self?.store.select(id)
-            DispatchQueue.main.async { self?.editor.focus() }
+            self?.selectTab(id)
         }
         tabBar.onClose = { [weak self] id in
-            self?.store.close(id)
+            self?.closeTab(id)
         }
         tabBar.onToggleSidebar = {
             DocumentStore.shared.perform(.toggleSidebar)
         }
         tabBar.onNewFile = { [weak self] in
-            DocumentStore.shared.perform(.newFile)
-            DispatchQueue.main.async { self?.editor.focus() }
+            self?.addNewUntitled()
         }
-        tabBar.onCloseOthers = { id in
-            DocumentStore.shared.closeOthers(keeping: id)
+        tabBar.onCloseOthers = { [weak self] id in
+            self?.closeOthers(keeping: id)
         }
+        tabBar.onDetach = { [weak self] id, screenPoint in
+            guard let self else { return }
+            WindowManager.shared.detachTab(id, from: self, screenPoint: screenPoint)
+        }
+        tabBar.onReorder = { [weak self] id, index in
+            self?.reorderTab(id, to: index)
+        }
+        tabBar.onAcceptDrop = { [weak self] id, index in
+            guard let self else { return false }
+            if let source = WindowManager.shared.window(containing: id), source !== self {
+                WindowManager.shared.moveTab(id, from: source, to: self, at: index)
+                return true
+            }
+            if self.tabIDs.contains(id) {
+                self.reorderTab(id, to: index ?? self.tabIDs.count)
+                return true
+            }
+            return false
+        }
+        tabBar.windowOwner = self
 
         editorColumn.addSubview(tabBar)
         editorColumn.addSubview(findBar)
@@ -122,55 +274,48 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
     }
 
     private func observe() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(storeChanged),
-            name: .macTextStoreChanged,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(metaChanged),
-            name: .macTextMetaChanged,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(showCommandPalette),
-            name: Notification.Name("MacTextShowCommandPalette"),
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(showGoToLine),
-            name: Notification.Name("MacTextShowGoToLine"),
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(focusEditor),
-            name: Notification.Name("MacTextFocusEditor"),
-            object: nil
-        )
+        NotificationCenter.default.addObserver(self, selector: #selector(storeChanged), name: .macTextStoreChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(metaChanged), name: .macTextMetaChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showCommandPalette), name: Notification.Name("MacTextShowCommandPalette"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showGoToLine), name: Notification.Name("MacTextShowGoToLine"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(focusEditor), name: Notification.Name("MacTextFocusEditor"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(languageChanged), name: .macTextLanguageChanged, object: nil)
+    }
+
+    @objc private func languageChanged() {
+        reload(full: true)
     }
 
     @objc private func focusEditor() {
+        guard window?.isKeyWindow == true else { return }
         DispatchQueue.main.async { [weak self] in
             self?.editor.focus()
         }
     }
 
     @objc private func storeChanged() {
-        reload(full: true)
+        // Drop tabs whose documents were removed globally.
+        let before = tabIDs
+        tabIDs = tabIDs.filter { store.document(id: $0) != nil }
+        if let selectedTabID, store.document(id: selectedTabID) == nil {
+            self.selectedTabID = tabIDs.first
+        }
+        if tabIDs.isEmpty, WindowManager.shared.windows.count == 1 {
+            let doc = store.makeUntitledDocument()
+            tabIDs = [doc.id]
+            selectedTabID = doc.id
+        }
+        if before != tabIDs || true {
+            reload(full: true)
+        }
     }
 
     @objc private func metaChanged() {
-        // Cursor/content edits: refresh chrome only — never tear down views (avoids notification recursion).
-        if let doc = store.selectedDocument {
+        if let doc = selectedDocument {
             window?.title = doc.displayTitle + " — MacText"
-            tabBar.updateTitles(documents: store.documents, selectedID: store.selectedDocumentID)
+            tabBar.updateTitles(documents: tabDocuments, selectedID: selectedTabID)
         }
-        statusBar.reload(store: store)
+        statusBar.reload(store: store, document: selectedDocument)
     }
 
     private func reload(full: Bool) {
@@ -182,29 +327,29 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             theme: store.theme
         )
         tabBar.reload(
-            documents: store.documents,
-            selectedID: store.selectedDocumentID,
+            documents: tabDocuments,
+            selectedID: selectedTabID,
             theme: store.theme,
             showSidebar: store.showSidebar
         )
 
-        let findVisible = store.showFindBar
-        let findHeight: CGFloat = findVisible ? (store.showReplace ? 74 : 42) : 0
+        let findVisible = store.showFindBar && window?.isKeyWindow != false
+        let findHeight: CGFloat = store.showFindBar ? (store.showReplace ? 74 : 42) : 0
         findHeightConstraint.constant = findHeight
-        findBar.isHidden = !findVisible
+        findBar.isHidden = !store.showFindBar
         findBar.apply(
             theme: store.theme,
             showReplace: store.showReplace,
             query: store.findQuery,
             replace: store.replaceQuery
         )
-        if findVisible && wasFindHidden {
+        if store.showFindBar && wasFindHidden && window?.isKeyWindow == true {
             DispatchQueue.main.async { [weak self] in
                 self?.findBar.focusFind()
             }
         }
 
-        if let doc = store.selectedDocument {
+        if let doc = selectedDocument {
             editor.load(
                 document: doc,
                 theme: store.theme,
@@ -213,10 +358,50 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             )
             window?.title = doc.displayTitle + " — MacText"
         }
-        statusBar.reload(store: store)
+        statusBar.reload(store: store, document: selectedDocument)
         window?.contentView?.layer?.backgroundColor = store.theme.sidebarBackground.cgColor
         window?.backgroundColor = store.theme.sidebarBackground
         _ = full
+        _ = findVisible
+    }
+
+    func requestCloseTab(_ id: UUID) { closeTab(id) }
+
+    func requestCloseOthers(keeping id: UUID) { closeOthers(keeping: id) }
+
+    private func closeTab(_ id: UUID) {
+        guard let doc = store.document(id: id) else {
+            removeTab(id, destroyIfEmpty: WindowManager.shared.windows.count > 1)
+            return
+        }
+        if doc.isDirty {
+            let alert = NSAlert()
+            alert.messageText = String(format: L10n.saveChangesTitle, doc.title)
+            alert.informativeText = L10n.saveChangesBody
+            alert.addButton(withTitle: L10n.save)
+            alert.addButton(withTitle: L10n.dontSave)
+            alert.addButton(withTitle: L10n.cancel)
+            let result = alert.runModal()
+            if result == .alertFirstButtonReturn {
+                selectTab(id)
+                store.save(documentID: id)
+                if doc.isDirty { return }
+            } else if result == .alertThirdButtonReturn {
+                return
+            }
+        }
+        let alone = WindowManager.shared.windows.count == 1
+        removeTab(id, destroyIfEmpty: !alone)
+        store.removeDocumentIfOrphaned(id)
+        store.notify()
+    }
+
+    private func closeOthers(keeping id: UUID) {
+        let victims = tabIDs.filter { $0 != id }
+        for vid in victims {
+            closeTab(vid)
+        }
+        selectTab(id)
     }
 
     private func applySidebarVisibility(animated: Bool) {
@@ -224,18 +409,15 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         let currentWidth = sidebar.container.frame.width
 
         if store.showSidebar {
-            // Remember width before restoring if we still have a sensible value.
             if currentWidth > 40 {
                 sidebarWidth = currentWidth
             }
-
             if sidebar.container.superview !== splitView {
                 editorColumn.removeFromSuperview()
                 splitView.addSubview(sidebar.container)
                 splitView.addSubview(editorColumn)
             }
             sidebar.container.isHidden = false
-
             let target = min(max(sidebarWidth, 180), 360)
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -247,7 +429,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             if currentWidth > 40 {
                 sidebarWidth = currentWidth
             }
-            // Fully detach sidebar so the editor owns 100% width — no leftover gutter.
             if sidebar.container.superview === splitView {
                 sidebar.container.removeFromSuperview()
             }
@@ -257,24 +438,24 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             sidebar.container.isHidden = true
             splitView.adjustSubviews()
             splitView.needsDisplay = true
-            // Force editor column to fill split view bounds.
             editorColumn.frame = splitView.bounds
         }
     }
 
     @objc private func showCommandPalette() {
+        guard window?.isKeyWindow == true else { return }
         commandPalette.show(relativeTo: window)
     }
 
     @objc private func showGoToLine() {
-        guard let window else { return }
+        guard let window, window.isKeyWindow else { return }
         let alert = NSAlert()
-        alert.messageText = "Go to Line"
-        alert.informativeText = "Enter a line number"
-        alert.addButton(withTitle: "Go")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = L10n.goToLine
+        alert.informativeText = L10n.goToLineHint
+        alert.addButton(withTitle: L10n.go)
+        alert.addButton(withTitle: L10n.cancel)
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
-        if let doc = store.selectedDocument {
+        if let doc = selectedDocument {
             field.stringValue = "\(doc.cursorLine)"
         }
         alert.accessoryView = field
@@ -286,7 +467,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
                 store.requestGoToLine(line)
             }
         }
-        _ = window
     }
 
     func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
@@ -321,21 +501,44 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         }
     }
 
+    func windowDidBecomeKey(_ notification: Notification) {
+        if let id = selectedTabID {
+            store.syncActiveSelection(id)
+        }
+        reload(full: false)
+        editor.focus()
+    }
+
     func windowDidResize(_ notification: Notification) {
-        if let frame = window?.frame {
+        if isPrimary, let frame = window?.frame {
             store.updateWindowFrame(frame)
         }
     }
 
     func windowDidMove(_ notification: Notification) {
-        if let frame = window?.frame {
+        if isPrimary, let frame = window?.frame {
             store.updateWindowFrame(frame)
         }
     }
 
     func windowWillClose(_ notification: Notification) {
-        if let frame = window?.frame {
+        if isPrimary, let frame = window?.frame {
             store.updateWindowFrame(frame)
+        }
+        // Orphan docs that only lived here stay in store until explicitly closed —
+        // but if window closes with tabs, keep documents for other windows only.
+        // Closing window destroys those tabs' presence here; docs unused elsewhere remain until quit session.
+        for id in tabIDs {
+            if WindowManager.shared.windows.filter({ $0 !== self && $0.tabIDs.contains(id) }).isEmpty {
+                // Document only in this window — keep in store for session of remaining? Drop from UI.
+                // Persist still includes all store documents; remove orphans not in any remaining window after unregister.
+            }
+        }
+        let closingIDs = tabIDs
+        tabIDs = []
+        WindowManager.shared.unregister(self)
+        for id in closingIDs {
+            store.removeDocumentIfOrphaned(id)
         }
         store.persistSessionNow()
     }

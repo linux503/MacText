@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg"><strong>Download DMG</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.0.6/MacText-1.0.6.dmg"><strong>Download DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/">Website</a>
   ·
@@ -45,12 +45,12 @@ Built with native **AppKit** — no Electron. Ships as a **Universal Binary** (`
 
 ## Install
 
-1. Download [`MacText-1.0.5.dmg`](https://github.com/linux503/MacText/releases/download/v1.0.5/MacText-1.0.5.dmg)
+1. Download [`MacText-1.0.6.dmg`](https://github.com/linux503/MacText/releases/download/v1.0.6/MacText-1.0.6.dmg)
 2. Drag **MacText** into **Applications**
 3. If Gatekeeper blocks: **System Settings → Privacy & Security → Open Anyway**
 
 ```text
-SHA-256  c21f0ed5a783861b3e23089145e1012ef6951f5f4297a1dd925b7811836a33a4
+SHA-256  ba5505af5875ab483c29ed4a629bb10a489e46366ae28be0a78c5706408af409
 ```
 
 ## Shortcuts
@@ -63,6 +63,7 @@ SHA-256  c21f0ed5a783861b3e23089145e1012ef6951f5f4297a1dd925b7811836a33a4
 | Save | ⌘S | Go to Line | ⌘⌥G |
 | Close Tab | ⌘W | Toggle Sidebar | ⌘B |
 | Indent | Tab / ⌘] | Unindent | ⇧Tab / ⌘[ |
+| Settings | ⌘, | Language | 设置 → 界面语言 |
 
 Theme cycle: **⌘⌥T** · Settings: **⌘,**
 

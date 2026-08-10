@@ -31,22 +31,22 @@ enum EditorAction: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .newFile: return "New File"
-        case .openFile: return "Open File…"
-        case .openFolder: return "Open Folder…"
-        case .save: return "Save"
-        case .saveAs: return "Save As…"
-        case .closeTab: return "Close Tab"
-        case .find: return "Find"
-        case .replace: return "Replace"
-        case .commandPalette: return "Command Palette"
-        case .goToLine: return "Go to Line…"
-        case .toggleSidebar: return "Toggle Sidebar"
-        case .softWrap: return "Toggle Soft Wrap"
-        case .nextTheme: return "Cycle Color Theme"
-        case .biggerFont: return "Bigger Font"
-        case .smallerFont: return "Smaller Font"
-        case .preferences: return "Settings…"
+        case .newFile: return L10n.newFile
+        case .openFile: return L10n.openFile
+        case .openFolder: return L10n.openFolder
+        case .save: return L10n.save
+        case .saveAs: return L10n.saveAs
+        case .closeTab: return L10n.closeTab
+        case .find: return L10n.t("查找", "Find")
+        case .replace: return L10n.t("替换", "Replace")
+        case .commandPalette: return L10n.commandPalette
+        case .goToLine: return L10n.t("跳转到行…", "Go to Line…")
+        case .toggleSidebar: return L10n.toggleSidebar
+        case .softWrap: return L10n.t("切换自动换行", "Toggle Soft Wrap")
+        case .nextTheme: return L10n.cycleTheme
+        case .biggerFont: return L10n.biggerFontCmd
+        case .smallerFont: return L10n.smallerFontCmd
+        case .preferences: return L10n.preferences
         }
     }
 
@@ -116,14 +116,99 @@ final class DocumentStore {
     private var persistWorkItem: DispatchWorkItem?
     private var isRestoring = false
 
+    /// Used only when bootstrapping the first window from a restored session.
+    private(set) var bootstrapSelectedID: UUID?
+
     var selectedDocument: TextDocument? {
+        if let key = WindowManager.shared.keyEditor?.selectedDocument {
+            return key
+        }
         guard let selectedDocumentID else { return documents.first }
         return documents.first { $0.id == selectedDocumentID } ?? documents.first
     }
 
     private init() {
+        if let session = SessionStore.load(), let lang = session.uiLanguage,
+           let parsed = AppLanguage(rawValue: lang) {
+            UserDefaults.standard.set(parsed.rawValue, forKey: "mactext.uiLanguage")
+        }
         if !restoreSession() {
-            newUntitled(persist: false)
+            // First window creates untitled via MainWindowController.
+        }
+    }
+
+    func document(id: UUID) -> TextDocument? {
+        documents.first { $0.id == id }
+    }
+
+    func document(fileURL url: URL) -> TextDocument? {
+        let standardized = url.standardizedFileURL
+        return documents.first { $0.fileURL?.standardizedFileURL == standardized }
+    }
+
+    func syncActiveSelection(_ id: UUID) {
+        selectedDocumentID = id
+        bootstrapSelectedID = id
+    }
+
+    @discardableResult
+    func makeUntitledDocument() -> TextDocument {
+        let untitledCount = documents.filter { $0.fileURL == nil }.count + 1
+        let title = untitledCount == 1 ? "untitled" : "untitled \(untitledCount)"
+        let doc = TextDocument(title: title, content: "", isDirty: false)
+        documents.append(doc)
+        selectedDocumentID = doc.id
+        schedulePersist()
+        return doc
+    }
+
+    @discardableResult
+    func loadFileDocument(_ url: URL) -> TextDocument? {
+        let standardized = url.standardizedFileURL
+        if let existing = document(fileURL: standardized) {
+            selectedDocumentID = existing.id
+            return existing
+        }
+        do {
+            let loaded = try TextFileLoader.load(url: standardized)
+            let doc = TextDocument(
+                title: standardized.lastPathComponent,
+                fileURL: standardized,
+                content: loaded.content,
+                isDirty: false,
+                language: LanguageKind.detect(from: standardized),
+                enableHighlight: loaded.shouldHighlight
+            )
+            documents.append(doc)
+            selectedDocumentID = doc.id
+            schedulePersist()
+            return doc
+        } catch {
+            presentError(L10n.t(
+                "无法打开 \(standardized.lastPathComponent)：\n\(error.localizedDescription)",
+                "Could not open \(standardized.lastPathComponent):\n\(error.localizedDescription)"
+            ))
+            return nil
+        }
+    }
+
+    func removeDocumentIfOrphaned(_ id: UUID) {
+        let stillOpen = WindowManager.shared.windows.contains { $0.tabIDs.contains(id) }
+        guard !stillOpen else { return }
+        documents.removeAll { $0.id == id }
+        if selectedDocumentID == id {
+            selectedDocumentID = documents.first?.id
+        }
+        schedulePersist()
+    }
+
+    func save(documentID id: UUID) {
+        guard let doc = document(id: id) else { return }
+        selectedDocumentID = id
+        if let url = doc.fileURL {
+            write(doc, to: url)
+        } else {
+            saveSelectedAs()
         }
     }
 
@@ -138,97 +223,58 @@ final class DocumentStore {
     }
 
     func newUntitled(persist: Bool = true) {
-        let untitledCount = documents.filter { $0.fileURL == nil }.count + 1
-        // Sublime-style lowercase untitled label
-        let title = untitledCount == 1 ? "untitled" : "untitled \(untitledCount)"
-        let doc = TextDocument(title: title, content: "", isDirty: false)
-        documents.append(doc)
-        selectedDocumentID = doc.id
+        if let window = WindowManager.shared.keyEditor {
+            window.addNewUntitled()
+            return
+        }
+        _ = makeUntitledDocument()
         if persist { notify() }
     }
 
     func select(_ id: UUID) {
+        if let window = WindowManager.shared.window(containing: id) {
+            window.window?.makeKeyAndOrderFront(nil)
+            window.selectTab(id)
+            return
+        }
         selectedDocumentID = id
         notify()
     }
 
     func close(_ id: UUID) {
-        guard let index = documents.firstIndex(where: { $0.id == id }) else { return }
-        let doc = documents[index]
-        if doc.isDirty {
-            let alert = NSAlert()
-            alert.messageText = "Do you want to save the changes you made to “\(doc.title)”?"
-            alert.informativeText = "Your changes will be lost if you don’t save them."
-            alert.addButton(withTitle: "Save")
-            alert.addButton(withTitle: "Don’t Save")
-            alert.addButton(withTitle: "Cancel")
-            let result = alert.runModal()
-            if result == .alertFirstButtonReturn {
-                selectedDocumentID = id
-                if doc.fileURL != nil {
-                    saveSelected()
-                    if doc.isDirty { return }
-                } else {
-                    saveSelectedAs()
-                    if doc.isDirty { return }
-                }
-            } else if result == .alertThirdButtonReturn {
-                return
-            }
-        }
-        let wasSelected = selectedDocumentID == id
-        documents.remove(at: index)
-        if documents.isEmpty {
-            newUntitled()
+        if let window = WindowManager.shared.window(containing: id) ?? WindowManager.shared.keyEditor {
+            window.requestCloseTab(id)
             return
         }
-        if wasSelected {
-            let nextIndex = min(index, documents.count - 1)
-            selectedDocumentID = documents[nextIndex].id
-        }
+        documents.removeAll { $0.id == id }
         notify()
     }
 
     func closeOthers(keeping id: UUID) {
-        guard documents.contains(where: { $0.id == id }) else { return }
-        documents = documents.filter { $0.id == id }
-        selectedDocumentID = id
-        notify()
+        guard let window = WindowManager.shared.window(containing: id) ?? WindowManager.shared.keyEditor else { return }
+        window.requestCloseOthers(keeping: id)
     }
 
     func openFiles(urls: [URL]) {
-        for url in urls {
-            openFile(url)
+        if let window = WindowManager.shared.keyEditor {
+            window.openURLs(urls)
+            return
         }
+        for url in urls {
+            _ = loadFileDocument(url)
+        }
+        notify()
     }
 
     @discardableResult
     func openFile(_ url: URL) -> TextDocument? {
-        let standardized = url.standardizedFileURL
-        if let existing = documents.first(where: { $0.fileURL?.standardizedFileURL == standardized }) {
-            selectedDocumentID = existing.id
-            notify()
-            return existing
+        if let window = WindowManager.shared.keyEditor {
+            window.openURLs([url])
+            return document(fileURL: url)
         }
-
-        do {
-            let loaded = try TextFileLoader.load(url: standardized)
-            let doc = TextDocument(
-                title: standardized.lastPathComponent,
-                fileURL: standardized,
-                content: loaded.content,
-                isDirty: false,
-                language: LanguageKind.detect(from: standardized),
-                enableHighlight: loaded.shouldHighlight
-            )
-            documents.append(doc)
-            selectedDocumentID = doc.id
-            notify()
-            return doc
-        } catch {
-            presentError("Could not open \(standardized.lastPathComponent):\n\(error.localizedDescription)")
-            return nil
-        }
+        let doc = loadFileDocument(url)
+        notify()
+        return doc
     }
 
     func openFolder(_ url: URL) {
@@ -311,7 +357,7 @@ final class DocumentStore {
             refreshFileTree()
             notify()
         } catch {
-            presentError("Could not save: \(error.localizedDescription)")
+            presentError(L10n.t("无法保存：\(error.localizedDescription)", "Could not save: \(error.localizedDescription)"))
         }
     }
 
@@ -546,8 +592,10 @@ final class DocumentStore {
         if let selected = session.selectedDocumentID,
            documents.contains(where: { $0.id == selected }) {
             selectedDocumentID = selected
+            bootstrapSelectedID = selected
         } else {
             selectedDocumentID = documents.first?.id
+            bootstrapSelectedID = selectedDocumentID
         }
 
         if let folderPath = session.folderPath {
@@ -602,13 +650,14 @@ final class DocumentStore {
         let session = EditorSession(
             version: 1,
             documents: docs,
-            selectedDocumentID: selectedDocumentID,
+            selectedDocumentID: WindowManager.shared.keyEditor?.selectedTabID ?? selectedDocumentID,
             folderPath: folderURL?.path,
             showSidebar: showSidebar,
             softWrap: softWrap,
             themeName: theme.name,
             windowFrame: windowFrame.map { NSStringFromRect($0) },
-            fontSize: Double(fontSize)
+            fontSize: Double(fontSize),
+            uiLanguage: L10n.language.rawValue
         )
 
         if isBlankDefault, SessionStore.load() == nil {
