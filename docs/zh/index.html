@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MacText — Native macOS Text Editor | Sublime-like Speed</title>
   <meta name="description" id="meta-desc" content="MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find &amp; replace, command palette, syntax highlight, and session restore." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://linux503.github.io/MacText/" />
-  <link rel="alternate" hreflang="en" href="https://linux503.github.io/MacText/" />
-  <link rel="alternate" hreflang="zh-CN" href="https://linux503.github.io/MacText/zh/" />
+  <link rel="canonical" href="https://linux503.github.io/MacText/zh/" />
+  <link rel="alternate" hreflang="en" href="https://linux503.github.io/MacText/?lang=en" />
+  <link rel="alternate" hreflang="zh-CN" href="https://linux503.github.io/MacText/?lang=zh" />
   <link rel="alternate" hreflang="x-default" href="https://linux503.github.io/MacText/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" id="og-title" content="MacText — Native macOS Text Editor" />
@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://linux503.github.io/MacText/" />
   <meta property="og:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" href="assets/icon-256.png" />
+  <link rel="icon" href="../assets/icon-256.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -131,7 +131,7 @@
       letter-spacing: 0.02em; color: var(--text-3); text-align: center;
       display: inline-flex; align-items: center; justify-content: center;
     }
-    .lang-link.is-active {
+    .lang-link.is-active, .lang a[aria-pressed="true"] {
       background: var(--surface-2); color: var(--text);
       box-shadow: inset 0 0 0 1px var(--line-2);
     }
@@ -481,70 +481,57 @@
       .controls, .keys { grid-template-columns: 1fr; }
     }
   </style>
-  <script>
-    (function () {
-      try {
-        var q = new URLSearchParams(location.search).get("lang");
-        var saved = localStorage.getItem("mactext-lang");
-        var nav = (navigator.language || "").toLowerCase();
-        if (q === "zh" || (!q && (saved === "zh" || (!saved && nav.indexOf("zh") === 0)))) {
-          localStorage.setItem("mactext-lang", "zh");
-          location.replace("./zh/");
-        }
-      } catch (e) {}
-    })();
-  </script>
 </head>
 <body>
   <div class="atmosphere" aria-hidden="true"></div>
   <div class="page">
     <nav class="nav">
       <a class="brand" href="./">
-        <img src="assets/icon-256.png" width="30" height="30" alt="" />
+        <img src="../assets/icon-256.png" width="30" height="30" alt="" />
         MacText
       </a>
       <div class="nav-end">
         <div class="nav-links">
-          <a href="#showcase" data-i18n="nav.shots">Showcase</a>
-          <a href="#features" data-i18n="nav.features">Features</a>
+          <a href="#showcase" data-i18n="nav.shots">界面</a>
+          <a href="#features" data-i18n="nav.features">功能</a>
           <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
-        <div class="lang" role="group" aria-label="Language">
-          <a class="lang-link is-active" href="./" aria-pressed="true">EN</a>
-          <a class="lang-link" href="./zh/" aria-pressed="false">中文</a>
+                <div class="lang" role="group" aria-label="语言">
+          <a href="../" data-lang="en" aria-pressed="false" style="min-width:2.2rem;padding:0.35rem 0.55rem;border-radius:6px;font-family:var(--mono);font-size:0.68rem;font-weight:500;letter-spacing:0.02em;color:var(--text-3);text-align:center;">EN</a>
+          <a href="./" data-lang="zh" aria-pressed="true" style="min-width:2.2rem;padding:0.35rem 0.55rem;border-radius:6px;font-family:var(--mono);font-size:0.68rem;font-weight:500;letter-spacing:0.02em;background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2);text-align:center;">中文</a>
         </div>
-        <a class="btn btn-solid btn-sm" href="https://github.com/linux503/MacText/releases/latest" data-i18n="nav.dl">Download</a>
+        <a class="btn btn-solid btn-sm" href="https://github.com/linux503/MacText/releases/latest" data-i18n="nav.dl">下载</a>
       </div>
     </nav>
 
     <header class="hero">
       <div class="hero-grid">
         <div>
-          <p class="eyebrow" data-i18n="hero.eye">Native · AppKit · Universal</p>
+          <p class="eyebrow" data-i18n="hero.eye">原生 · AppKit · 通用二进制</p>
           <p class="mark"><span>Mac</span>Text</p>
           <div class="accent-bar" aria-hidden="true"></div>
-          <h1 data-i18n="hero.h1">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
+          <h1 data-i18n="hero.h1">专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。</h1>
           <div class="actions">
-            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="hero.cta">Download DMG</a>
-            <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.src">View source</a>
+            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="hero.cta">下载 DMG</a>
+            <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.src">查看源码</a>
           </div>
           <p class="meta">v1.0.4 · macOS 14+ · arm64 + x86_64</p>
         </div>
         <aside class="side" aria-label="Highlights">
           <div class="side-item">
-            <span class="tag" data-i18n="stat.t1">Runtime</span>
+            <span class="tag" data-i18n="stat.t1">运行时</span>
             <strong>AppKit</strong>
-            <span data-i18n="stat.1">Native Cocoa stack</span>
+            <span data-i18n="stat.1">原生 Cocoa 栈</span>
           </div>
           <div class="side-item">
-            <span class="tag" data-i18n="stat.t2">Binary</span>
+            <span class="tag" data-i18n="stat.t2">二进制</span>
             <strong>Universal</strong>
-            <span data-i18n="stat.2">Apple Silicon &amp; Intel</span>
+            <span data-i18n="stat.2">Apple Silicon 与 Intel</span>
           </div>
           <div class="side-item">
-            <span class="tag" data-i18n="stat.t3">Scope</span>
+            <span class="tag" data-i18n="stat.t3">范围</span>
             <strong>1A Core</strong>
-            <span data-i18n="stat.3">Editor essentials, polished</span>
+            <span data-i18n="stat.3">核心编辑能力，精修打磨</span>
           </div>
         </aside>
       </div>
@@ -554,16 +541,16 @@
           <div class="glow" aria-hidden="true"></div>
           <div class="deck" id="deck">
             <figure class="shot" data-index="0" data-pos="0" tabindex="0">
-              <img src="screenshots/editor-ink.png" alt="" data-i18n-alt="shot1.alt" />
-              <figcaption class="label"><span data-i18n="shot1.t">Editor</span><em>01</em></figcaption>
+              <img src="../screenshots/editor-ink.png" alt="" data-i18n-alt="shot1.alt" / alt="MacText Ink 主题编辑器">
+              <figcaption class="label"><span data-i18n="shot1.t">编辑器</span><em>01</em></figcaption>
             </figure>
             <figure class="shot" data-index="1" data-pos="1" tabindex="0">
-              <img src="screenshots/command-palette.png" alt="" data-i18n-alt="shot2.alt" />
-              <figcaption class="label"><span data-i18n="shot2.t">Command Palette</span><em>02</em></figcaption>
+              <img src="../screenshots/command-palette.png" alt="" data-i18n-alt="shot2.alt" / alt="MacText 命令面板">
+              <figcaption class="label"><span data-i18n="shot2.t">命令面板</span><em>02</em></figcaption>
             </figure>
             <figure class="shot" data-index="2" data-pos="2" tabindex="0">
-              <img src="screenshots/editor-find.png" alt="" data-i18n-alt="shot3.alt" />
-              <figcaption class="label"><span data-i18n="shot3.t">Find &amp; Replace</span><em>03</em></figcaption>
+              <img src="../screenshots/editor-find.png" alt="" data-i18n-alt="shot3.alt" / alt="MacText 查找替换">
+              <figcaption class="label"><span data-i18n="shot3.t">查找替换</span><em>03</em></figcaption>
             </figure>
           </div>
         </div>
@@ -571,18 +558,18 @@
         <div class="controls" id="rail" role="tablist">
           <button type="button" data-go="0" aria-current="true">
             <span class="n">01</span>
-            <span class="t" data-i18n="shot1.t">Editor</span>
-            <span class="d" data-i18n="shot1.d">Ink theme · sidebar · tabs</span>
+            <span class="t" data-i18n="shot1.t">编辑器</span>
+            <span class="d" data-i18n="shot1.d">Ink 主题 · 侧边栏 · 标签</span>
           </button>
           <button type="button" data-go="1">
             <span class="n">02</span>
-            <span class="t" data-i18n="shot2.t">Command Palette</span>
-            <span class="d" data-i18n="shot2.d">⌘⇧P · themes · actions</span>
+            <span class="t" data-i18n="shot2.t">命令面板</span>
+            <span class="d" data-i18n="shot2.d">⌘⇧P · 主题 · 操作</span>
           </button>
           <button type="button" data-go="2">
             <span class="n">03</span>
-            <span class="t" data-i18n="shot3.t">Find &amp; Replace</span>
-            <span class="d" data-i18n="shot3.d">Inline search · matches</span>
+            <span class="t" data-i18n="shot3.t">查找替换</span>
+            <span class="d" data-i18n="shot3.d">内联搜索 · 匹配</span>
           </button>
         </div>
       </div>
@@ -590,17 +577,17 @@
 
     <section id="features">
       <div class="sec-head">
-        <p class="kicker" data-i18n="f.k">Capabilities</p>
-        <h2 class="h2" data-i18n="f.title">Essential, not excessive</h2>
-        <p class="lead" data-i18n="f.lead">Daily workflow — tabs, project tree, search, palette, font size — tuned for native feel and instant launch.</p>
+        <p class="kicker" data-i18n="f.k">能力</p>
+        <h2 class="h2" data-i18n="f.title">够用，不过度</h2>
+        <p class="lead" data-i18n="f.lead">日常真正会用到的能力——标签、项目树、搜索、命令面板、字体大小——为原生体验与秒开而打磨。</p>
       </div>
       <div class="matrix">
-        <article class="cell"><b data-i18n="f1t">Multi-tab editing</b><p data-i18n="f1d">Open, save, save-as, close with dirty prompts. Middle-click to dismiss.</p></article>
-        <article class="cell"><b data-i18n="f2t">Project sidebar</b><p data-i18n="f2d">Browse a folder tree. Hide fully with ⌘B — no leftover gutter.</p></article>
-        <article class="cell"><b data-i18n="f3t">Find &amp; replace</b><p data-i18n="f3d">Inline find bar, next/previous match, Esc to close.</p></article>
-        <article class="cell"><b data-i18n="f4t">Command palette</b><p data-i18n="f4d">⌘⇧P for themes, go-to-line, sidebar, and actions.</p></article>
-        <article class="cell"><b data-i18n="f5t">Syntax highlight</b><p data-i18n="f5d">Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.</p></article>
-        <article class="cell"><b data-i18n="f6t">Session restore</b><p data-i18n="f6d">Tabs, unsaved text, caret, folder, theme, window frame.</p></article>
+        <article class="cell"><b data-i18n="f1t">多标签编辑</b><p data-i18n="f1d">打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。</p></article>
+        <article class="cell"><b data-i18n="f2t">项目侧边栏</b><p data-i18n="f2d">浏览文件夹树。⌘B 完全隐藏，不留空白边条。</p></article>
+        <article class="cell"><b data-i18n="f3t">查找与替换</b><p data-i18n="f3d">内联查找栏，上一个 / 下一个，Esc 关闭。</p></article>
+        <article class="cell"><b data-i18n="f4t">命令面板</b><p data-i18n="f4d">⌘⇧P 切换主题、跳转行、侧边栏等。</p></article>
+        <article class="cell"><b data-i18n="f5t">语法高亮</b><p data-i18n="f5d">Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。</p></article>
+        <article class="cell"><b data-i18n="f6t">会话恢复</b><p data-i18n="f6d">标签、未保存内容、光标、文件夹、主题与窗口。</p></article>
       </div>
     </section>
 
@@ -608,34 +595,34 @@
       <div class="split">
         <div>
           <div class="sec-head">
-            <p class="kicker" data-i18n="th.k">Appearance</p>
-            <h2 class="h2" data-i18n="th.title">Four calibrated themes</h2>
-            <p class="lead" data-i18n="th.lead">Ink is the signature — charcoal, lime, copper — aligned with the Dock icon.</p>
+            <p class="kicker" data-i18n="th.k">外观</p>
+            <h2 class="h2" data-i18n="th.title">四套校准主题</h2>
+            <p class="lead" data-i18n="th.lead">Ink 是标志性外观——炭黑、石灰绿、铜金——与程序坞图标一致。</p>
           </div>
           <div class="theme-list">
             <div class="theme-row"><strong>Ink</strong><span class="dots" aria-hidden="true"><i style="background:#1a1b18"></i><i style="background:#9fcf3a"></i><i style="background:#c48a3a"></i></span></div>
-            <div class="theme-row"><strong>Black</strong><em data-i18n="th.black">Pure OLED</em></div>
-            <div class="theme-row"><strong>Paper</strong><em data-i18n="th.paper">Warm light</em></div>
-            <div class="theme-row"><strong>Snow</strong><em data-i18n="th.snow">Cool light</em></div>
+            <div class="theme-row"><strong>Black</strong><em data-i18n="th.black">纯黑 OLED</em></div>
+            <div class="theme-row"><strong>Paper</strong><em data-i18n="th.paper">暖色浅色</em></div>
+            <div class="theme-row"><strong>Snow</strong><em data-i18n="th.snow">冷色浅色</em></div>
           </div>
         </div>
         <div>
           <div class="sec-head">
-            <p class="kicker" data-i18n="k.k">Keyboard</p>
-            <h2 class="h2" data-i18n="k.title">Muscle memory intact</h2>
-            <p class="lead" data-i18n="k.lead">Familiar shortcuts if you know Sublime Text.</p>
+            <p class="kicker" data-i18n="k.k">快捷键</p>
+            <h2 class="h2" data-i18n="k.title">肌肉记忆不浪费</h2>
+            <p class="lead" data-i18n="k.lead">熟悉 Sublime 的人会立刻上手。</p>
           </div>
           <div class="keys">
-            <div><span data-i18n="k.new">New</span><kbd>⌘N</kbd></div>
-            <div><span data-i18n="k.open">Open</span><kbd>⌘O</kbd></div>
-            <div><span data-i18n="k.folder">Open Folder</span><kbd>⌘⇧O</kbd></div>
-            <div><span data-i18n="k.save">Save</span><kbd>⌘S</kbd></div>
-            <div><span data-i18n="k.find">Find</span><kbd>⌘F</kbd></div>
-            <div><span data-i18n="k.pal">Palette</span><kbd>⌘⇧P</kbd></div>
-            <div><span data-i18n="k.side">Sidebar</span><kbd>⌘B</kbd></div>
-            <div><span data-i18n="k.theme">Theme</span><kbd>⌘⌥T</kbd></div>
-            <div><span>Bigger Font</span><kbd>⌘+</kbd></div>
-            <div><span>Smaller Font</span><kbd>⌘−</kbd></div>
+            <div><span data-i18n="k.new">新建</span><kbd>⌘N</kbd></div>
+            <div><span data-i18n="k.open">打开</span><kbd>⌘O</kbd></div>
+            <div><span data-i18n="k.folder">打开文件夹</span><kbd>⌘⇧O</kbd></div>
+            <div><span data-i18n="k.save">保存</span><kbd>⌘S</kbd></div>
+            <div><span data-i18n="k.find">查找</span><kbd>⌘F</kbd></div>
+            <div><span data-i18n="k.pal">命令面板</span><kbd>⌘⇧P</kbd></div>
+            <div><span data-i18n="k.side">侧边栏</span><kbd>⌘B</kbd></div>
+            <div><span data-i18n="k.theme">主题</span><kbd>⌘⌥T</kbd></div>
+            <div><span>字体变大</span><kbd>⌘+</kbd></div>
+            <div><span>字体变小</span><kbd>⌘−</kbd></div>
           </div>
         </div>
       </div>
@@ -643,106 +630,29 @@
 
     <section class="download" id="download">
       <div class="sec-head">
-        <p class="kicker" data-i18n="dl.k">Install</p>
-        <h2 class="h2" data-i18n="dl.title">One drag to Applications</h2>
-        <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks.</p>
+        <p class="kicker" data-i18n="dl.k">安装</p>
+        <h2 class="h2" data-i18n="dl.title">拖进应用程序即可</h2>
+        <p class="lead" data-i18n="dl.lead">打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。</p>
       </div>
       <div class="actions">
-        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="dl.cta">Download MacText 1.0.4</a>
-        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
+        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.0.4/MacText-1.0.4.dmg" data-i18n="dl.cta">下载 MacText 1.0.4</a>
+        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">全部版本</a>
       </div>
     </section>
 
     <footer>
-      <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
+      <span data-i18n="ft">© 2026 MacText · 原生 AppKit</span>
       <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a href="https://github.com/linux503/MacText/releases/tag/v1.0.4">v1.0.4</a></span>
     </footer>
   </div>
 
   <script>
-    const I18N = {
-      en: {
-        title: "MacText — Native macOS Text Editor | Sublime-like Speed",
-        desc: "Native AppKit text editor for macOS: multi-tabs, sidebar, find & replace, command palette, syntax highlight, session restore.",
-        ogTitle: "MacText — Native macOS Text Editor",
-        ogDesc: "Sublime-like core. Native AppKit. Universal Binary.",
-        "nav.shots": "Showcase", "nav.features": "Features", "nav.dl": "Download",
-        "hero.eye": "Native · AppKit · Universal",
-        "hero.h1": "A focused macOS editor with Sublime-like speed — without the Electron tax.",
-        "hero.cta": "Download DMG", "hero.src": "View source",
-        "stat.t1": "Runtime", "stat.t2": "Binary", "stat.t3": "Scope",
-        "stat.1": "Native Cocoa stack", "stat.2": "Apple Silicon & Intel", "stat.3": "Editor essentials, polished",
-        "shot1.t": "Editor", "shot1.d": "Ink theme · sidebar · tabs", "shot1.alt": "MacText editor with Ink theme",
-        "shot2.t": "Command Palette", "shot2.d": "⌘⇧P · themes · actions", "shot2.alt": "MacText command palette",
-        "shot3.t": "Find & Replace", "shot3.d": "Inline search · matches", "shot3.alt": "MacText find and replace",
-        "f.k": "Capabilities", "f.title": "Essential, not excessive",
-        "f.lead": "Daily workflow — tabs, project tree, search, palette, font size — tuned for native feel and instant launch.",
-        "f1t": "Multi-tab editing", "f1d": "Open, save, save-as, close with dirty prompts. Middle-click to dismiss.",
-        "f2t": "Project sidebar", "f2d": "Browse a folder tree. Hide fully with ⌘B — no leftover gutter.",
-        "f3t": "Find & replace", "f3d": "Inline find bar, next/previous match, Esc to close.",
-        "f4t": "Command palette", "f4d": "⌘⇧P for themes, go-to-line, sidebar, and actions.",
-        "f5t": "Syntax highlight", "f5d": "Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.",
-        "f6t": "Session restore", "f6d": "Tabs, unsaved text, caret, folder, theme, window frame.",
-        "th.k": "Appearance", "th.title": "Four calibrated themes",
-        "th.lead": "Ink is the signature — charcoal, lime, copper — aligned with the Dock icon.",
-        "th.black": "Pure OLED", "th.paper": "Warm light", "th.snow": "Cool light",
-        "k.k": "Keyboard", "k.title": "Muscle memory intact", "k.lead": "Familiar shortcuts if you know Sublime Text.",
-        "k.new": "New", "k.open": "Open", "k.folder": "Open Folder", "k.save": "Save",
-        "k.find": "Find", "k.pal": "Palette", "k.side": "Sidebar", "k.theme": "Theme",
-        "dl.k": "Install", "dl.title": "One drag to Applications",
-        "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks.",
-        "dl.cta": "Download MacText 1.0.4", "dl.all": "All releases",
-        "ft": "© 2026 MacText · Native AppKit"
-      },
-      zh: {
-        title: "MacText — 原生 macOS 文本编辑器 | Sublime 级效率",
-        desc: "面向 macOS 的原生 AppKit 文本编辑器：多标签、侧边栏、查找替换、命令面板、语法高亮与会话恢复。",
-        ogTitle: "MacText — 原生 macOS 文本编辑器",
-        ogDesc: "Sublime 核心体验。原生 AppKit。Universal Binary。",
-        "nav.shots": "界面", "nav.features": "功能", "nav.dl": "下载",
-        "hero.eye": "原生 · AppKit · 通用二进制",
-        "hero.h1": "专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。",
-        "hero.cta": "下载 DMG", "hero.src": "查看源码",
-        "stat.t1": "运行时", "stat.t2": "二进制", "stat.t3": "范围",
-        "stat.1": "原生 Cocoa 栈", "stat.2": "Apple Silicon 与 Intel", "stat.3": "核心编辑能力，精修打磨",
-        "shot1.t": "编辑器", "shot1.d": "Ink 主题 · 侧边栏 · 标签", "shot1.alt": "MacText Ink 主题编辑器",
-        "shot2.t": "命令面板", "shot2.d": "⌘⇧P · 主题 · 操作", "shot2.alt": "MacText 命令面板",
-        "shot3.t": "查找替换", "shot3.d": "内联搜索 · 匹配", "shot3.alt": "MacText 查找替换",
-        "f.k": "能力", "f.title": "够用，不过度",
-        "f.lead": "日常真正会用到的能力——标签、项目树、搜索、命令面板、字体大小——为原生体验与秒开而打磨。",
-        "f1t": "多标签编辑", "f1d": "打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。",
-        "f2t": "项目侧边栏", "f2d": "浏览文件夹树。⌘B 完全隐藏，不留空白边条。",
-        "f3t": "查找与替换", "f3d": "内联查找栏，上一个 / 下一个，Esc 关闭。",
-        "f4t": "命令面板", "f4d": "⌘⇧P 切换主题、跳转行、侧边栏等。",
-        "f5t": "语法高亮", "f5d": "Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。",
-        "f6t": "会话恢复", "f6d": "标签、未保存内容、光标、文件夹、主题与窗口。",
-        "th.k": "外观", "th.title": "四套校准主题",
-        "th.lead": "Ink 是标志性外观——炭黑、石灰绿、铜金——与程序坞图标一致。",
-        "th.black": "纯黑 OLED", "th.paper": "暖色浅色", "th.snow": "冷色浅色",
-        "k.k": "快捷键", "k.title": "肌肉记忆不浪费", "k.lead": "熟悉 Sublime 的人会立刻上手。",
-        "k.new": "新建", "k.open": "打开", "k.folder": "打开文件夹", "k.save": "保存",
-        "k.find": "查找", "k.pal": "命令面板", "k.side": "侧边栏", "k.theme": "主题",
-        "dl.k": "安装", "dl.title": "拖进应用程序即可",
-        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。",
-        "dl.cta": "下载 MacText 1.0.4", "dl.all": "全部版本",
-        "ft": "© 2026 MacText · 原生 AppKit"
-      }
-    };
-
-    // Chinese site is static under ./zh/ — redirect query / preference / browser lang.
-    (function () {
-      const q = new URLSearchParams(location.search).get("lang");
-      const saved = localStorage.getItem("mactext-lang");
-      const wantZh = q === "zh" || (!q && (saved === "zh" || (!saved && (navigator.language || "").toLowerCase().startsWith("zh"))));
-      if (wantZh) {
-        localStorage.setItem("mactext-lang", "zh");
-        location.replace("./zh/");
-        return;
-      }
-      localStorage.setItem("mactext-lang", "en");
-      document.documentElement.lang = "en";
-    })();
-
+    localStorage.setItem("mactext-lang", "zh");
+    if (new URLSearchParams(location.search).get("lang") === "en") {
+      location.replace("../");
+    }
+    </script>
+    <script>
     (function () {
       const cards = [...document.querySelectorAll(".shot")];
       const rail = document.getElementById("rail");
