@@ -2,6 +2,8 @@
 
 原生 macOS 文本编辑器（AppKit），覆盖 Sublime Text 核心能力：多标签、侧边栏、行号、查找替换、命令面板、基础语法高亮。
 
+**下载：** [MacText 1.0.3 DMG](https://github.com/linux503/MacText/releases/tag/v1.0.3) · [Releases](https://github.com/linux503/MacText/releases)
+
 ## 要求
 
 - macOS 14+
