@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/icon-256.png" width="96" height="96" alt="MacText" />
+  <img src="https://linux503.github.io/MacText/assets/icon-256.png?v=115" width="96" height="96" alt="MacText" />
 </p>
 
 <h1 align="center">MacText</h1>
@@ -30,7 +30,7 @@
 ---
 
 <p align="center">
-  <img src="docs/screenshots/product-hero.png" alt="MacText product introduction" width="880" />
+  <img src="https://linux503.github.io/MacText/screenshots/product-hero.png?v=115" alt="MacText product introduction" width="880" />
 </p>
 
 ## Why MacText
