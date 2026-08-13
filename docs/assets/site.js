@@ -2,6 +2,61 @@
 (function () {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Changelog page: render from changelog.json
+  const clRoot = document.getElementById("changelog-list");
+  if (clRoot) {
+    const lang = clRoot.getAttribute("data-lang") === "zh" ? "zh" : "en";
+    const src = clRoot.getAttribute("data-src") || "changelog.json";
+    const labels = {
+      en: { beta: "Beta", stable: "Stable", release: "Release", more: "GitHub release →", empty: "No entries yet.", fail: "Could not load changelog." },
+      zh: { beta: "体验版", stable: "稳定版", release: "正式版", more: "GitHub 发布页 →", empty: "暂无记录。", fail: "无法加载更新记录。" }
+    }[lang];
+
+    fetch(src + (src.indexOf("?") >= 0 ? "&" : "?") + "ts=" + Date.now(), { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+      .then((data) => {
+        const entries = (data && data.entries) || [];
+        if (!entries.length) {
+          clRoot.innerHTML = '<p class="cl-empty">' + labels.empty + "</p>";
+          return;
+        }
+        clRoot.innerHTML = entries
+          .map((e) => {
+            const loc = (e && e[lang]) || e.en || {};
+            const channel = (e.channel || "release").toLowerCase();
+            const badgeClass =
+              channel === "beta" ? "is-beta" : channel === "stable" ? "is-stable" : "";
+            const badgeText =
+              channel === "beta" ? labels.beta : channel === "stable" ? labels.stable : labels.release;
+            const items = (loc.highlights || [])
+              .map((h) => "<li>" + String(h).replace(/</g, "&lt;") + "</li>")
+              .join("");
+            const tag = e.tag || ("v" + e.version);
+            const href = "https://github.com/linux503/MacText/releases/tag/" + encodeURIComponent(tag);
+            return (
+              '<article class="cl-item">' +
+              '<div class="cl-top">' +
+              '<span class="cl-ver">v' + String(e.version || "").replace(/</g, "&lt;") + "</span>" +
+              '<span class="cl-badge ' + badgeClass + '">' + badgeText + "</span>" +
+              '<span class="cl-date">' + String(e.date || "").replace(/</g, "&lt;") + "</span>" +
+              "</div>" +
+              "<h2 class=\"cl-title\">" + String(loc.title || "").replace(/</g, "&lt;") + "</h2>" +
+              (items ? "<ul>" + items + "</ul>" : "") +
+              '<a class="cl-more" href="' + href + '" rel="noopener">' + labels.more + "</a>" +
+              "</article>"
+            );
+          })
+          .join("");
+        clRoot.classList.add("is-in");
+      })
+      .catch(() => {
+        clRoot.innerHTML = '<p class="cl-empty">' + labels.fail + "</p>";
+      });
+  }
+
   document.querySelectorAll(".matrix .cell").forEach((el, i) => {
     el.style.setProperty("--i", String(i));
   });

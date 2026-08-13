@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>更新记录 — MacText</title>
+  <meta name="description" content="MacText 各版本更新说明：新功能与修复记录。" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://linux503.github.io/MacText/zh/changelog.html" />
+  <link rel="alternate" hreflang="en" href="https://linux503.github.io/MacText/changelog.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://linux503.github.io/MacText/zh/changelog.html" />
+  <link rel="icon" href="../assets/icon-256.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/site.css?v=6" />
+</head>
+<body class="changelog-page">
+  <div class="atmosphere" aria-hidden="true">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="orb orb-c"></div>
+  </div>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="page">
+    <nav class="nav">
+      <a class="brand" href="./">
+        <img src="../assets/icon-256.png" width="30" height="30" alt="" />
+        MacText
+      </a>
+      <div class="nav-end">
+        <div class="nav-links">
+          <a href="./#showcase">界面</a>
+          <a href="./#features">功能</a>
+          <a href="./changelog.html" aria-current="page">更新记录</a>
+          <a href="https://github.com/linux503/MacText">GitHub</a>
+        </div>
+        <div class="lang" role="group" aria-label="语言">
+          <a class="lang-link" href="../changelog.html" data-lang="en">EN</a>
+          <a class="lang-link is-active" href="./changelog.html" data-lang="zh">中文</a>
+        </div>
+        <a class="btn btn-solid btn-sm" href="./#download">下载</a>
+      </div>
+    </nav>
+
+    <header class="hero-mini">
+      <p class="eyebrow">版本说明</p>
+      <p class="mark"><span>Mac</span>Text</p>
+      <div class="accent-bar" aria-hidden="true"></div>
+      <h1>每次更新的新功能、修复与通道说明，都记在这里。</h1>
+    </header>
+
+    <div class="changelog reveal" id="changelog-list" data-lang="zh" data-src="../changelog.json">
+      <p class="cl-loading">正在加载更新记录…</p>
+    </div>
+
+    <footer>
+      <span>© 2026 MacText · 原生 AppKit</span>
+      <span><a href="./">首页</a> · <a href="https://github.com/linux503/MacText/releases">全部版本</a></span>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get("lang");
+      if (q === "en") {
+        localStorage.setItem("mactext-lang", "en");
+        location.replace("../changelog.html");
+        return;
+      }
+      localStorage.setItem("mactext-lang", "zh");
+      document.querySelectorAll("[data-lang]").forEach(function (a) {
+        a.addEventListener("click", function () {
+          localStorage.setItem("mactext-lang", a.getAttribute("data-lang"));
+        });
+      });
+    })();
+  </script>
+  <script src="../assets/site.js?v=6"></script>
+</body>
+</html>

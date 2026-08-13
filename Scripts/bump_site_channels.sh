@@ -3,6 +3,7 @@
 #   previous beta  → stable
 #   NEW version    → beta
 # Top-level version.json fields mirror stable (in-app update checker).
+# Also prepends a stub entry to docs/changelog.json (edit en/zh highlights as needed).
 #
 # Usage:
 #   Scripts/bump_site_channels.sh 1.1.4 "Short release notes."
@@ -10,6 +11,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 JSON="${ROOT}/docs/version.json"
+CHANGELOG="${ROOT}/docs/changelog.json"
 NEW_VERSION="${1:-}"
 NOTES="${2:-}"
 
@@ -18,11 +20,13 @@ if [[ -z "${NEW_VERSION}" ]]; then
   exit 1
 fi
 
-NEW_VERSION="$NEW_VERSION" NOTES="$NOTES" JSON="$JSON" python3 - <<'PY'
+NEW_VERSION="$NEW_VERSION" NOTES="$NOTES" JSON="$JSON" CHANGELOG="$CHANGELOG" python3 - <<'PY'
 import json, os
+from datetime import date
 from pathlib import Path
 
 path = Path(os.environ["JSON"])
+cl_path = Path(os.environ["CHANGELOG"])
 new_version = os.environ["NEW_VERSION"]
 notes = os.environ.get("NOTES", "")
 
@@ -60,4 +64,32 @@ out = {
 path.write_text(json.dumps(out, indent=2) + "\n")
 print(f"stable={stable['version']}  beta={beta['version']}")
 print(f"wrote {path}")
+
+# Prepend changelog stub
+today = date.today().isoformat()
+highlight = notes.strip() if notes.strip() else f"MacText {new_version}."
+cl = {"updated": today, "entries": []}
+if cl_path.exists():
+    try:
+        cl = json.loads(cl_path.read_text())
+    except Exception:
+        pass
+entries = cl.get("entries") or []
+# Relabel previous head beta → stable when promoting
+if entries and entries[0].get("channel") == "beta" and entries[0].get("version") == stable.get("version"):
+    entries[0]["channel"] = "stable"
+stub = {
+    "version": new_version,
+    "date": today,
+    "channel": "beta",
+    "tag": f"v{new_version}",
+    "en": {"title": f"MacText {new_version}", "highlights": [highlight]},
+    "zh": {"title": f"MacText {new_version}", "highlights": [highlight]},
+}
+if not any(e.get("version") == new_version for e in entries):
+    entries.insert(0, stub)
+cl["updated"] = today
+cl["entries"] = entries
+cl_path.write_text(json.dumps(cl, indent=2, ensure_ascii=False) + "\n")
+print(f"wrote {cl_path} (edit en/zh titles & highlights)")
 PY

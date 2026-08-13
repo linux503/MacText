@@ -645,6 +645,104 @@ footer a:hover { color: var(--accent); }
   .controls, .keys { grid-template-columns: 1fr; }
   .nav { top: 0.5rem; }
 }
+/* Changelog */
+.changelog-page .hero-mini {
+  padding: 2.4rem 0 0.5rem;
+  max-width: 40rem;
+}
+.changelog-page .hero-mini .mark { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 0.35rem 0; }
+.changelog-page .hero-mini h1 {
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0.75rem 0 0;
+  color: var(--text-muted, rgba(255,255,255,0.72));
+}
+.changelog {
+  margin: 1.5rem 0 3rem;
+  display: grid;
+  gap: 1rem;
+}
+.cl-item {
+  position: relative;
+  padding: 1.15rem 1.25rem 1.2rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  box-shadow: var(--hairline);
+}
+.cl-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 0.85rem;
+  margin-bottom: 0.55rem;
+}
+.cl-ver {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.cl-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  color: var(--text-2);
+}
+.cl-badge.is-beta {
+  border-color: rgba(245, 166, 35, 0.45);
+  color: #f5c76a;
+  background: rgba(245, 166, 35, 0.1);
+}
+.cl-badge.is-stable {
+  border-color: var(--accent-line);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.cl-date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-family: var(--mono);
+  color: var(--text-3);
+}
+.cl-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.55rem;
+}
+.cl-item ul {
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.cl-item li {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.cl-item a.cl-more {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--glass-border);
+}
+.cl-item a.cl-more:hover { color: var(--text); border-color: rgba(255,255,255,0.35); }
+.cl-empty, .cl-loading {
+  padding: 2rem 0;
+  color: var(--text-3);
+  font-size: 0.95rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
