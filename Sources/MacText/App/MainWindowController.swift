@@ -300,7 +300,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
 
     @objc private func storeChanged() {
         // Drop tabs whose documents were removed globally.
-        let before = tabIDs
         tabIDs = tabIDs.filter { store.document(id: $0) != nil }
         if let selectedTabID, store.document(id: selectedTabID) == nil {
             self.selectedTabID = tabIDs.first
@@ -310,9 +309,8 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             tabIDs = [doc.id]
             selectedTabID = doc.id
         }
-        if before != tabIDs || true {
-            reload(full: true)
-        }
+        // Theme / soft wrap / open file / tab set — always refresh editor chrome + buffer binding.
+        reload(full: true)
     }
 
     @objc private func metaChanged() {
@@ -355,18 +353,19 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         }
 
         if let doc = selectedDocument {
-            editor.load(
-                document: doc,
-                theme: store.theme,
-                softWrap: store.softWrap,
-                fontSize: store.fontSize
-            )
+            if full {
+                editor.load(
+                    document: doc,
+                    theme: store.theme,
+                    softWrap: store.softWrap,
+                    fontSize: store.fontSize
+                )
+            }
             window?.title = doc.displayTitle + " — MacText"
         }
         statusBar.reload(store: store, document: selectedDocument)
         window?.contentView?.layer?.backgroundColor = store.theme.sidebarBackground.cgColor
         window?.backgroundColor = store.theme.sidebarBackground
-        _ = full
         _ = findVisible
     }
 
@@ -410,7 +409,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
     }
 
     private func applySidebarVisibility(animated: Bool) {
-        _ = animated
         let currentWidth = sidebar.container.frame.width
 
         if store.showSidebar {
@@ -424,26 +422,48 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             }
             sidebar.container.isHidden = false
             let target = min(max(sidebarWidth, 180), 360)
-            DispatchQueue.main.async { [weak self] in
+            let apply = { [weak self] in
                 guard let self else { return }
                 self.splitView.setPosition(target, ofDividerAt: 0)
                 self.splitView.adjustSubviews()
                 self.splitView.needsDisplay = true
             }
+            if animated {
+                NSAnimationContext.runAnimationGroup({ ctx in
+                    ctx.duration = 0.16
+                    ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    ctx.allowsImplicitAnimation = true
+                    apply()
+                })
+            } else {
+                DispatchQueue.main.async(execute: apply)
+            }
         } else {
             if currentWidth > 40 {
                 sidebarWidth = currentWidth
             }
-            if sidebar.container.superview === splitView {
-                sidebar.container.removeFromSuperview()
+            let collapse = { [weak self] in
+                guard let self else { return }
+                if self.sidebar.container.superview === self.splitView {
+                    self.sidebar.container.removeFromSuperview()
+                }
+                if self.editorColumn.superview !== self.splitView {
+                    self.splitView.addSubview(self.editorColumn)
+                }
+                self.sidebar.container.isHidden = true
+                self.splitView.adjustSubviews()
+                self.splitView.needsDisplay = true
+                self.editorColumn.frame = self.splitView.bounds
             }
-            if editorColumn.superview !== splitView {
-                splitView.addSubview(editorColumn)
+            if animated {
+                NSAnimationContext.runAnimationGroup({ ctx in
+                    ctx.duration = 0.14
+                    ctx.allowsImplicitAnimation = true
+                    collapse()
+                })
+            } else {
+                collapse()
             }
-            sidebar.container.isHidden = true
-            splitView.adjustSubviews()
-            splitView.needsDisplay = true
-            editorColumn.frame = splitView.bounds
         }
     }
 
@@ -510,7 +530,11 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         if let id = selectedTabID {
             store.syncActiveSelection(id)
         }
-        reload(full: false)
+        // Avoid full reload/re-highlight — keeps focus switches feeling instant.
+        if let doc = selectedDocument {
+            window?.title = doc.displayTitle + " — MacText"
+        }
+        statusBar.reload(store: store, document: selectedDocument)
         editor.focus()
     }
 
@@ -527,24 +551,29 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
     }
 
     func windowWillClose(_ notification: Notification) {
+        // Flush live buffer first (includes IME marked text).
+        flushEditorToDocument()
         if isPrimary, let frame = window?.frame {
             store.updateWindowFrame(frame)
         }
-        // Orphan docs that only lived here stay in store until explicitly closed —
-        // but if window closes with tabs, keep documents for other windows only.
-        // Closing window destroys those tabs' presence here; docs unused elsewhere remain until quit session.
-        for id in tabIDs {
-            if WindowManager.shared.windows.filter({ $0 !== self && $0.tabIDs.contains(id) }).isEmpty {
-                // Document only in this window — keep in store for session of remaining? Drop from UI.
-                // Persist still includes all store documents; remove orphans not in any remaining window after unregister.
-            }
-        }
+
         let closingIDs = tabIDs
+        let isLastWindow = WindowManager.shared.windows.filter { $0 !== self }.isEmpty
+
+        // CRITICAL: persist WHILE this window is still registered and documents
+        // are still in the store. Orphan-removal before save wiped session.json on quit.
+        store.persistSessionNow()
+
         tabIDs = []
         WindowManager.shared.unregister(self)
-        for id in closingIDs {
-            store.removeDocumentIfOrphaned(id)
+
+        // Secondary window closed: drop docs not open elsewhere, then re-save.
+        // Last window (quit): keep in-memory docs; session already written above.
+        if !isLastWindow {
+            for id in closingIDs {
+                store.removeDocumentIfOrphaned(id)
+            }
+            store.persistSessionNow()
         }
-        store.persistSessionNow()
     }
 }

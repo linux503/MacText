@@ -230,9 +230,12 @@ final class EditorController: NSObject, NSTextViewDelegate {
         guard !isUpdating, let document else { return }
         // While the IME is composing (pinyin marked text), do not rewrite
         // attributes — that aborts composition and leaves raw Latin letters.
+        // Still sync the model + schedule session backup so quit mid-IME keeps text.
         if textView.hasMarkedText() {
+            document.updateContent(textView.string)
             updateCursorLocation()
             ruler.needsDisplay = true
+            DocumentStore.shared.documentContentDidChange()
             return
         }
         document.updateContent(textView.string)

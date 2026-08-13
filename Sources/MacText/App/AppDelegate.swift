@@ -29,11 +29,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        // Final flush+save before windows tear down.
+        DocumentStore.shared.persistSessionNow()
+        return .terminateNow
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         DocumentStore.shared.persistSessionNow()
     }
 
     func applicationDidResignActive(_ notification: Notification) {
+        DocumentStore.shared.persistSessionNow()
+    }
+
+    func applicationDidHide(_ notification: Notification) {
         DocumentStore.shared.persistSessionNow()
     }
 

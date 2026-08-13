@@ -659,6 +659,13 @@ final class DocumentStore {
             && !docs[0].isDirty
             && folderURL == nil
 
+        let existing = SessionStore.load()
+
+        // Never clobber a real session with an empty document list (quit race / orphan wipe).
+        if docs.isEmpty, let existing, !existing.documents.isEmpty {
+            return
+        }
+
         let session = EditorSession(
             version: 1,
             documents: docs,
@@ -673,7 +680,7 @@ final class DocumentStore {
             autoSaveToDisk: autoSaveToDisk
         )
 
-        if isBlankDefault, SessionStore.load() == nil {
+        if isBlankDefault, existing == nil {
             return
         }
         SessionStore.save(session)
@@ -713,8 +720,8 @@ final class DocumentStore {
             self?.persistSessionNow()
         }
         persistWorkItem = work
-        // Tight debounce so crash/kill loses at most ~0.25s of typing.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+        // Tight debounce so crash/kill loses at most ~0.12s of typing.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12, execute: work)
     }
 
     private func presentError(_ message: String) {
