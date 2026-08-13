@@ -1,0 +1,7 @@
+{
+  "version": "1.1.2",
+  "tag": "v1.1.2",
+  "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.2/MacText-1.1.2.dmg",
+  "release": "https://github.com/linux503/MacText/releases/tag/v1.1.2",
+  "notes": "Fix update checker: use site version.json instead of rate-limited GitHub API."
+}

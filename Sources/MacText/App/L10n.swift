@@ -65,6 +65,12 @@ enum L10n {
         t("当前版本为 %@，没有可用更新。", "MacText %@ is the latest version.")
     }
     static var updateCheckFailed: String { t("无法检查更新，请稍后重试。", "Could not check for updates. Try again later.") }
+    static var updateRateLimited: String {
+        t(
+            "更新服务暂时繁忙（请求次数过多），请稍后再试，或打开「全部版本」手动下载。",
+            "Update service is busy (rate limited). Try again later, or open All Releases to download manually."
+        )
+    }
     static var ok: String { t("好", "OK") }
     static var quit: String { t("退出 MacText", "Quit MacText") }
 

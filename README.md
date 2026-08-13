@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.1.1/MacText-1.1.1.dmg"><strong>Download DMG</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.1.2/MacText-1.1.2.dmg"><strong>Download DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/">Website</a>
   ·
@@ -45,12 +45,12 @@ Built with native **AppKit** — no Electron. Ships as a **Universal Binary** (`
 
 ## Install
 
-1. Download [`MacText-1.1.1.dmg`](https://github.com/linux503/MacText/releases/download/v1.1.1/MacText-1.1.1.dmg)
+1. Download [`MacText-1.1.2.dmg`](https://github.com/linux503/MacText/releases/download/v1.1.2/MacText-1.1.2.dmg)
 2. Drag **MacText** into **Applications**
 3. If Gatekeeper blocks: **System Settings → Privacy & Security → Open Anyway**
 
 ```text
-SHA-256  e74eb9ff794747aa28646ebe854f665f914c9fe7d2333be774e2d5d6b27bf511
+SHA-256  e8204a36d87612d8028393861bfaa26b966695696cffaf477507e88ee496d5de
 ```
 
 ## Shortcuts
