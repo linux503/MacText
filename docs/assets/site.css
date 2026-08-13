@@ -334,16 +334,6 @@ html[lang="zh"] .hero h1 { letter-spacing: 0.02em; }
   object-fit: cover;
   object-position: top left;
 }
-.hero-shine {
-  position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: linear-gradient(115deg,
-    transparent 35%,
-    rgba(255,255,255,0.14) 48%,
-    transparent 62%);
-  background-size: 220% 100%;
-  animation: shimmer 5.5s ease-in-out infinite;
-  mix-blend-mode: soft-light;
-}
 
 /* Ticker */
 .ticker {
@@ -377,9 +367,8 @@ html[lang="zh"] .hero h1 { letter-spacing: 0.02em; }
 }
 .glow {
   position: absolute; inset: 10% 6% auto; height: 55%;
-  background: radial-gradient(ellipse at center, rgba(194,240,78,0.24), rgba(94,224,176,0.1), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(194,240,78,0.14), rgba(94,224,176,0.06), transparent 70%);
   filter: blur(56px); pointer-events: none;
-  animation: glow-pulse 5.5s ease-in-out infinite;
 }
 .deck { position: relative; min-height: inherit; transform-style: preserve-3d; }
 .shot {
