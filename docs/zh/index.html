@@ -41,9 +41,9 @@
           <a href="#features" data-i18n="nav.features">功能</a>
           <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
-                <div class="lang" role="group" aria-label="语言">
-          <a class="lang-link" href="../">EN</a>
-          <a class="lang-link is-active" href="./">中文</a>
+        <div class="lang" role="group" aria-label="语言">
+          <a class="lang-link" href="../?lang=en" data-lang="en">EN</a>
+          <a class="lang-link is-active" href="./" data-lang="zh">中文</a>
         </div>
         <a class="btn btn-solid btn-sm" href="#download">下载</a>
       </div>
@@ -107,7 +107,7 @@
           <button type="button" data-go="0" aria-current="true">
             <span class="n">01</span>
             <span class="t" data-i18n="shot1.t">产品介绍</span>
-            <span class="d" data-i18n="shot1.d">Ink 主题 · 侧边栏 · 标签</span>
+            <span class="d" data-i18n="shot1.d">原生 AppKit · Universal · Ink</span>
           </button>
           <button type="button" data-go="1">
             <span class="n">02</span>
@@ -217,12 +217,22 @@
   </div>
 
   <script>
-    localStorage.setItem("mactext-lang", "zh");
-    if (new URLSearchParams(location.search).get("lang") === "en") {
-      location.replace("../");
-    }
-    </script>
-    <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get("lang");
+      if (q === "en") {
+        localStorage.setItem("mactext-lang", "en");
+        location.replace("../?lang=en");
+        return;
+      }
+      localStorage.setItem("mactext-lang", "zh");
+      document.querySelectorAll("[data-lang]").forEach(function (a) {
+        a.addEventListener("click", function () {
+          localStorage.setItem("mactext-lang", a.getAttribute("data-lang"));
+        });
+      });
+    })();
+  </script>
+  <script>
     (function () {
       const cards = [...document.querySelectorAll(".shot")];
       const rail = document.getElementById("rail");

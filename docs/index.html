@@ -25,9 +25,19 @@
     (function () {
       try {
         var q = new URLSearchParams(location.search).get("lang");
+        // Explicit English choice must stick — do not bounce back to /zh/.
+        if (q === "en") {
+          localStorage.setItem("mactext-lang", "en");
+          return;
+        }
+        if (q === "zh") {
+          localStorage.setItem("mactext-lang", "zh");
+          location.replace("./zh/");
+          return;
+        }
         var saved = localStorage.getItem("mactext-lang");
         var nav = (navigator.language || "").toLowerCase();
-        if (q === "zh" || (!q && (saved === "zh" || (!saved && nav.indexOf("zh") === 0)))) {
+        if (saved === "zh" || (!saved && nav.indexOf("zh") === 0)) {
           localStorage.setItem("mactext-lang", "zh");
           location.replace("./zh/");
         }
@@ -55,8 +65,8 @@
           <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
         <div class="lang" role="group" aria-label="Language">
-          <a class="lang-link is-active" href="./" aria-pressed="true">EN</a>
-          <a class="lang-link" href="./zh/" aria-pressed="false">中文</a>
+          <a class="lang-link is-active" href="./?lang=en" aria-pressed="true" data-lang="en">EN</a>
+          <a class="lang-link" href="./zh/" aria-pressed="false" data-lang="zh">中文</a>
         </div>
         <a class="btn btn-solid btn-sm" href="#download" data-i18n="nav.dl">Download</a>
       </div>
@@ -305,18 +315,18 @@
       }
     };
 
-    // Chinese site is static under ./zh/ — redirect query / preference / browser lang.
+    // Persist English preference when staying on this page.
     (function () {
-      const q = new URLSearchParams(location.search).get("lang");
-      const saved = localStorage.getItem("mactext-lang");
-      const wantZh = q === "zh" || (!q && (saved === "zh" || (!saved && (navigator.language || "").toLowerCase().startsWith("zh"))));
-      if (wantZh) {
-        localStorage.setItem("mactext-lang", "zh");
-        location.replace("./zh/");
-        return;
-      }
       localStorage.setItem("mactext-lang", "en");
       document.documentElement.lang = "en";
+      if (new URLSearchParams(location.search).get("lang") === "en") {
+        try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
+      }
+      document.querySelectorAll("[data-lang]").forEach(function (a) {
+        a.addEventListener("click", function () {
+          localStorage.setItem("mactext-lang", a.getAttribute("data-lang"));
+        });
+      });
     })();
 
     (function () {
