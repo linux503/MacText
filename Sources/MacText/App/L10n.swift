@@ -41,6 +41,31 @@ enum L10n {
 
     static var settings: String { t("设置…", "Settings…") }
     static var about: String { t("关于 MacText", "About MacText") }
+    static var aboutCredits: String {
+        t(
+            "原生 macOS 文本编辑器 · AppKit\n主题：Ink（Monokai）· Black · Paper · Snow",
+            "Native macOS text editor · AppKit\nThemes: Ink (Monokai) · Black · Paper · Snow"
+        )
+    }
+    static var website: String { t("官网", "Website") }
+    static var allReleases: String { t("全部版本", "All Releases") }
+    static var checkForUpdates: String { t("检查更新…", "Check for Updates…") }
+    static var updateAvailableTitle: String { t("发现新版本", "Update Available") }
+    static var updateAvailableBody: String {
+        t(
+            "最新版本 %@（当前 %@）。\n是否打开下载页？",
+            "Version %@ is available (you have %@).\nOpen the download page?"
+        )
+    }
+    static var downloadUpdate: String { t("下载更新", "Download Update") }
+    static var skipThisVersion: String { t("跳过此版本", "Skip This Version") }
+    static var later: String { t("稍后", "Later") }
+    static var upToDateTitle: String { t("已是最新版本", "You’re up to date") }
+    static var upToDateBody: String {
+        t("当前版本为 %@，没有可用更新。", "MacText %@ is the latest version.")
+    }
+    static var updateCheckFailed: String { t("无法检查更新，请稍后重试。", "Could not check for updates. Try again later.") }
+    static var ok: String { t("好", "OK") }
     static var quit: String { t("退出 MacText", "Quit MacText") }
 
     static var fileMenu: String { t("文件", "File") }

@@ -20,6 +20,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             name: .macTextStoreChanged,
             object: nil
         )
+
+        // Silent auto-check a few seconds after launch.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            UpdateChecker.check(manual: false) { result in
+                UpdateChecker.presentResult(manual: false, result: result)
+            }
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -64,6 +71,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsItem.keyEquivalentModifierMask = .command
         settingsItem.target = self
         appMenu.addItem(settingsItem)
+        let updateItem = NSMenuItem(title: L10n.checkForUpdates, action: #selector(checkForUpdates), keyEquivalent: "")
+        updateItem.target = self
+        appMenu.addItem(updateItem)
         appMenu.addItem(NSMenuItem.separator())
         appMenu.addItem(withTitle: L10n.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
@@ -184,6 +194,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         viewMenu.addItem(makeItem(L10n.commandPalette + "…", action: #selector(commandPalette), key: "p", modifiers: [.command, .shift]))
         viewMenu.addItem(makeItem(L10n.t("跳转到行…", "Go to Line…"), action: #selector(goToLine), key: "g", modifiers: [.command, .option]))
 
+        let helpMenuItem = NSMenuItem()
+        mainMenu.addItem(helpMenuItem)
+        let helpMenu = NSMenu(title: L10n.t("帮助", "Help"))
+        helpMenuItem.submenu = helpMenu
+        let webItem = NSMenuItem(title: L10n.website, action: #selector(openWebsite), keyEquivalent: "")
+        webItem.target = self
+        helpMenu.addItem(webItem)
+        let ghItem = NSMenuItem(title: "GitHub", action: #selector(openGitHub), keyEquivalent: "")
+        ghItem.target = self
+        helpMenu.addItem(ghItem)
+        helpMenu.addItem(NSMenuItem.separator())
+        let checkItem = NSMenuItem(title: L10n.checkForUpdates, action: #selector(checkForUpdates), keyEquivalent: "")
+        checkItem.target = self
+        helpMenu.addItem(checkItem)
+
         NSApp.mainMenu = mainMenu
     }
 
@@ -222,29 +247,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showAbout() {
-        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "10"
-        var options: [NSApplication.AboutPanelOptionKey: Any] = [
-            .applicationName: "MacText",
-            .applicationVersion: short,
-            .version: build,
-            .credits: NSAttributedString(
-                string: L10n.t(
-                    "原生 Mac 文本编辑器。\n主题：Ink · Black · Paper · Snow",
-                    "A native Mac text editor.\nThemes: Ink · Black · Paper · Snow"
-                ),
-                attributes: [
-                    .font: NSFont.systemFont(ofSize: 11),
-                    .foregroundColor: NSColor.secondaryLabelColor
-                ]
-            )
-        ]
-        if let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns")
-            ?? Bundle.main.url(forResource: "MacTextIcon", withExtension: "png"),
-           let image = NSImage(contentsOf: iconURL) {
-            options[.applicationIcon] = image
+        AboutWindowController.shared.show()
+    }
+
+    @objc private func checkForUpdates() {
+        UpdateChecker.check(manual: true) { result in
+            UpdateChecker.presentResult(manual: true, result: result)
         }
-        NSApp.orderFrontStandardAboutPanel(options: options)
+    }
+
+    @objc private func openWebsite() {
+        NSWorkspace.shared.open(AppLinks.preferredWebsite)
+    }
+
+    @objc private func openGitHub() {
+        NSWorkspace.shared.open(AppLinks.github)
     }
 
     @objc private func newFile() {
