@@ -166,6 +166,16 @@
       transform: translateY(-1px);
     }
     .btn-sm { min-height: 2.15rem; padding: 0.4rem 0.9rem; font-size: 0.8rem; border-radius: 8px; }
+    .btn-beta {
+      border: 1px solid rgba(253, 151, 31, 0.45);
+      background: rgba(253, 151, 31, 0.08);
+      color: #fd971f;
+    }
+    .btn-beta:hover {
+      border-color: rgba(253, 151, 31, 0.7);
+      background: rgba(253, 151, 31, 0.14);
+      transform: translateY(-1px);
+    }
 
     /* Hero */
     .hero {
@@ -450,6 +460,49 @@
 
     .download .h2 { max-width: none; }
     .download .sec-head { margin-bottom: 1.75rem; }
+    .dl-channels {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .dl-card {
+      padding: 1.15rem 1.2rem 1.25rem;
+      border-radius: var(--r);
+      border: 1px solid var(--line-2);
+      background: linear-gradient(165deg, rgba(231,229,220,0.03), transparent 55%), var(--surface);
+    }
+    .dl-card.is-beta {
+      border-color: rgba(253, 151, 31, 0.28);
+      background: linear-gradient(165deg, rgba(253,151,31,0.06), transparent 55%), var(--surface);
+    }
+    .dl-card .label {
+      display: inline-block;
+      margin-bottom: 0.55rem;
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .dl-card.is-beta .label { color: #fd971f; }
+    .dl-card .ver {
+      font-size: 1.15rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .dl-card .hint {
+      color: var(--text-3);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin-bottom: 1rem;
+      max-width: 28rem;
+    }
+    .dl-card .actions { margin-top: 0; }
+    @media (max-width: 720px) {
+      .dl-channels { grid-template-columns: 1fr; }
+    }
 
     footer {
       display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
@@ -513,7 +566,7 @@
           <a class="lang-link is-active" href="./" aria-pressed="true">EN</a>
           <a class="lang-link" href="./zh/" aria-pressed="false">中文</a>
         </div>
-        <a class="btn btn-solid btn-sm" href="https://github.com/linux503/MacText/releases/latest" data-i18n="nav.dl">Download</a>
+        <a class="btn btn-solid btn-sm" href="#download" data-i18n="nav.dl">Download</a>
       </div>
     </nav>
 
@@ -525,10 +578,11 @@
           <div class="accent-bar" aria-hidden="true"></div>
           <h1 data-i18n="hero.h1">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
           <div class="actions">
-            <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg" data-i18n="hero.cta">Download DMG</a>
+            <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.2/MacText-1.1.2.dmg" data-i18n="hero.cta">Download Stable</a>
+            <a class="btn btn-beta" id="hero-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg" data-i18n="hero.beta">Try Beta</a>
             <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.src">View source</a>
           </div>
-          <p class="meta">v1.1.3 · macOS 14+ · arm64 + x86_64</p>
+          <p class="meta" id="hero-meta">Stable v1.1.2 · Beta v1.1.3 · macOS 14+ · arm64 + x86_64</p>
         </div>
         <aside class="side" aria-label="Highlights">
           <div class="side-item">
@@ -653,17 +707,34 @@
       <div class="sec-head">
         <p class="kicker" data-i18n="dl.k">Install</p>
         <h2 class="h2" data-i18n="dl.title">One drag to Applications</h2>
-        <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks.</p>
+        <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks. Stable is recommended; Beta ships the newest changes first.</p>
+      </div>
+      <div class="dl-channels">
+        <div class="dl-card">
+          <span class="label" data-i18n="dl.stableLabel">Stable</span>
+          <div class="ver" id="dl-stable-ver">MacText 1.1.2</div>
+          <p class="hint" id="dl-stable-notes" data-i18n="dl.stableHint">Recommended for daily use. Previous release promoted after the latest ships.</p>
+          <div class="actions">
+            <a class="btn btn-solid" id="dl-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.2/MacText-1.1.2.dmg" data-i18n="dl.cta">Download Stable</a>
+          </div>
+        </div>
+        <div class="dl-card is-beta">
+          <span class="label" data-i18n="dl.betaLabel">Beta</span>
+          <div class="ver" id="dl-beta-ver">MacText 1.1.3</div>
+          <p class="hint" id="dl-beta-notes" data-i18n="dl.betaHint">Latest build for early access. Becomes Stable on the next release.</p>
+          <div class="actions">
+            <a class="btn btn-beta" id="dl-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg" data-i18n="dl.beta">Download Beta</a>
+          </div>
+        </div>
       </div>
       <div class="actions">
-        <a class="btn btn-solid" href="https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg" data-i18n="dl.cta">Download MacText 1.1.3</a>
         <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
       </div>
     </section>
 
     <footer>
       <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
-      <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a href="https://github.com/linux503/MacText/releases/tag/v1.1.3">v1.1.3</a></span>
+      <span><a href="https://github.com/linux503/MacText">GitHub</a> · <a id="footer-stable" href="https://github.com/linux503/MacText/releases/tag/v1.1.2">Stable v1.1.2</a> · <a id="footer-beta" href="https://github.com/linux503/MacText/releases/tag/v1.1.3">Beta v1.1.3</a></span>
     </footer>
   </div>
 
@@ -677,7 +748,7 @@
         "nav.shots": "Showcase", "nav.features": "Features", "nav.dl": "Download",
         "hero.eye": "Native · AppKit · Universal",
         "hero.h1": "A focused macOS editor with Sublime-like speed — without the Electron tax.",
-        "hero.cta": "Download DMG", "hero.src": "View source",
+        "hero.cta": "Download Stable", "hero.beta": "Try Beta", "hero.src": "View source",
         "stat.t1": "Runtime", "stat.t2": "Binary", "stat.t3": "Scope",
         "stat.1": "Native Cocoa stack", "stat.2": "Apple Silicon & Intel", "stat.3": "Editor essentials, polished",
         "shot1.t": "Editor", "shot1.d": "Ink theme · sidebar · tabs", "shot1.alt": "MacText editor with Ink theme",
@@ -698,8 +769,11 @@
         "k.new": "New", "k.open": "Open", "k.folder": "Open Folder", "k.save": "Save",
         "k.find": "Find", "k.pal": "Palette", "k.side": "Sidebar", "k.theme": "Theme",
         "dl.k": "Install", "dl.title": "One drag to Applications",
-        "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks.",
-        "dl.cta": "Download MacText 1.1.3", "dl.all": "All releases",
+        "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks. Stable is recommended; Beta ships the newest changes first.",
+        "dl.stableLabel": "Stable", "dl.betaLabel": "Beta",
+        "dl.stableHint": "Recommended for daily use. Previous release promoted after the latest ships.",
+        "dl.betaHint": "Latest build for early access. Becomes Stable on the next release.",
+        "dl.cta": "Download Stable", "dl.beta": "Download Beta", "dl.all": "All releases",
         "ft": "© 2026 MacText · Native AppKit"
       },
       zh: {
@@ -710,7 +784,7 @@
         "nav.shots": "界面", "nav.features": "功能", "nav.dl": "下载",
         "hero.eye": "原生 · AppKit · 通用二进制",
         "hero.h1": "专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。",
-        "hero.cta": "下载 DMG", "hero.src": "查看源码",
+        "hero.cta": "下载稳定版", "hero.beta": "体验版", "hero.src": "查看源码",
         "stat.t1": "运行时", "stat.t2": "二进制", "stat.t3": "范围",
         "stat.1": "原生 Cocoa 栈", "stat.2": "Apple Silicon 与 Intel", "stat.3": "核心编辑能力，精修打磨",
         "shot1.t": "编辑器", "shot1.d": "Ink 主题 · 侧边栏 · 标签", "shot1.alt": "MacText Ink 主题编辑器",
@@ -731,8 +805,11 @@
         "k.new": "新建", "k.open": "打开", "k.folder": "打开文件夹", "k.save": "保存",
         "k.find": "查找", "k.pal": "命令面板", "k.side": "侧边栏", "k.theme": "主题",
         "dl.k": "安装", "dl.title": "拖进应用程序即可",
-        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。",
-        "dl.cta": "下载 MacText 1.1.3", "dl.all": "全部版本",
+        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。稳定版适合日常使用；体验版抢先拿到最新改动。",
+        "dl.stableLabel": "稳定版", "dl.betaLabel": "体验版",
+        "dl.stableHint": "推荐日常使用。每次发新版时，原体验版会晋升为稳定版。",
+        "dl.betaHint": "最新构建，抢先体验。下次发版时会变成稳定版。",
+        "dl.cta": "下载稳定版", "dl.beta": "下载体验版", "dl.all": "全部版本",
         "ft": "© 2026 MacText · 原生 AppKit"
       }
     };
@@ -785,6 +862,48 @@
       stage.addEventListener("mouseenter", () => clearInterval(timer));
       stage.addEventListener("mouseleave", restart);
       layout(); restart();
+    })();
+
+    // Fill Stable / Beta download links from version.json (single source of truth).
+    (function () {
+      const url = "version.json?ts=" + Date.now();
+      fetch(url, { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((data) => {
+          const stable = data.stable || data;
+          const beta = data.beta;
+          const setHref = (id, href) => {
+            const el = document.getElementById(id);
+            if (el && href) el.setAttribute("href", href);
+          };
+          const setText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el && text) el.textContent = text;
+          };
+          if (stable && stable.version) {
+            setHref("hero-stable", stable.dmg);
+            setHref("dl-stable", stable.dmg);
+            setHref("footer-stable", stable.release || ("https://github.com/linux503/MacText/releases/tag/" + (stable.tag || ("v" + stable.version))));
+            setText("dl-stable-ver", "MacText " + stable.version);
+            setText("footer-stable", "Stable v" + stable.version);
+            if (stable.notes) setText("dl-stable-notes", stable.notes);
+          }
+          if (beta && beta.version) {
+            setHref("hero-beta", beta.dmg);
+            setHref("dl-beta", beta.dmg);
+            setHref("footer-beta", beta.release || ("https://github.com/linux503/MacText/releases/tag/" + (beta.tag || ("v" + beta.version))));
+            setText("dl-beta-ver", "MacText " + beta.version);
+            setText("footer-beta", "Beta v" + beta.version);
+            if (beta.notes) setText("dl-beta-notes", beta.notes);
+          }
+          const meta = document.getElementById("hero-meta");
+          if (meta && stable && beta) {
+            meta.textContent = "Stable v" + stable.version + " · Beta v" + beta.version + " · macOS 14+ · arm64 + x86_64";
+          } else if (meta && stable) {
+            meta.textContent = "Stable v" + stable.version + " · macOS 14+ · arm64 + x86_64";
+          }
+        })
+        .catch(() => {});
     })();
   </script>
 </body>

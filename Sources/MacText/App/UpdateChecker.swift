@@ -110,18 +110,22 @@ enum UpdateChecker {
             guard let data,
                   let http = response as? HTTPURLResponse,
                   (200..<300).contains(http.statusCode),
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let version = json["version"] as? String,
-                  !version.isEmpty else {
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 completion(.failure(makeError(L10n.updateCheckFailed)))
                 return
             }
-            let tag = (json["tag"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "v\(version)"
-            let release = (json["release"] as? String).flatMap(URL.init(string:))
+            // In-app updates follow the stable channel; beta is site-only.
+            let channel = (json["stable"] as? [String: Any]) ?? json
+            guard let version = channel["version"] as? String, !version.isEmpty else {
+                completion(.failure(makeError(L10n.updateCheckFailed)))
+                return
+            }
+            let tag = (channel["tag"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "v\(version)"
+            let release = (channel["release"] as? String).flatMap(URL.init(string:))
                 ?? URL(string: "https://github.com/linux503/MacText/releases/tag/\(tag)")!
-            let dmg = (json["dmg"] as? String).flatMap(URL.init(string:))
+            let dmg = (channel["dmg"] as? String).flatMap(URL.init(string:))
                 ?? URL(string: "https://github.com/linux503/MacText/releases/download/\(tag)/MacText-\(version).dmg")
-            let notes = (json["notes"] as? String) ?? ""
+            let notes = (channel["notes"] as? String) ?? ""
             completion(.success(AppUpdateInfo(
                 version: version,
                 tagName: tag,
