@@ -107,6 +107,8 @@ final class DocumentStore {
     var fontSize: CGFloat = 13
     var findDirectionForward = true
     var windowFrame: NSRect?
+    /// Sublime-like: silently write dirty files that already have a path.
+    var autoSaveToDisk = true
 
     static let fontSizeMin: CGFloat = 10
     static let fontSizeMax: CGFloat = 36
@@ -608,6 +610,9 @@ final class DocumentStore {
 
         showSidebar = session.showSidebar
         softWrap = session.softWrap
+        if let auto = session.autoSaveToDisk {
+            autoSaveToDisk = auto
+        }
         if let size = session.fontSize {
             fontSize = min(Self.fontSizeMax, max(Self.fontSizeMin, CGFloat(size)))
         }
@@ -626,6 +631,13 @@ final class DocumentStore {
         persistWorkItem?.cancel()
         persistWorkItem = nil
         guard !isRestoring else { return }
+
+        // Always pull latest buffer text from open editors before writing.
+        WindowManager.shared.flushAllEditors()
+
+        if autoSaveToDisk {
+            autoSaveDirtyFilesToDisk()
+        }
 
         let docs = documents.map { doc -> SessionDocument in
             SessionDocument(
@@ -657,13 +669,41 @@ final class DocumentStore {
             themeName: theme.name,
             windowFrame: windowFrame.map { NSStringFromRect($0) },
             fontSize: Double(fontSize),
-            uiLanguage: L10n.language.rawValue
+            uiLanguage: L10n.language.rawValue,
+            autoSaveToDisk: autoSaveToDisk
         )
 
         if isBlankDefault, SessionStore.load() == nil {
             return
         }
         SessionStore.save(session)
+    }
+
+    /// Write every dirty document that already has a file URL (Sublime save_on_focus_lost style).
+    private func autoSaveDirtyFilesToDisk() {
+        var savedAny = false
+        for doc in documents where doc.isDirty {
+            guard let url = doc.fileURL else { continue }
+            do {
+                try doc.content.write(to: url, atomically: true, encoding: .utf8)
+                doc.isDirty = false
+                savedAny = true
+            } catch {
+                // Keep dirty; session.json still holds the buffer.
+            }
+        }
+        if savedAny {
+            NotificationCenter.default.post(name: .macTextMetaChanged, object: self)
+        }
+    }
+
+    func setAutoSaveToDisk(_ enabled: Bool) {
+        guard autoSaveToDisk != enabled else { return }
+        autoSaveToDisk = enabled
+        notify()
+        if enabled {
+            persistSessionNow()
+        }
     }
 
     private func schedulePersist() {
@@ -673,7 +713,8 @@ final class DocumentStore {
             self?.persistSessionNow()
         }
         persistWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: work)
+        // Tight debounce so crash/kill loses at most ~0.25s of typing.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
     }
 
     private func presentError(_ message: String) {

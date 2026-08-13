@@ -81,6 +81,22 @@ enum L10n {
     static var theme: String { t("主题", "Theme") }
     static var dark: String { t("深色", "Dark") }
     static var light: String { t("浅色", "Light") }
+    static var autoSave: String { t("自动保存到磁盘", "Auto-Save to Disk") }
+    static var autoSaveHint: String {
+        t(
+            "已打开的文件会在后台自动写入；所有标签内容也会写入会话备份。",
+            "Files with a path are written automatically; all tab buffers are also kept in the session backup."
+        )
+    }
+
+    static var duplicateLine: String { t("复制行", "Duplicate Line") }
+    static var deleteLine: String { t("删除行", "Delete Line") }
+    static var selectLine: String { t("选择行", "Select Line") }
+    static var joinLines: String { t("合并行", "Join Lines") }
+    static var moveLineUp: String { t("上移行", "Move Line Up") }
+    static var moveLineDown: String { t("下移行", "Move Line Down") }
+    static var toggleComment: String { t("切换注释", "Toggle Comment") }
+    static var matchingBracket: String { t("匹配括号", "Jump to Matching Bracket") }
 
     static var appearance: String { t("外观", "Appearance") }
     static var colorTheme: String { t("颜色主题", "Color Theme") }

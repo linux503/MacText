@@ -98,6 +98,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let unindentItem = NSMenuItem(title: L10n.unindent, action: #selector(EditorTextView.unindentSelectedLines(_:)), keyEquivalent: "[")
         unindentItem.keyEquivalentModifierMask = [.command]
         editMenu.addItem(unindentItem)
+        editMenu.addItem(NSMenuItem.separator())
+        let dup = NSMenuItem(title: L10n.duplicateLine, action: #selector(EditorTextView.duplicateLineOrSelection(_:)), keyEquivalent: "d")
+        dup.keyEquivalentModifierMask = [.command, .shift]
+        editMenu.addItem(dup)
+        let deleteLine = NSMenuItem(title: L10n.deleteLine, action: #selector(EditorTextView.deleteLinesSublime(_:)), keyEquivalent: "k")
+        deleteLine.keyEquivalentModifierMask = [.control, .shift]
+        editMenu.addItem(deleteLine)
+        let selLine = NSMenuItem(title: L10n.selectLine, action: #selector(EditorTextView.selectLine(_:)), keyEquivalent: "l")
+        selLine.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(selLine)
+        let join = NSMenuItem(title: L10n.joinLines, action: #selector(EditorTextView.joinLines(_:)), keyEquivalent: "j")
+        join.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(join)
+        editMenu.addItem(NSMenuItem(title: L10n.moveLineUp, action: #selector(EditorTextView.moveLineUp(_:)), keyEquivalent: ""))
+        editMenu.addItem(NSMenuItem(title: L10n.moveLineDown, action: #selector(EditorTextView.moveLineDown(_:)), keyEquivalent: ""))
+        let comment = NSMenuItem(title: L10n.toggleComment, action: #selector(EditorTextView.toggleComment(_:)), keyEquivalent: "/")
+        comment.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(comment)
+        let bracket = NSMenuItem(title: L10n.matchingBracket, action: #selector(EditorTextView.jumpToMatchingBracket(_:)), keyEquivalent: "m")
+        bracket.keyEquivalentModifierMask = [.control]
+        editMenu.addItem(bracket)
 
         let findMenuItem = NSMenuItem()
         mainMenu.addItem(findMenuItem)
@@ -201,8 +222,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showAbout() {
-        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.6"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "8"
+        let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "10"
         var options: [NSApplication.AboutPanelOptionKey: Any] = [
             .applicationName: "MacText",
             .applicationVersion: short,

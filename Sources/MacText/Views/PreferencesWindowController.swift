@@ -8,6 +8,7 @@ final class PreferencesWindowController: NSWindowController {
     private let languagePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let softWrapCheckbox = NSButton(checkboxWithTitle: "Soft Wrap", target: nil, action: nil)
     private let sidebarCheckbox = NSButton(checkboxWithTitle: "Show Sidebar", target: nil, action: nil)
+    private let autoSaveCheckbox = NSButton(checkboxWithTitle: "Auto-Save", target: nil, action: nil)
     private let titleLabel = NSTextField(labelWithString: "")
     private let themeLabel = NSTextField(labelWithString: "")
     private let fontLabel = NSTextField(labelWithString: "")
@@ -17,7 +18,7 @@ final class PreferencesWindowController: NSWindowController {
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 440),
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: 480),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -105,6 +106,10 @@ final class PreferencesWindowController: NSWindowController {
         sidebarCheckbox.action = #selector(sidebarChanged)
         sidebarCheckbox.translatesAutoresizingMaskIntoConstraints = false
 
+        autoSaveCheckbox.target = self
+        autoSaveCheckbox.action = #selector(autoSaveChanged)
+        autoSaveCheckbox.translatesAutoresizingMaskIntoConstraints = false
+
         preview.translatesAutoresizingMaskIntoConstraints = false
         preview.wantsLayer = true
         preview.layer?.cornerRadius = 8
@@ -126,6 +131,7 @@ final class PreferencesWindowController: NSWindowController {
         content.addSubview(preview)
         content.addSubview(softWrapCheckbox)
         content.addSubview(sidebarCheckbox)
+        content.addSubview(autoSaveCheckbox)
         content.addSubview(hint)
 
         NSLayoutConstraint.activate([
@@ -167,7 +173,10 @@ final class PreferencesWindowController: NSWindowController {
             sidebarCheckbox.topAnchor.constraint(equalTo: softWrapCheckbox.bottomAnchor, constant: 8),
             sidebarCheckbox.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
 
-            hint.topAnchor.constraint(equalTo: sidebarCheckbox.bottomAnchor, constant: 18),
+            autoSaveCheckbox.topAnchor.constraint(equalTo: sidebarCheckbox.bottomAnchor, constant: 8),
+            autoSaveCheckbox.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
+
+            hint.topAnchor.constraint(equalTo: autoSaveCheckbox.bottomAnchor, constant: 18),
             hint.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
             hint.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -20),
             hint.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -16)
@@ -184,7 +193,8 @@ final class PreferencesWindowController: NSWindowController {
         languageLabel.stringValue = L10n.languageLabel
         softWrapCheckbox.title = L10n.softWrap
         sidebarCheckbox.title = L10n.showSidebar
-        hint.stringValue = L10n.settingsHint
+        autoSaveCheckbox.title = L10n.autoSave
+        hint.stringValue = L10n.settingsHint + "\n" + L10n.autoSaveHint
 
         // Rebuild theme section headers
         let selectedTheme = DocumentStore.shared.theme.name
@@ -215,6 +225,7 @@ final class PreferencesWindowController: NSWindowController {
         fontSizePopup.selectItem(withTag: Int(store.fontSize.rounded()))
         softWrapCheckbox.state = store.softWrap ? .on : .off
         sidebarCheckbox.state = store.showSidebar ? .on : .off
+        autoSaveCheckbox.state = store.autoSaveToDisk ? .on : .off
         if let item = languagePopup.itemArray.first(where: {
             ($0.representedObject as? String) == L10n.language.rawValue
         }) {
@@ -262,6 +273,10 @@ final class PreferencesWindowController: NSWindowController {
         if store.showSidebar != desired {
             store.perform(.toggleSidebar)
         }
+    }
+
+    @objc private func autoSaveChanged() {
+        DocumentStore.shared.setAutoSaveToDisk(autoSaveCheckbox.state == .on)
     }
 }
 

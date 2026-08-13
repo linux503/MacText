@@ -450,4 +450,11 @@ final class EditorController: NSObject, NSTextViewDelegate {
     func focus() {
         textView.window?.makeFirstResponder(textView)
     }
+
+    /// Push the live text view buffer into the document model (including IME marked text).
+    func flushToDocument() {
+        guard let document else { return }
+        document.updateContent(textView.string)
+        updateCursorLocation()
+    }
 }

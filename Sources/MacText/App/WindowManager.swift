@@ -73,6 +73,12 @@ final class WindowManager {
         DocumentStore.shared.notify()
     }
 
+    func flushAllEditors() {
+        for window in windows {
+            window.flushEditorToDocument()
+        }
+    }
+
     func window(containing documentID: UUID) -> MainWindowController? {
         windows.first { $0.tabIDs.contains(documentID) }
     }

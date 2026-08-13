@@ -25,6 +25,8 @@ struct EditorSession: Codable {
     var fontSize: Double?
     /// UI language: "zh" or "en". Optional for older session files.
     var uiLanguage: String?
+    /// Auto-write dirty files that already have a path. Default true.
+    var autoSaveToDisk: Bool?
 }
 
 enum SessionStore {

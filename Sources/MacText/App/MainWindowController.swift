@@ -89,10 +89,15 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
 
     func selectTab(_ id: UUID) {
         guard tabIDs.contains(id) else { return }
+        flushEditorToDocument()
         selectedTabID = id
         store.syncActiveSelection(id)
         reload(full: true)
         editor.focus()
+    }
+
+    func flushEditorToDocument() {
+        editor.flushToDocument()
     }
 
     func insertTab(_ id: UUID, at index: Int?) {
