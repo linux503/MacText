@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MacText — Native macOS Text Editor | Sublime-like Speed</title>
-  <meta name="description" id="meta-desc" content="MacText is a native AppKit text editor for macOS: multi-tabs, sidebar, find &amp; replace, command palette, syntax highlight, and session restore." />
+  <title>MacText — 原生 macOS 文本编辑器 | Sublime 级效率</title>
+  <meta name="description" id="meta-desc" content="面向 macOS 的原生 AppKit 文本编辑器：多标签、侧边栏、查找替换、命令面板、语法高亮与会话恢复。" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://linux503.github.io/MacText/zh/" />
   <link rel="alternate" hreflang="en" href="https://linux503.github.io/MacText/?lang=en" />
   <link rel="alternate" hreflang="zh-CN" href="https://linux503.github.io/MacText/?lang=zh" />
   <link rel="alternate" hreflang="x-default" href="https://linux503.github.io/MacText/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" id="og-title" content="MacText — Native macOS Text Editor" />
-  <meta property="og:description" id="og-desc" content="Sublime-like core. Native AppKit. Universal Binary." />
+  <meta property="og:title" id="og-title" content="MacText — 原生 macOS 文本编辑器" />
+  <meta property="og:description" id="og-desc" content="Sublime 核心体验。原生 AppKit。Universal Binary。" />
   <meta property="og:url" content="https://linux503.github.io/MacText/" />
   <meta property="og:image" content="https://linux503.github.io/MacText/screenshots/editor-ink.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/site.css?v=3" />
 </head>
 <body>
   <div class="atmosphere" aria-hidden="true">
@@ -42,8 +42,8 @@
           <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
                 <div class="lang" role="group" aria-label="语言">
-          <a href="../" data-lang="en" aria-pressed="false" style="min-width:2.2rem;padding:0.35rem 0.55rem;border-radius:6px;font-family:var(--mono);font-size:0.68rem;font-weight:500;letter-spacing:0.02em;color:var(--text-3);text-align:center;">EN</a>
-          <a href="./" data-lang="zh" aria-pressed="true" style="min-width:2.2rem;padding:0.35rem 0.55rem;border-radius:6px;font-family:var(--mono);font-size:0.68rem;font-weight:500;letter-spacing:0.02em;background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2);text-align:center;">中文</a>
+          <a class="lang-link" href="../">EN</a>
+          <a class="lang-link is-active" href="./">中文</a>
         </div>
         <a class="btn btn-solid btn-sm" href="#download">下载</a>
       </div>
@@ -63,23 +63,25 @@
           </div>
           <p class="meta" id="hero-meta">稳定版 v1.1.2 · 体验版 v1.1.3 · macOS 14+ · arm64 + x86_64</p>
         </div>
-        <aside class="side" aria-label="Highlights">
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t1">运行时</span>
-            <strong>AppKit</strong>
-            <span data-i18n="stat.1">原生 Cocoa 栈</span>
-          </div>
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t2">二进制</span>
-            <strong>Universal</strong>
-            <span data-i18n="stat.2">Apple Silicon 与 Intel</span>
-          </div>
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t3">范围</span>
-            <strong>1A Core</strong>
-            <span data-i18n="stat.3">核心编辑能力，精修打磨</span>
+        <aside class="hero-visual" aria-label="产品预览">
+          <div class="hero-frame">
+            <div class="hero-shine" aria-hidden="true"></div>
+            <img src="../screenshots/editor-ink.png" alt="MacText Ink 主题编辑器" width="880" height="560" />
           </div>
         </aside>
+      </div>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          <span><b>标签</b> · 侧边栏 · 查找 · 命令面板 · 缩进 · 会话</span>
+          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>主题</b> · Ink · Black · Paper · Snow</span>
+          <span><b>稳定版</b> + <b>体验版</b></span>
+          <span><b>标签</b> · 侧边栏 · 查找 · 命令面板 · 缩进 · 会话</span>
+          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>主题</b> · Ink · Black · Paper · Snow</span>
+          <span><b>稳定版</b> + <b>体验版</b></span>
+        </div>
       </div>
 
       <div class="showcase-block reveal" id="showcase">
@@ -87,15 +89,15 @@
           <div class="glow" aria-hidden="true"></div>
           <div class="deck" id="deck">
             <figure class="shot" data-index="0" data-pos="0" tabindex="0">
-              <img src="../screenshots/editor-ink.png" alt="" data-i18n-alt="shot1.alt" / alt="MacText Ink 主题编辑器">
+              <img src="../screenshots/editor-ink.png" alt="MacText Ink 主题编辑器" />
               <figcaption class="label"><span data-i18n="shot1.t">编辑器</span><em>01</em></figcaption>
             </figure>
             <figure class="shot" data-index="1" data-pos="1" tabindex="0">
-              <img src="../screenshots/command-palette.png" alt="" data-i18n-alt="shot2.alt" / alt="MacText 命令面板">
+              <img src="../screenshots/command-palette.png" alt="MacText 命令面板" />
               <figcaption class="label"><span data-i18n="shot2.t">命令面板</span><em>02</em></figcaption>
             </figure>
             <figure class="shot" data-index="2" data-pos="2" tabindex="0">
-              <img src="../screenshots/editor-find.png" alt="" data-i18n-alt="shot3.alt" / alt="MacText 查找替换">
+              <img src="../screenshots/editor-find.png" alt="MacText 查找替换" />
               <figcaption class="label"><span data-i18n="shot3.t">查找替换</span><em>03</em></figcaption>
             </figure>
           </div>
@@ -128,18 +130,15 @@
         <p class="lead" data-i18n="f.lead">日常真正会用到的能力——标签、项目树、搜索、命令面板、多行缩进、字体大小——为原生体验与秒开而打磨。</p>
       </div>
       <div class="matrix">
-        <article class="cell"><b data-i18n="f1t">多标签编辑</b><p data-i18n="f1d">打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。</p></article>
-        <article class="cell"><b data-i18n="f2t">项目侧边栏</b><p data-i18n="f2d">浏览文件夹树。⌘B 完全隐藏，不留空白边条。</p></article>
-        <article class="cell"><b data-i18n="f3t">查找与替换</b><p data-i18n="f3d">内联查找栏，上一个 / 下一个，Esc 关闭。</p></article>
-        <article class="cell"><b data-i18n="f4t">命令面板</b><p data-i18n="f4d">⌘⇧P 切换主题、跳转行、侧边栏等。</p></article>
-        <article class="cell"><b data-i18n="f5t">语法高亮</b><p data-i18n="f5d">Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。</p></article>
-        <article class="cell"><b data-i18n="f6t">会话恢复</b><p data-i18n="f6d">标签、未保存内容、光标、文件夹、主题与窗口。</p></article>
-        <article class="cell"><b>多行缩进</b><p>选中多行任意部分，Tab / ⇧Tab / ⌘] / ⌘[ 整行缩进，与 Sublime 一致。</p></article>
-<article class="cell"><b>标签拖出</b><p>把标签拖出成新窗口，或拖回其他窗口合并。</p></article>
-<article class="cell"><b>界面语言</b><p>默认中文，可在设置（⌘,）里切换英文。</p></article>
-<article class="cell"><b>Sublime 编辑</b><p>复制/移动/删除/合并行、切换注释、匹配括号、回车自动缩进。</p></article>
-<article class="cell"><b>自动保存</b><p>会话备份全量缓冲；已有路径的文件会自动写入磁盘。</p></article>
-<article class="cell"><b>检查更新</b><p>启动时自动检查 GitHub Releases；关于/帮助可跳转官网与 GitHub。</p></article>
+        <article class="cell"><b>多标签编辑</b><p>打开 / 保存 / 另存为 / 关闭，未保存提示；中键关闭。</p></article>
+        <article class="cell"><b>项目侧边栏</b><p>浏览文件夹树。⌘B 完全隐藏，不留空白边条。</p></article>
+        <article class="cell"><b>查找与替换</b><p>内联查找栏，上一个 / 下一个，Esc 关闭。</p></article>
+        <article class="cell"><b>命令面板</b><p>⌘⇧P 切换主题、跳转行、侧边栏等。</p></article>
+        <article class="cell"><b>语法高亮</b><p>Swift、Python、JS/TS、JSON、Markdown，配色贴合 Ink。</p></article>
+        <article class="cell"><b>会话恢复</b><p>标签、未保存内容、光标、文件夹、主题与窗口。</p></article>
+        <article class="cell"><b>拖出标签</b><p>拖到桌面成新窗口，或拖入另一窗口合并。</p></article>
+        <article class="cell"><b>Sublime 编辑</b><p>复制 / 移动 / 删除 / 合并行、注释、括号跳转、自动缩进。</p></article>
+        <article class="cell"><b>自动保存</b><p>会话备份缓冲；已有路径的文件会自动写盘。</p></article>
       </div>
     </section>
 
@@ -301,6 +300,6 @@
         .catch(() => {});
     })();
   </script>
-  <script src="../assets/site.js" defer></script>
+  <script src="../assets/site.js?v=3" defer></script>
 </body>
 </html>

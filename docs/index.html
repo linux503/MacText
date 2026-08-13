@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css" />
+  <link rel="stylesheet" href="assets/site.css?v=3" />
   <script>
     (function () {
       try {
@@ -76,23 +76,25 @@
           </div>
           <p class="meta" id="hero-meta">Stable v1.1.2 · Beta v1.1.3 · macOS 14+ · arm64 + x86_64</p>
         </div>
-        <aside class="side" aria-label="Highlights">
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t1">Runtime</span>
-            <strong>AppKit</strong>
-            <span data-i18n="stat.1">Native Cocoa stack</span>
-          </div>
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t2">Binary</span>
-            <strong>Universal</strong>
-            <span data-i18n="stat.2">Apple Silicon &amp; Intel</span>
-          </div>
-          <div class="side-item">
-            <span class="tag" data-i18n="stat.t3">Scope</span>
-            <strong>1A Core</strong>
-            <span data-i18n="stat.3">Editor essentials, polished</span>
+        <aside class="hero-visual" aria-label="Product preview">
+          <div class="hero-frame">
+            <div class="hero-shine" aria-hidden="true"></div>
+            <img src="screenshots/editor-ink.png" alt="MacText editor with Ink theme" width="880" height="560" />
           </div>
         </aside>
+      </div>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          <span><b>Tabs</b> · Sidebar · Find · Palette · Indent · Session</span>
+          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Themes</b> · Ink · Black · Paper · Snow</span>
+          <span><b>Stable</b> + <b>Beta</b> channels</span>
+          <span><b>Tabs</b> · Sidebar · Find · Palette · Indent · Session</span>
+          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Themes</b> · Ink · Black · Paper · Snow</span>
+          <span><b>Stable</b> + <b>Beta</b> channels</span>
+        </div>
       </div>
 
       <div class="showcase-block reveal" id="showcase">
@@ -147,12 +149,9 @@
         <article class="cell"><b data-i18n="f4t">Command palette</b><p data-i18n="f4d">⌘⇧P for themes, go-to-line, sidebar, and actions.</p></article>
         <article class="cell"><b data-i18n="f5t">Syntax highlight</b><p data-i18n="f5d">Swift, Python, JS/TS, JSON, Markdown — Ink-matched colors.</p></article>
         <article class="cell"><b data-i18n="f6t">Session restore</b><p data-i18n="f6d">Tabs, unsaved text, caret, folder, theme, window frame.</p></article>
-        <article class="cell"><b>Multi-line indent</b><p>Select any part of multiple lines — Tab / ⇧Tab / ⌘] / ⌘[ indents whole lines, Sublime-style.</p></article>
-<article class="cell"><b>Tear-off tabs</b><p>Drag a tab out to a new window, or drop it onto another window to merge.</p></article>
-<article class="cell"><b>UI language</b><p>Chinese by default. Switch anytime in Settings (⌘,).</p></article>
-<article class="cell"><b>Sublime editing</b><p>Duplicate / move / delete / join lines, toggle comment, matching brackets, auto-indent.</p></article>
-<article class="cell"><b>Auto-save</b><p>Buffers session-backed; files with a path write to disk automatically.</p></article>
-<article class="cell"><b>Updates</b><p>Auto-checks GitHub Releases on launch; About / Help link to site &amp; GitHub.</p></article>
+        <article class="cell"><b>Tear-off tabs</b><p>Drag a tab out to a new window, or drop onto another to merge.</p></article>
+        <article class="cell"><b>Sublime editing</b><p>Duplicate / move / delete / join lines, comment, brackets, auto-indent.</p></article>
+        <article class="cell"><b>Auto-save</b><p>Session-backed buffers; files with a path write to disk automatically.</p></article>
       </div>
     </section>
 
@@ -398,6 +397,6 @@
         .catch(() => {});
     })();
   </script>
-  <script src="assets/site.js" defer></script>
+  <script src="assets/site.js?v=3" defer></script>
 </body>
 </html>
