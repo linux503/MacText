@@ -4,14 +4,15 @@
     {
       "version": "1.1.5",
       "date": "2026-08-14",
-      "channel": "beta",
+      "channel": "stable",
       "tag": "v1.1.5",
       "en": {
         "title": "Pure-black logo",
         "highlights": [
           "New Dock / app icon: pure black background, no glass card or corner frame",
           "Larger MT in Futura Condensed ExtraBold — lime M, white T, amber caret",
-          "Site Changelog pages (EN / 中文) for release history"
+          "Site Changelog pages (EN / 中文) for release history",
+          "Promoted to Stable — in-app Check for Updates offers 1.1.5"
         ]
       },
       "zh": {
@@ -19,27 +20,28 @@
         "highlights": [
           "全新程序坞 / 应用图标：纯黑底，去掉磨砂卡片与边框",
           "更大的 Futura Condensed ExtraBold MT — 绿 M、白 T、琥珀短横线",
-          "官网新增「更新记录」页面（中英文）"
+          "官网新增「更新记录」页面（中英文）",
+          "已晋升为稳定版 — 应用内「检查更新」可升级到 1.1.5"
         ]
       }
     },
     {
       "version": "1.1.4",
       "date": "2026-08-13",
-      "channel": "stable",
+      "channel": "release",
       "tag": "v1.1.4",
       "en": {
         "title": "Logo polish & channel bump",
         "highlights": [
           "Refined Dock / app logo: smaller MT mark, frosted glass card, soft glow",
-          "Promoted to Stable; in-app updates follow site version.json Stable channel"
+          "In-app updates follow site version.json Stable channel"
         ]
       },
       "zh": {
         "title": "图标打磨与通道更新",
         "highlights": [
           "程序坞 / 应用图标：更小的 MT、磨砂玻璃卡片与柔和光晕",
-          "已晋升为稳定版；应用内检查更新跟随官网稳定通道"
+          "应用内检查更新跟随官网稳定通道"
         ]
       }
     },

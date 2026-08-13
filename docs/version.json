@@ -1,21 +1,21 @@
 {
   "stable": {
-    "version": "1.1.4",
-    "tag": "v1.1.4",
-    "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.4/MacText-1.1.4.dmg",
-    "release": "https://github.com/linux503/MacText/releases/tag/v1.1.4",
-    "notes": "Refined Dock logo with glass card; UpdateChecker follows Stable channel."
-  },
-  "beta": {
     "version": "1.1.5",
     "tag": "v1.1.5",
     "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg",
     "release": "https://github.com/linux503/MacText/releases/tag/v1.1.5",
     "notes": "Pure-black Dock logo: larger Futura Condensed MT, no glass card."
   },
-  "version": "1.1.4",
-  "tag": "v1.1.4",
-  "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.4/MacText-1.1.4.dmg",
-  "release": "https://github.com/linux503/MacText/releases/tag/v1.1.4",
-  "notes": "Refined Dock logo with glass card; UpdateChecker follows Stable channel."
+  "beta": {
+    "version": "1.1.5",
+    "tag": "v1.1.5",
+    "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg",
+    "release": "https://github.com/linux503/MacText/releases/tag/v1.1.5",
+    "notes": "Same as Stable until the next beta ships."
+  },
+  "version": "1.1.5",
+  "tag": "v1.1.5",
+  "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg",
+  "release": "https://github.com/linux503/MacText/releases/tag/v1.1.5",
+  "notes": "Pure-black Dock logo: larger Futura Condensed MT, no glass card."
 }
