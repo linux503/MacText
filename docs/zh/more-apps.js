@@ -2,45 +2,48 @@
  * linux503 产品互链 — 各官网导航「更多软件」
  * 用法: <span data-more-apps="flare"></span>
  * 可选: data-lang="zh" | "en"
- * 会自动排除当前产品（data-more-apps 的值）
- * 动态站点可调用 window.Linux503MoreApps.refresh()
  */
 (function () {
   var APPS = [
     {
       id: "flare",
       name: "Flare",
+      short: "Fl",
+      accent: "#0f9f6e",
       desc: { zh: "截图录屏", en: "Screenshot & recording" },
-      url: "https://linux503.github.io/Flare/",
-      github: "https://github.com/linux503/Flare"
+      url: "https://linux503.github.io/Flare/"
     },
     {
       id: "zipx",
       name: "ZipX",
+      short: "Zx",
+      accent: "#e84d32",
       desc: { zh: "解压压缩", en: "Compress & extract" },
-      url: "https://linux503.github.io/ZipX/",
-      github: "https://github.com/linux503/ZipX"
+      url: "https://linux503.github.io/ZipX/"
     },
     {
       id: "mactext",
       name: "MacText",
+      short: "Mt",
+      accent: "#3b5bdb",
       desc: { zh: "文本编辑", en: "Text editor" },
-      url: "https://linux503.github.io/MacText/",
-      github: "https://github.com/linux503/MacText"
+      url: "https://linux503.github.io/MacText/"
     },
     {
       id: "suptools",
       name: "SupTools",
+      short: "St",
+      accent: "#0d7a6c",
       desc: { zh: "macOS 超级工具箱", en: "macOS super toolbox" },
-      url: "https://linux503.github.io/suptools/",
-      github: "https://github.com/linux503/suptools"
+      url: "https://linux503.github.io/suptools/"
     },
     {
       id: "macfan",
       name: "MacFan",
+      short: "Mf",
+      accent: "#0891b2",
       desc: { zh: "精准控制 Mac 风扇转速", en: "Precise Mac fan control" },
-      url: "https://linux503.github.io/MacFan/",
-      github: "https://github.com/linux503/MacFan"
+      url: "https://linux503.github.io/MacFan/"
     }
   ];
 
@@ -54,9 +57,6 @@
   }
 
   function build(el) {
-    if (!el || el.getAttribute("data-more-apps-ready") === "1") {
-      // allow rebuild after refresh()
-    }
     var current = (el.getAttribute("data-more-apps") || "").toLowerCase().trim();
     var lang = detectLang(el);
     var label = lang === "en" ? "More apps" : "更多软件";
@@ -70,10 +70,13 @@
 
     var summary = document.createElement("summary");
     summary.innerHTML =
-      '<span class="more-apps-ico" aria-hidden="true"></span>' +
+      '<span class="more-apps-ico" aria-hidden="true">' +
+      "<i></i><i></i><i></i><i></i>" +
+      "</span>" +
       '<span class="more-apps-label">' +
       label +
-      "</span>";
+      "</span>" +
+      '<span class="more-apps-chevron" aria-hidden="true"></span>';
     details.appendChild(summary);
 
     var panel = document.createElement("div");
@@ -91,12 +94,18 @@
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.setAttribute("role", "menuitem");
+      a.style.setProperty("--app-accent", app.accent);
       a.innerHTML =
+        '<span class="more-apps-badge">' +
+        app.short +
+        "</span>" +
         '<span class="app-name">' +
         app.name +
-        '</span><span class="app-desc">' +
+        "</span>" +
+        '<span class="app-desc">' +
         (app.desc[lang] || app.desc.zh) +
-        "</span>";
+        "</span>" +
+        '<span class="more-apps-arrow" aria-hidden="true">↗</span>";
       panel.appendChild(a);
     });
 
