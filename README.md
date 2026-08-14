@@ -10,19 +10,22 @@
 </p>
 
 <p align="center">
+  <a href="README.zh.md">中文</a> · <b>English</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/linux503/MacText/releases/latest"><img src="https://img.shields.io/github/v/release/linux503/MacText?style=flat-square&label=release&color=a6e22e" alt="Release" /></a>
   <a href="https://github.com/linux503/MacText/releases"><img src="https://img.shields.io/badge/macOS-14%2B-111111?style=flat-square" alt="macOS 14+" /></a>
   <a href="https://github.com/linux503/MacText/releases"><img src="https://img.shields.io/badge/arch-Universal-24292f?style=flat-square" alt="Universal Binary" /></a>
   <a href="https://linux503.github.io/MacText/"><img src="https://img.shields.io/badge/site-linux503.github.io-fd971f?style=flat-square" alt="Website" /></a>
-  <a href="https://linux503.github.io/MacText/zh/"><img src="https://img.shields.io/badge/lang-中文%20%2F%20EN-444?style=flat-square" alt="Language" /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg"><strong>Download Stable</strong></a>
-  ·
-  <a href="https://github.com/linux503/MacText/releases/download/v1.1.4/MacText-1.1.4.dmg"><strong>Try Beta</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg"><strong>Download DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/">Website</a>
+  ·
+  <a href="https://linux503.github.io/MacText/zh/">中文官网</a>
   ·
   <a href="https://github.com/linux503/MacText/releases">All releases</a>
 </p>
@@ -59,23 +62,13 @@
 
 ## Install
 
-### Channels
-
-| Channel | Version | Who it's for |
-|---------|---------|--------------|
-| **Stable** | [1.1.3](https://github.com/linux503/MacText/releases/download/v1.1.3/MacText-1.1.3.dmg) | Daily use (recommended) |
-| **Beta** | [1.1.4](https://github.com/linux503/MacText/releases/download/v1.1.4/MacText-1.1.4.dmg) | Latest changes, early access |
-
-1. Download the DMG for your channel  
-2. Drag **MacText** into **Applications**  
+1. Download [MacText-1.1.5.dmg](https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg)
+2. Drag **MacText** into **Applications**
 3. If Gatekeeper blocks: **System Settings → Privacy & Security → Open Anyway**
 
-```text
-Stable SHA-256  6d3d8e203f8376707c0d739d289ed2428f224d05c73623ba26b1ab7216e2d335
-Beta SHA-256    1716e24b50b8a7852ec1cf2eb3210d810ebaaf379bf6e6267e4a801c6e050663
-```
+Requires **macOS 14+**. Universal Binary for Apple Silicon and Intel.
 
-**Release model:** each new ship promotes the previous Beta → Stable, and the newest build becomes Beta. Source of truth: [`docs/version.json`](docs/version.json).
+Source of truth for channels: [`docs/version.json`](docs/version.json).
 
 ## Shortcuts
 
@@ -159,6 +152,16 @@ assets/              Master logo art
 - Optional iCloud / folder watch  
 
 Issues and PRs welcome.
+
+## Other apps
+
+| App | Role |
+|-----|------|
+| [Flare Pro](https://github.com/linux503/Flare) | Screenshot and recording |
+| [ZipX](https://github.com/linux503/ZipX) | Compress / extract / preview |
+| [SupTools](https://github.com/linux503/suptools) | Monitor, clean, uninstall |
+| [FilesDesk](https://github.com/linux503/FilesDesk) | Batch rename |
+| [MacFan](https://github.com/linux503/MacFan) | Fan control |
 
 ## License
 
