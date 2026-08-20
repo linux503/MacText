@@ -64,15 +64,7 @@ final class PreferencesWindowController: NSWindowController {
         languageLabel.translatesAutoresizingMaskIntoConstraints = false
 
         themePopup.removeAllItems()
-        themePopup.addItem(withTitle: L10n.dark)
-        themePopup.lastItem?.isEnabled = false
-        for theme in EditorTheme.darkThemes {
-            themePopup.addItem(withTitle: theme.name)
-        }
-        themePopup.menu?.addItem(NSMenuItem.separator())
-        themePopup.addItem(withTitle: L10n.light)
-        themePopup.lastItem?.isEnabled = false
-        for theme in EditorTheme.lightThemes {
+        for theme in EditorTheme.all {
             themePopup.addItem(withTitle: theme.name)
         }
         themePopup.target = self
@@ -196,18 +188,9 @@ final class PreferencesWindowController: NSWindowController {
         autoSaveCheckbox.title = L10n.autoSave
         hint.stringValue = L10n.settingsHint + "\n" + L10n.autoSaveHint
 
-        // Rebuild theme section headers
         let selectedTheme = DocumentStore.shared.theme.name
         themePopup.removeAllItems()
-        themePopup.addItem(withTitle: L10n.dark)
-        themePopup.lastItem?.isEnabled = false
-        for theme in EditorTheme.darkThemes {
-            themePopup.addItem(withTitle: theme.name)
-        }
-        themePopup.menu?.addItem(NSMenuItem.separator())
-        themePopup.addItem(withTitle: L10n.light)
-        themePopup.lastItem?.isEnabled = false
-        for theme in EditorTheme.lightThemes {
+        for theme in EditorTheme.all {
             themePopup.addItem(withTitle: theme.name)
         }
         themePopup.selectItem(withTitle: selectedTheme)

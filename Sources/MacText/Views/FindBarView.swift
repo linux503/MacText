@@ -113,6 +113,8 @@ final class FindBarView: NSView, NSTextFieldDelegate {
         guard let field = obj.object as? NSTextField else { return }
         if field === findField {
             DocumentStore.shared.findQuery = field.stringValue
+            // Live find on type/paste — keep caret in the find field.
+            DocumentStore.shared.requestFindNext(forward: true, incremental: true)
         } else if field === replaceField {
             DocumentStore.shared.replaceQuery = field.stringValue
         }

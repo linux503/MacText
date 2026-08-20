@@ -92,7 +92,8 @@ final class TabBarView: NSView, NSDraggingSource {
         item.setDraggingFrame(tabRect, contents: snapshotTab(id: id))
 
         let session = beginDraggingSession(with: [item], event: event, source: self)
-        session.animatesToStartingPositionsOnCancelOrFail = true
+        // Don't fly the tab back — tear-off / merge will place it.
+        session.animatesToStartingPositionsOnCancelOrFail = false
         dragDocumentID = nil
     }
 
@@ -123,6 +124,17 @@ final class TabBarView: NSView, NSDraggingSource {
             closeOthers.target = self
             closeOthers.representedObject = doc.id
             menu.addItem(closeOthers)
+
+            if documents.count > 1 {
+                let moveNew = NSMenuItem(
+                    title: L10n.moveTabToNewWindow,
+                    action: #selector(contextMoveToNewWindow(_:)),
+                    keyEquivalent: ""
+                )
+                moveNew.target = self
+                moveNew.representedObject = doc.id
+                menu.addItem(moveNew)
+            }
         } else {
             let closeCurrent = NSMenuItem(title: L10n.closeTab, action: #selector(closeCurrentTab), keyEquivalent: "w")
             closeCurrent.keyEquivalentModifierMask = .command
@@ -156,19 +168,21 @@ final class TabBarView: NSView, NSDraggingSource {
                 ?? session.draggingPasteboard.string(forType: .macTextTab),
               let id = UUID(uuidString: raw) else { return }
 
-        if operation.isEmpty {
-            // Dropped outside any accepting tab bar → tear off new window.
-            var outside = true
-            for window in WindowManager.shared.windows {
-                if let frame = window.window?.frame, frame.contains(screenPoint) {
-                    outside = false
-                    break
-                }
+        // Successful drop onto a tab bar already handled reorder/merge.
+        guard operation.isEmpty else { return }
+
+        // Dropped on another MacText window body → merge into that window.
+        if let target = WindowManager.shared.windows.first(where: {
+            $0 !== windowOwner && ($0.window?.frame.contains(screenPoint) == true)
+        }) {
+            if let source = windowOwner ?? WindowManager.shared.window(containing: id) {
+                WindowManager.shared.moveTab(id, from: source, to: target, at: nil)
             }
-            if outside {
-                onDetach?(id, screenPoint)
-            }
+            return
         }
+
+        // Dropped outside tab bars (desktop, or this window's editor) → tear off for side-by-side.
+        onDetach?(id, screenPoint)
     }
 
     // MARK: - Dragging destination
@@ -369,6 +383,12 @@ final class TabBarView: NSView, NSDraggingSource {
     @objc private func contextCloseOthers(_ sender: NSMenuItem) {
         guard let id = sender.representedObject as? UUID else { return }
         onCloseOthers?(id)
+    }
+
+    @objc private func contextMoveToNewWindow(_ sender: NSMenuItem) {
+        guard let id = sender.representedObject as? UUID else { return }
+        let screen = NSEvent.mouseLocation
+        onDetach?(id, screen)
     }
 
     @objc private func selectTab(_ sender: NSButton) {

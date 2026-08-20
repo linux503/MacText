@@ -1,6 +1,30 @@
 {
-  "updated": "2026-08-14",
+  "updated": "2026-08-20",
   "entries": [
+    {
+      "version": "1.1.6",
+      "date": "2026-08-20",
+      "channel": "beta",
+      "tag": "v1.1.6",
+      "en": {
+        "title": "Find, tear-off tabs, editor registration",
+        "highlights": [
+          "Find bar: paste/type searches live; ⌘F always re-focuses the find field",
+          "Drag a tab out (or right-click → Move to New Window) for side-by-side compare",
+          "Theme menus list Ink / Black / Paper / Snow only — no Dark/Light headers",
+          "Registers as a text editor (Finder Open With) and ships mactext CLI for git / custom editors"
+        ]
+      },
+      "zh": {
+        "title": "查找、拖出标签、外部编辑器",
+        "highlights": [
+          "查找栏：粘贴/输入即时查找；⌘F 始终重新聚焦查找框",
+          "拖出标签（或右键「移到新窗口」）并排对比两个文件",
+          "主题列表仅显示 Ink / Black / Paper / Snow，去掉深色/浅色分组标题",
+          "注册为文本编辑器（Finder 打开方式），并提供 mactext 命令行供 Git / 自定义外部编辑器"
+        ]
+      }
+    },
     {
       "version": "1.1.5",
       "date": "2026-08-14",

@@ -52,9 +52,17 @@ final class WindowManager {
     /// Tear a tab out into a new window at the given screen point.
     func detachTab(_ documentID: UUID, from source: MainWindowController, screenPoint: NSPoint) {
         guard source.tabIDs.contains(documentID) else { return }
-        source.removeTab(documentID, destroyIfEmpty: true)
+        // Need another tab (or another window) so side-by-side compare is useful;
+        // still allow tear-off of the sole tab to reposition as a new window.
         let origin = NSPoint(x: screenPoint.x - 120, y: screenPoint.y - 40)
-        makeWindow(tabIDs: [documentID], selectedID: documentID, origin: origin)
+
+        // Create the new window first so we never hit zero windows (would quit the app).
+        _ = makeWindow(tabIDs: [documentID], selectedID: documentID, origin: origin)
+
+        source.peelTab(documentID)
+        if source.tabIDs.isEmpty {
+            source.window?.close()
+        }
         DocumentStore.shared.notify()
     }
 
@@ -67,8 +75,12 @@ final class WindowManager {
             return
         }
         guard source.tabIDs.contains(documentID) else { return }
-        source.removeTab(documentID, destroyIfEmpty: true)
+        // Insert into target first so the document stays visible if source was the last window.
         target.insertTab(documentID, at: index)
+        source.peelTab(documentID)
+        if source.tabIDs.isEmpty {
+            source.window?.close()
+        }
         target.selectTab(documentID)
         DocumentStore.shared.notify()
     }

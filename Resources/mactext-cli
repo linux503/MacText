@@ -1,0 +1,59 @@
+#!/bin/bash
+# Open files/folders in MacText (for git core.editor / custom external editors).
+set -euo pipefail
+
+resolve_app() {
+  if [ -n "${MACTEXT_APP:-}" ] && [ -d "${MACTEXT_APP}" ]; then
+    echo "${MACTEXT_APP}"
+    return
+  fi
+  # Prefer the app that owns this script (…/MacText.app/Contents/SharedSupport/bin/mactext)
+  local here
+  here="$(cd "$(dirname "$0")" && pwd)"
+  local candidate
+  candidate="$(cd "${here}/../../.." && pwd)"
+  if [[ "${candidate}" == *.app ]] && [ -d "${candidate}" ]; then
+    echo "${candidate}"
+    return
+  fi
+  if [ -d "/Applications/MacText.app" ]; then
+    echo "/Applications/MacText.app"
+    return
+  fi
+  # Launch Services lookup
+  local ls_path
+  ls_path="$(mdfind "kMDItemCFBundleIdentifier == 'com.mactext.editor'" 2>/dev/null | head -n 1 || true)"
+  if [ -n "${ls_path}" ] && [ -d "${ls_path}" ]; then
+    echo "${ls_path}"
+    return
+  fi
+  echo "MacText.app not found. Install to /Applications or set MACTEXT_APP." >&2
+  exit 1
+}
+
+APP="$(resolve_app)"
+
+if [ "$#" -eq 0 ]; then
+  open -a "${APP}"
+  exit 0
+fi
+
+# Git / editors may pass "+line" or "--wait"; open only real paths.
+ARGS=()
+for arg in "$@"; do
+  case "${arg}" in
+    -w|--wait|+*) continue ;;
+  esac
+  if [ -e "${arg}" ]; then
+    ARGS+=("$(cd "$(dirname "${arg}")" && pwd)/$(basename "${arg}")")
+  else
+    # Still try relative/absolute string — open(1) will report errors.
+    ARGS+=("${arg}")
+  fi
+done
+
+if [ "${#ARGS[@]}" -eq 0 ]; then
+  open -a "${APP}"
+else
+  open -a "${APP}" "${ARGS[@]}"
+fi

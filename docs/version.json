@@ -7,11 +7,11 @@
     "notes": "Pure-black Dock logo: larger Futura Condensed MT, no glass card."
   },
   "beta": {
-    "version": "1.1.5",
-    "tag": "v1.1.5",
-    "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg",
-    "release": "https://github.com/linux503/MacText/releases/tag/v1.1.5",
-    "notes": "Same as Stable until the next beta ships."
+    "version": "1.1.6",
+    "tag": "v1.1.6",
+    "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg",
+    "release": "https://github.com/linux503/MacText/releases/tag/v1.1.6",
+    "notes": "内测：即时查找、拖出标签对比、主题列表精简、可作为外部编辑器。"
   },
   "version": "1.1.5",
   "tag": "v1.1.5",

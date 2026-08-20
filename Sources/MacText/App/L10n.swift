@@ -87,6 +87,7 @@ enum L10n {
     static var closeTab: String { t("关闭标签", "Close Tab") }
     static var close: String { t("关闭", "Close") }
     static var closeOthers: String { t("关闭其他", "Close Others") }
+    static var moveTabToNewWindow: String { t("移到新窗口", "Move Tab to New Window") }
 
     static var undo: String { t("撤销", "Undo") }
     static var redo: String { t("重做", "Redo") }

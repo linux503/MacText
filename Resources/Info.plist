@@ -12,6 +12,8 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>MacText</string>
+	<key>CFBundleDisplayName</key>
+	<string>MacText</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundlePackageType</key>
@@ -28,15 +30,19 @@
 		<string>x86_64</string>
 	</array>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.5</string>
+	<string>1.1.6</string>
 	<key>CFBundleVersion</key>
-	<string>15</string>
+	<string>16</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSupportsAutomaticTermination</key>
+	<false/>
+	<key>NSSupportsSuddenTermination</key>
+	<false/>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -45,13 +51,88 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.plain-text</string>
+				<string>public.text</string>
+				<string>public.source-code</string>
+				<string>public.script</string>
+				<string>public.json</string>
+				<string>public.xml</string>
+				<string>public.yaml</string>
+				<string>public.html</string>
+				<string>net.daringfireball.markdown</string>
+				<string>public.data</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>txt</string>
+				<string>text</string>
+				<string>md</string>
+				<string>markdown</string>
+				<string>swift</string>
+				<string>py</string>
+				<string>js</string>
+				<string>ts</string>
+				<string>jsx</string>
+				<string>tsx</string>
+				<string>json</string>
+				<string>yml</string>
+				<string>yaml</string>
+				<string>xml</string>
+				<string>html</string>
+				<string>css</string>
+				<string>scss</string>
+				<string>c</string>
+				<string>h</string>
+				<string>cpp</string>
+				<string>hpp</string>
+				<string>m</string>
+				<string>mm</string>
+				<string>go</string>
+				<string>rs</string>
+				<string>rb</string>
+				<string>java</string>
+				<string>kt</string>
+				<string>sh</string>
+				<string>zsh</string>
+				<string>bash</string>
+				<string>toml</string>
+				<string>ini</string>
+				<string>cfg</string>
+				<string>conf</string>
+				<string>log</string>
+				<string>csv</string>
+				<string>sql</string>
+				<string>*</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Folder</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
 			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>public.text</string>
-				<string>public.source-code</string>
-				<string>public.data</string>
+				<string>public.folder</string>
+				<string>public.directory</string>
 			</array>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>public.source-code</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Source Code</string>
 		</dict>
 	</array>
 </dict>

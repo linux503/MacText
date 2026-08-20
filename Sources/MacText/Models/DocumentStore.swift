@@ -106,6 +106,8 @@ final class DocumentStore {
     /// Editor monospaced font size in points (clamped 10…36).
     var fontSize: CGFloat = 13
     var findDirectionForward = true
+    /// Bumped whenever Find/Replace should re-focus the find field (⌘F again, etc.).
+    private(set) var findBarFocusToken = 0
     var windowFrame: NSRect?
     /// Sublime-like: silently write dirty files that already have a path.
     var autoSaveToDisk = true
@@ -268,6 +270,20 @@ final class DocumentStore {
         notify()
     }
 
+    /// Open paths from Finder / `open -a` / GitHub Desktop / CLI.
+    func openLaunchURLs(_ urls: [URL]) {
+        let standardized = urls.map { $0.standardizedFileURL }
+        let folders = standardized.filter(\.hasDirectoryPath)
+        let files = standardized.filter { !$0.hasDirectoryPath }
+        if let folder = folders.first {
+            openFolder(folder)
+        }
+        if !files.isEmpty {
+            openFiles(urls: files)
+        }
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
     @discardableResult
     func openFile(_ url: URL) -> TextDocument? {
         if let window = WindowManager.shared.keyEditor {
@@ -404,10 +420,12 @@ final class DocumentStore {
         case .find:
             showFindBar = true
             showReplace = false
+            findBarFocusToken &+= 1
             notify()
         case .replace:
             showFindBar = true
             showReplace = true
+            findBarFocusToken &+= 1
             notify()
         case .commandPalette:
             NotificationCenter.default.post(name: Notification.Name("MacTextShowCommandPalette"), object: nil)
@@ -483,12 +501,16 @@ final class DocumentStore {
         }
     }
 
-    func requestFindNext(forward: Bool = true) {
+    func requestFindNext(forward: Bool = true, incremental: Bool = false) {
         findDirectionForward = forward
         NotificationCenter.default.post(
             name: .macTextFindNext,
             object: nil,
-            userInfo: ["forward": forward, "query": findQuery]
+            userInfo: [
+                "forward": forward,
+                "query": findQuery,
+                "incremental": incremental
+            ]
         )
     }
 

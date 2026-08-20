@@ -48,14 +48,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        let files = urls.filter { !$0.hasDirectoryPath }
-        let folders = urls.filter(\.hasDirectoryPath)
-        if let folder = folders.first {
-            DocumentStore.shared.openFolder(folder)
-        }
-        if !files.isEmpty {
-            DocumentStore.shared.openFiles(urls: files)
-        }
+        DocumentStore.shared.openLaunchURLs(urls)
+    }
+
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        DocumentStore.shared.openLaunchURLs([URL(fileURLWithPath: filename)])
+        return true
+    }
+
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        DocumentStore.shared.openLaunchURLs(filenames.map { URL(fileURLWithPath: $0) })
+        sender.reply(toOpenOrPrint: .success)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -170,22 +173,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let themeMenuItem = NSMenuItem(title: L10n.theme, action: nil, keyEquivalent: "")
         let themeMenu = NSMenu(title: L10n.theme)
 
-        let darkHeader = NSMenuItem(title: L10n.dark, action: nil, keyEquivalent: "")
-        darkHeader.isEnabled = false
-        themeMenu.addItem(darkHeader)
-        for theme in EditorTheme.darkThemes {
-            let item = NSMenuItem(title: theme.name, action: #selector(selectTheme(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = theme.name
-            item.state = theme.name == DocumentStore.shared.theme.name ? .on : .off
-            themeMenu.addItem(item)
-        }
-
-        themeMenu.addItem(NSMenuItem.separator())
-        let lightHeader = NSMenuItem(title: L10n.light, action: nil, keyEquivalent: "")
-        lightHeader.isEnabled = false
-        themeMenu.addItem(lightHeader)
-        for theme in EditorTheme.lightThemes {
+        for theme in EditorTheme.all {
             let item = NSMenuItem(title: theme.name, action: #selector(selectTheme(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = theme.name

@@ -70,16 +70,27 @@ lipo -info "${UNIVERSAL}"
 echo "==> Assembling app bundle..."
 rm -rf "${APP}"
 mkdir -p "${MACOS}" "${RESOURCES}"
+mkdir -p "${CONTENTS}/SharedSupport/bin"
 cp "${UNIVERSAL}" "${MACOS}/${APP_NAME}"
 cp "${ROOT}/Resources/Info.plist" "${CONTENTS}/Info.plist"
 cp "${ROOT}/Resources/AppIcon.icns" "${RESOURCES}/AppIcon.icns"
 cp "${ROOT}/Resources/MacTextIcon.png" "${RESOURCES}/MacTextIcon.png"
+cp "${ROOT}/Resources/mactext-cli" "${CONTENTS}/SharedSupport/bin/mactext"
 chmod +x "${MACOS}/${APP_NAME}"
+chmod +x "${CONTENTS}/SharedSupport/bin/mactext"
 printf 'APPL????' > "${CONTENTS}/PkgInfo"
 
 echo "==> Ad-hoc codesign..."
 codesign --force --deep --sign - "${APP}" >/dev/null 2>&1 || true
 
+# Register with Launch Services so Finder / Git clients can discover us as an editor.
+if command -v lsregister >/dev/null 2>&1; then
+  lsregister -f "${APP}" >/dev/null 2>&1 || true
+elif [ -x /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister ]; then
+  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "${APP}" >/dev/null 2>&1 || true
+fi
+
 echo "==> Done: ${APP}"
 echo "    Architectures: $(lipo -archs "${MACOS}/${APP_NAME}")"
+echo "    CLI: ${CONTENTS}/SharedSupport/bin/mactext"
 echo "    Run: open \"${APP}\""

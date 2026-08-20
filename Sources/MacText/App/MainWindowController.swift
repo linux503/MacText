@@ -12,6 +12,7 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
     private let commandPalette = CommandPaletteController()
     private var findHeightConstraint: NSLayoutConstraint!
     private var sidebarWidth: CGFloat = 220
+    private var lastFindBarFocusToken = -1
     private let isPrimary: Bool
 
     private(set) var tabIDs: [UUID]
@@ -127,15 +128,7 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
 
     /// Remove tab from this window. Optionally close the window if empty.
     func removeTab(_ id: UUID, destroyIfEmpty: Bool) {
-        guard let idx = tabIDs.firstIndex(of: id) else { return }
-        tabIDs.remove(at: idx)
-        if selectedTabID == id {
-            if tabIDs.isEmpty {
-                selectedTabID = nil
-            } else {
-                selectedTabID = tabIDs[min(idx, tabIDs.count - 1)]
-            }
-        }
+        peelTab(id)
         if tabIDs.isEmpty {
             if destroyIfEmpty {
                 window?.close()
@@ -146,6 +139,29 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
                 reload(full: true)
             }
         } else {
+            if let selectedTabID {
+                store.syncActiveSelection(selectedTabID)
+            }
+            reload(full: true)
+        }
+    }
+
+    /// Remove a tab ID without creating a replacement untitled document.
+    func peelTab(_ id: UUID) {
+        guard let idx = tabIDs.firstIndex(of: id) else { return }
+        // Keep editor buffer in sync before the tab leaves this window.
+        if selectedTabID == id {
+            editor.flushToDocument()
+        }
+        tabIDs.remove(at: idx)
+        if selectedTabID == id {
+            if tabIDs.isEmpty {
+                selectedTabID = nil
+            } else {
+                selectedTabID = tabIDs[min(idx, tabIDs.count - 1)]
+            }
+        }
+        if !tabIDs.isEmpty {
             if let selectedTabID {
                 store.syncActiveSelection(selectedTabID)
             }
@@ -346,7 +362,12 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             query: store.findQuery,
             replace: store.replaceQuery
         )
-        if store.showFindBar && wasFindHidden && window?.isKeyWindow == true {
+        // Re-focus on first show and every subsequent ⌘F / ⌘⌥F (paste/search again).
+        let needsFindFocus = store.showFindBar
+            && window?.isKeyWindow == true
+            && (wasFindHidden || store.findBarFocusToken != lastFindBarFocusToken)
+        if needsFindFocus {
+            lastFindBarFocusToken = store.findBarFocusToken
             DispatchQueue.main.async { [weak self] in
                 self?.findBar.focusFind()
             }

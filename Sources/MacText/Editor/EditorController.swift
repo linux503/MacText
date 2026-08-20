@@ -332,7 +332,8 @@ final class EditorController: NSObject, NSTextViewDelegate {
     @objc private func handleFindNext(_ note: Notification) {
         let query = (note.userInfo?["query"] as? String) ?? DocumentStore.shared.findQuery
         let forward = (note.userInfo?["forward"] as? Bool) ?? true
-        find(query: query, forward: forward)
+        let incremental = (note.userInfo?["incremental"] as? Bool) ?? false
+        find(query: query, forward: forward, incremental: incremental)
     }
 
     @objc private func handleReplaceOne(_ note: Notification) {
@@ -352,7 +353,7 @@ final class EditorController: NSObject, NSTextViewDelegate {
         goToLine(line)
     }
 
-    func find(query: String, forward: Bool) {
+    func find(query: String, forward: Bool, incremental: Bool = false) {
         guard !query.isEmpty else { return }
         let ns = textView.string as NSString
         let full = NSRange(location: 0, length: ns.length)
@@ -360,7 +361,9 @@ final class EditorController: NSObject, NSTextViewDelegate {
         var options: NSString.CompareOptions = [.caseInsensitive]
         let searchRange: NSRange
         if forward {
-            let start = selected.location + selected.length
+            // Incremental (type/paste in find bar): include current selection start so
+            // replacing the query still lands on the first match under/near the caret.
+            let start = incremental ? selected.location : selected.location + selected.length
             searchRange = NSRange(location: start, length: max(0, ns.length - start))
         } else {
             options.insert(.backwards)
@@ -371,10 +374,24 @@ final class EditorController: NSObject, NSTextViewDelegate {
             found = ns.range(of: query, options: options, range: full)
         }
         if found.location != NSNotFound {
-            textView.window?.makeFirstResponder(textView)
+            // Keep focus in the find field while typing/pasting; only jump focus for ⌘G / Enter Next.
+            let keepFindFocus = incremental || findBarOwnsFocus()
+            if !keepFindFocus {
+                textView.window?.makeFirstResponder(textView)
+            }
             textView.setSelectedRange(found)
             textView.scrollRangeToVisible(found)
         }
+    }
+
+    private func findBarOwnsFocus() -> Bool {
+        guard let responder = textView.window?.firstResponder else { return false }
+        if responder is NSTextView, let fieldEditor = responder as? NSTextView,
+           fieldEditor.delegate is NSTextField {
+            // Field editor of an NSTextField (find/replace).
+            return true
+        }
+        return responder is NSTextField
     }
 
     func replaceOne(find: String, replace: String) {
