@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/site.css?v=6" />
+  <link rel="stylesheet" href="../assets/site.css?v=7" />
   <link rel="stylesheet" href="more-apps.css?v=7" />
 </head>
 <body>
@@ -37,11 +37,11 @@
         MacText
       </a>
       <div class="nav-end">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-label="菜单"><span></span><span></span></button>
         <div class="nav-links">
-          <a href="#showcase" data-i18n="nav.shots">界面</a>
-          <a href="#features" data-i18n="nav.features">功能</a>
+          <a href="#showcase">界面</a>
+          <a href="#features">功能</a>
           <a href="./changelog.html">更新记录</a>
-          <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
                 <details class="more-apps" data-more-apps="mactext">
           <summary>
@@ -101,10 +101,10 @@
             </a>
           </div>
         </details>
-        <div class="lang" role="group" aria-label="语言">
-          <a class="lang-link" href="../?lang=en" data-lang="en">EN</a>
-          <a class="lang-link is-active" href="./" data-lang="zh">中文</a>
-        </div>
+        <a class="lang-switch" href="../?lang=en" data-lang="en" aria-label="Switch to English">
+          <span>EN</span>
+          <span class="is-on">中文</span>
+        </a>
         <a class="btn btn-solid btn-sm" href="#download">下载</a>
       </div>
     </nav>
@@ -119,7 +119,6 @@
           <div class="actions">
             <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg">下载稳定版</a>
             <a class="btn btn-beta" id="hero-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg">体验版</a>
-            <a class="btn btn-ghost" href="https://github.com/linux503/MacText">查看源码</a>
           </div>
           <p class="meta" id="hero-meta">稳定版 v1.1.6 · 体验版 v1.1.7 · macOS 14+ · arm64 + x86_64</p>
         </div>
@@ -264,14 +263,11 @@
           </div>
         </div>
       </div>
-      <div class="actions">
-        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases">全部版本</a>
-      </div>
     </section>
 
     <footer>
       <span>© 2026 MacText · 原生 AppKit</span>
-      <span><a href="./changelog.html">更新记录</a> · <a href="https://github.com/linux503/MacText">GitHub</a> · <a id="footer-stable" href="https://github.com/linux503/MacText/releases/tag/v1.1.6">稳定版 v1.1.6</a> · <a id="footer-beta" href="https://github.com/linux503/MacText/releases/tag/v1.1.7">体验版 v1.1.7</a></span>
+      <span><a href="./changelog.html">更新记录</a> · <span id="footer-stable">稳定版 v1.1.6</span> · <span id="footer-beta">体验版 v1.1.7</span></span>
     </footer>
   </div>
 
@@ -346,7 +342,6 @@
           if (stable && stable.version) {
             setHref("hero-stable", stable.dmg);
             setHref("dl-stable", stable.dmg);
-            setHref("footer-stable", stable.release || ("https://github.com/linux503/MacText/releases/tag/" + (stable.tag || ("v" + stable.version))));
             setText("dl-stable-ver", "MacText " + stable.version);
             setText("footer-stable", "稳定版 v" + stable.version);
             if (stable.notes) setText("dl-stable-notes", stable.notes);
@@ -354,7 +349,6 @@
           if (beta && beta.version) {
             setHref("hero-beta", beta.dmg);
             setHref("dl-beta", beta.dmg);
-            setHref("footer-beta", beta.release || ("https://github.com/linux503/MacText/releases/tag/" + (beta.tag || ("v" + beta.version))));
             setText("dl-beta-ver", "MacText " + beta.version);
             setText("footer-beta", "体验版 v" + beta.version);
             if (beta.notes) setText("dl-beta-notes", beta.notes);
@@ -369,7 +363,7 @@
         .catch(() => {});
     })();
   </script>
-  <script src="../assets/site.js?v=6" defer></script>
+  <script src="../assets/site.js?v=7" defer></script>
   <script src="more-apps.js?v=6" defer></script>
 </body>
 </html>

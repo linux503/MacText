@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=6" />
+  <link rel="stylesheet" href="assets/site.css?v=7" />
   <link rel="stylesheet" href="more-apps.css?v=7" />
   <script>
     (function () {
@@ -60,11 +60,11 @@
         MacText
       </a>
       <div class="nav-end">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu"><span></span><span></span></button>
         <div class="nav-links">
           <a href="#showcase" data-i18n="nav.shots">Showcase</a>
           <a href="#features" data-i18n="nav.features">Features</a>
           <a href="./changelog.html" data-i18n="nav.changelog">Changelog</a>
-          <a href="https://github.com/linux503/MacText">GitHub</a>
         </div>
                 <details class="more-apps" data-more-apps="mactext" data-lang="en">
           <summary>
@@ -124,10 +124,10 @@
             </a>
           </div>
         </details>
-        <div class="lang" role="group" aria-label="Language">
-          <a class="lang-link is-active" href="./?lang=en" aria-pressed="true" data-lang="en">EN</a>
-          <a class="lang-link" href="./zh/" aria-pressed="false" data-lang="zh">中文</a>
-        </div>
+        <a class="lang-switch" href="./zh/" data-lang="zh" aria-label="Switch to 中文">
+          <span class="is-on">EN</span>
+          <span>中文</span>
+        </a>
         <a class="btn btn-solid btn-sm" href="#download" data-i18n="nav.dl">Download</a>
       </div>
     </nav>
@@ -142,7 +142,6 @@
           <div class="actions">
             <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg" data-i18n="hero.cta">Download Stable</a>
             <a class="btn btn-beta" id="hero-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg" data-i18n="hero.beta">Try Beta</a>
-            <a class="btn btn-ghost" href="https://github.com/linux503/MacText" data-i18n="hero.src">View source</a>
           </div>
           <p class="meta" id="hero-meta">Stable v1.1.6 · Beta v1.1.7 · macOS 14+ · arm64 + x86_64</p>
         </div>
@@ -287,14 +286,11 @@
           </div>
         </div>
       </div>
-      <div class="actions">
-        <a class="btn btn-ghost" href="https://github.com/linux503/MacText/releases" data-i18n="dl.all">All releases</a>
-      </div>
     </section>
 
     <footer>
       <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
-      <span><a href="./changelog.html" data-i18n="nav.changelog">Changelog</a> · <a href="https://github.com/linux503/MacText">GitHub</a> · <a id="footer-stable" href="https://github.com/linux503/MacText/releases/tag/v1.1.6">Stable v1.1.6</a> · <a id="footer-beta" href="https://github.com/linux503/MacText/releases/tag/v1.1.7">Beta v1.1.7</a></span>
+      <span><a href="./changelog.html" data-i18n="nav.changelog">Changelog</a> · <span id="footer-stable">Stable v1.1.6</span> · <span id="footer-beta">Beta v1.1.7</span></span>
     </footer>
   </div>
 
@@ -443,7 +439,6 @@
           if (stable && stable.version) {
             setHref("hero-stable", stable.dmg);
             setHref("dl-stable", stable.dmg);
-            setHref("footer-stable", stable.release || ("https://github.com/linux503/MacText/releases/tag/" + (stable.tag || ("v" + stable.version))));
             setText("dl-stable-ver", "MacText " + stable.version);
             setText("footer-stable", "Stable v" + stable.version);
             if (stable.notes) setText("dl-stable-notes", stable.notes);
@@ -451,7 +446,6 @@
           if (beta && beta.version) {
             setHref("hero-beta", beta.dmg);
             setHref("dl-beta", beta.dmg);
-            setHref("footer-beta", beta.release || ("https://github.com/linux503/MacText/releases/tag/" + (beta.tag || ("v" + beta.version))));
             setText("dl-beta-ver", "MacText " + beta.version);
             setText("footer-beta", "Beta v" + beta.version);
             if (beta.notes) setText("dl-beta-notes", beta.notes);
@@ -466,7 +460,7 @@
         .catch(() => {});
     })();
   </script>
-  <script src="assets/site.js?v=6" defer></script>
+  <script src="assets/site.js?v=7" defer></script>
   <script src="more-apps.js?v=6" defer></script>
 </body>
 </html>

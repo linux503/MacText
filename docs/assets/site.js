@@ -34,8 +34,6 @@
             const items = (loc.highlights || [])
               .map((h) => "<li>" + String(h).replace(/</g, "&lt;") + "</li>")
               .join("");
-            const tag = e.tag || ("v" + e.version);
-            const href = "https://github.com/linux503/MacText/releases/tag/" + encodeURIComponent(tag);
             return (
               '<article class="cl-item">' +
               '<div class="cl-top">' +
@@ -45,7 +43,6 @@
               "</div>" +
               "<h2 class=\"cl-title\">" + String(loc.title || "").replace(/</g, "&lt;") + "</h2>" +
               (items ? "<ul>" + items + "</ul>" : "") +
-              '<a class="cl-more" href="' + href + '" rel="noopener">' + labels.more + "</a>" +
               "</article>"
             );
           })
@@ -56,6 +53,38 @@
         clRoot.innerHTML = '<p class="cl-empty">' + labels.fail + "</p>";
       });
   }
+
+  document.querySelectorAll(".nav-toggle").forEach((btn) => {
+    const nav = btn.closest(".nav");
+    if (!nav) return;
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const open = !nav.classList.contains("is-open");
+      nav.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    nav.querySelectorAll(".nav-links a").forEach((link) => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("is-open");
+        btn.setAttribute("aria-expanded", "false");
+      });
+    });
+  });
+  document.addEventListener("click", (ev) => {
+    document.querySelectorAll(".nav.is-open").forEach((nav) => {
+      if (!nav.contains(ev.target)) {
+        nav.classList.remove("is-open");
+        const btn = nav.querySelector(".nav-toggle");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  });
+  document.querySelectorAll(".lang-switch").forEach((a) => {
+    a.addEventListener("click", () => {
+      const next = a.getAttribute("data-lang");
+      if (next) localStorage.setItem("mactext-lang", next);
+    });
+  });
 
   document.querySelectorAll(".matrix .cell").forEach((el, i) => {
     el.style.setProperty("--i", String(i));
