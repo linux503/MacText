@@ -780,6 +780,14 @@ footer a:hover { color: var(--accent); }
   font-size: 0.95rem;
 }
 
+.hero h1 { letter-spacing: -0.02em; }
+.mark { text-wrap: balance; }
+.dl-card, .cell {
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(4, 10, 20, 0.22), var(--hairline);
+}
+.btn-solid, .btn-beta, .btn-ghost { letter-spacing: -0.02em; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
