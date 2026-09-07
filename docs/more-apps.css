@@ -167,7 +167,9 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  min-width: 292px;
+  min-width: 320px;
+  max-height: min(72vh, 520px);
+  overflow-y: auto;
   padding: 0.45rem;
   border-radius: 18px;
   border: 1px solid rgba(16, 24, 40, 0.08);
@@ -235,20 +237,18 @@
   transform: translateX(2px);
 }
 
-.more-apps-badge {
+.more-apps-badge,
+.more-apps-logo {
   grid-row: span 2;
   width: 2rem;
   height: 2rem;
-  border-radius: 9px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #fff;
-  background: linear-gradient(145deg, var(--app-accent, #3b82f6), color-mix(in srgb, var(--app-accent, #3b82f6) 72%, #000));
-  box-shadow: 0 6px 14px color-mix(in srgb, var(--app-accent, #3b82f6) 28%, transparent);
+  object-fit: cover;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.14);
 }
 
 .more-apps-panel .app-name {

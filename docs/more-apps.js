@@ -6,11 +6,15 @@
  */
 (function () {
   var APPS = [
-    { id: "flare", name: "Flare", short: "Fl", accent: "#0f9f6e", desc: { zh: "截图录屏", en: "Screenshot & recording" }, url: "https://linux503.github.io/Flare/" },
-    { id: "zipx", name: "ZipX", short: "Zx", accent: "#e84d32", desc: { zh: "解压压缩", en: "Compress & extract" }, url: "https://linux503.github.io/ZipX/" },
-    { id: "mactext", name: "MacText", short: "Mt", accent: "#3b5bdb", desc: { zh: "文本编辑", en: "Text editor" }, url: "https://linux503.github.io/MacText/" },
-    { id: "suptools", name: "SupTools", short: "St", accent: "#0d7a6c", desc: { zh: "macOS 超级工具箱", en: "macOS super toolbox" }, url: "https://linux503.github.io/suptools/" },
-    { id: "macfan", name: "MacFan", short: "Mf", accent: "#0891b2", desc: { zh: "精准控制 Mac 风扇转速", en: "Precise Mac fan control" }, url: "https://linux503.github.io/MacFan/" }
+    { id: "flare", name: "Flare", accent: "#111111", desc: { zh: "截图、录屏，一键新建 TXT/Word/PPT", en: "Screenshot, recording, new TXT/Word/PPT" }, url: "https://linux503.github.io/Flare/" },
+    { id: "zipx", name: "ZipX", accent: "#e84d32", desc: { zh: "解压压缩", en: "Compress & extract" }, url: "https://linux503.github.io/ZipX/" },
+    { id: "mactext", name: "MacText", accent: "#111111", desc: { zh: "文本编辑", en: "Text editor" }, url: "https://linux503.github.io/MacText/" },
+    { id: "suptools", name: "SupTools", accent: "#0d7a6c", desc: { zh: "macOS 超级工具箱", en: "macOS super toolbox" }, url: "https://linux503.github.io/suptools/" },
+    { id: "macfan", name: "MacFan", accent: "#0891b2", desc: { zh: "精准控制 Mac 风扇转速", en: "Precise Mac fan control" }, url: "https://linux503.github.io/MacFan/" },
+    { id: "filesdesk", name: "FilesDesk", accent: "#2563eb", desc: { zh: "Mac 智能批量重命名", en: "Smart batch rename" }, url: "https://linux503.github.io/FilesDesk/" },
+    { id: "locadesk", name: "LocaDesk", accent: "#7c3aed", desc: { zh: "把 iPhone 定位模拟", en: "Simulate iPhone location" }, url: "https://linux503.github.io/LocaDesk/" },
+    { id: "battybar", name: "BattyBar", accent: "#16a34a", desc: { zh: "掌控你的 MacBook 电池", en: "MacBook battery control" }, url: "https://linux503.github.io/BattyBar/" },
+    { id: "remotex", name: "RemoteX", accent: "#e11d48", desc: { zh: "远程桌面，随时随地安全连接", en: "Remote desktop, connect anywhere" }, url: "https://linux503.github.io/RemoteX/" }
   ];
 
   function detectLang(el) {
@@ -18,13 +22,19 @@
     return raw.indexOf("en") === 0 ? "en" : "zh";
   }
 
+  function iconBase() {
+    var path = (document.location.pathname || "").toLowerCase();
+    return path.indexOf("/zh/") !== -1 || path.endsWith("/zh") ? "../assets/apps/" : "assets/apps/";
+  }
+
   function panelHTML(items, lang) {
     var head = lang === "en" ? "Other tools by linux503" : "linux503 其他工具";
+    var base = iconBase();
     var html = '<div class="more-apps-head">' + head + "</div>";
     items.forEach(function (app) {
       html +=
         '<a href="' + app.url + '" target="_blank" rel="noopener noreferrer" role="menuitem" style="--app-accent:' + app.accent + '">' +
-        '<span class="more-apps-badge">' + app.short + "</span>" +
+        '<img class="more-apps-logo" src="' + base + app.id + '.png" alt="" width="32" height="32" />' +
         '<span class="app-name">' + app.name + "</span>" +
         '<span class="app-desc">' + (app.desc[lang] || app.desc.zh) + "</span>" +
         '<span class="more-apps-arrow" aria-hidden="true">↗</span></a>';
