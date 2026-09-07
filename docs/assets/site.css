@@ -564,7 +564,7 @@ html[lang="zh"] .h2 { letter-spacing: 0; }
 .download .sec-head { margin-bottom: 1.6rem; }
 .dl-channels {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem; margin-bottom: 1.15rem;
 }
 .dl-card {
@@ -600,6 +600,8 @@ html[lang="zh"] .h2 { letter-spacing: 0; }
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
 }
 .dl-card.is-beta .label { color: #ffc46a; }
+.dl-card.is-win { border-color: rgba(180, 224, 74, 0.28); }
+.dl-card.is-win .label { color: #b4e04a; }
 .dl-card .ver {
   font-size: 1.12rem; font-weight: 650;
   letter-spacing: -0.025em; margin-bottom: 0.3rem;

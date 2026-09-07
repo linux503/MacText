@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/site.css?v=8" />
+  <link rel="stylesheet" href="../assets/site.css?v=9" />
   <link rel="stylesheet" href="more-apps.css?v=7" />
   <meta name="twitter:image:alt" content="MacText 官网首页：Mac 文本编辑器" />
   <meta property="og:image:secure_url" content="https://linux503.github.io/MacText/zh/og-home.jpg" />
@@ -41,7 +41,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "MacText",
-  "operatingSystem": "macOS",
+  "operatingSystem": "macOS, Windows",
   "applicationCategory": "UtilitiesApplication",
   "url": "https://linux503.github.io/MacText/zh/",
   "description": "MacText 是原生 Mac 文本编辑器，用来写代码、笔记和纯文本。支持多标签、侧栏、查找替换、命令面板、语法高亮和会话恢复，启动快、没有 Electron 负担。",
@@ -156,15 +156,15 @@
     <header class="hero">
       <div class="hero-grid">
         <div>
-          <p class="eyebrow">原生 · AppKit · 通用二进制</p>
+          <p class="eyebrow">macOS · Windows · 同款 Ink 设计</p>
           <p class="mark"><span>Mac</span>Text</p>
           <div class="accent-bar" aria-hidden="true"></div>
-          <h1>专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。</h1>
+          <h1>macOS 与 Windows 同一套编辑器：Sublime 级手感，同款 Ink 设计。</h1>
           <div class="actions">
-            <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg">下载稳定版</a>
-            <a class="btn btn-beta" id="hero-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg">体验版</a>
+            <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg">下载 Mac 版</a>
+            <a class="btn btn-beta" id="hero-win" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe">下载 Windows 版</a>
           </div>
-          <p class="meta" id="hero-meta">稳定版 v1.1.6 · 体验版 v1.1.7 · macOS 14+ · arm64 + x86_64</p>
+          <p class="meta" id="hero-meta">稳定版 v1.1.6 · 体验版 v1.1.7 · macOS 14+ · Windows 10+</p>
         </div>
         <aside class="hero-visual" aria-label="产品预览">
           <div class="hero-frame">
@@ -176,11 +176,11 @@
       <div class="ticker" aria-hidden="true">
         <div class="ticker-track">
           <span><b>标签</b> · 侧边栏 · 查找 · 命令面板 · 缩进 · 会话</span>
-          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Windows</b> · EXE · Windows 10+</span>
           <span><b>主题</b> · Ink · Black · Paper · Snow</span>
           <span><b>稳定版</b> + <b>体验版</b></span>
           <span><b>标签</b> · 侧边栏 · 查找 · 命令面板 · 缩进 · 会话</span>
-          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Windows</b> · EXE · Windows 10+</span>
           <span><b>主题</b> · Ink · Black · Paper · Snow</span>
           <span><b>稳定版</b> + <b>体验版</b></span>
         </div>
@@ -286,31 +286,39 @@
     <section class="download reveal" id="download">
       <div class="sec-head">
         <p class="kicker">安装</p>
-        <h2 class="h2">拖进应用程序即可</h2>
-        <p class="lead">打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。稳定版适合日常使用；体验版抢先拿到最新改动。</p>
+        <h2 class="h2">支持 macOS 与 Windows</h2>
+        <p class="lead">Mac：打开 DMG，拖进「应用程序」。Windows：下载 EXE 直接运行，界面与 Mac 版同款 Ink 设计。需要 Windows 10 或更高版本。快捷键用 Ctrl 代替 ⌘。</p>
       </div>
       <div class="dl-channels">
         <div class="dl-card">
-          <span class="label">稳定版</span>
+          <span class="label">Mac · 稳定版</span>
           <div class="ver" id="dl-stable-ver">MacText 1.1.6</div>
-          <p class="hint" id="dl-stable-notes">推荐日常使用。每次发新版时，原体验版会晋升为稳定版。</p>
+          <p class="hint" id="dl-stable-notes">推荐在 macOS 14+ 日常使用。</p>
           <div class="actions">
-            <a class="btn btn-solid" id="dl-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg">下载稳定版</a>
+            <a class="btn btn-solid" id="dl-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg">下载 Mac 版</a>
           </div>
         </div>
         <div class="dl-card is-beta">
-          <span class="label">体验版</span>
+          <span class="label">Mac · 体验版</span>
           <div class="ver" id="dl-beta-ver">MacText 1.1.7</div>
-          <p class="hint" id="dl-beta-notes">最新构建，抢先体验。下次发版时会变成稳定版。</p>
+          <p class="hint" id="dl-beta-notes">最新 macOS 构建。下次发版时会变成稳定版。</p>
           <div class="actions">
             <a class="btn btn-beta" id="dl-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg">下载体验版</a>
+          </div>
+        </div>
+        <div class="dl-card is-win">
+          <span class="label">Windows</span>
+          <div class="ver" id="dl-win-ver">MacText 1.1.7</div>
+          <p class="hint" id="dl-win-notes">独立 EXE。与 Mac 版同款 Ink 设计。Windows 10+。</p>
+          <div class="actions">
+            <a class="btn btn-solid" id="dl-win" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe">下载 EXE</a>
           </div>
         </div>
       </div>
     </section>
 
     <footer>
-      <span>© 2026 MacText · 原生 AppKit</span>
+      <span>© 2026 MacText · macOS 与 Windows</span>
       <span><a href="./changelog.html">更新记录</a> · <span id="footer-stable">稳定版 v1.1.6</span> · <span id="footer-beta">体验版 v1.1.7</span></span>
     
       <p class="seo-contact" style="margin:.7rem 0 0;font-size:13px;line-height:1.5;opacity:.85">联系方式：<a href="mailto:abbtoe@yandex.com">abbtoe@yandex.com</a></p>
@@ -393,17 +401,23 @@
             if (stable.notes) setText("dl-stable-notes", stable.notes);
           }
           if (beta && beta.version) {
-            setHref("hero-beta", beta.dmg);
             setHref("dl-beta", beta.dmg);
             setText("dl-beta-ver", "MacText " + beta.version);
             setText("footer-beta", "体验版 v" + beta.version);
             if (beta.notes) setText("dl-beta-notes", beta.notes);
           }
+          const exe = (beta && beta.exe) || data.exe;
+          if (exe) {
+            setHref("hero-win", exe);
+            setHref("dl-win", exe);
+            const winVer = (beta && beta.version) || stable.version;
+            if (winVer) setText("dl-win-ver", "MacText " + winVer);
+          }
           const meta = document.getElementById("hero-meta");
           if (meta && stable && beta) {
-            meta.textContent = "稳定版 v" + stable.version + " · 体验版 v" + beta.version + " · macOS 14+ · arm64 + x86_64";
+            meta.textContent = "稳定版 v" + stable.version + " · 体验版 v" + beta.version + " · macOS 14+ · Windows 10+";
           } else if (meta && stable) {
-            meta.textContent = "稳定版 v" + stable.version + " · macOS 14+ · arm64 + x86_64";
+            meta.textContent = "稳定版 v" + stable.version + " · macOS 14+ · Windows 10+";
           }
         })
         .catch(() => {});

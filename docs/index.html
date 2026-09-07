@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=8" />
+  <link rel="stylesheet" href="assets/site.css?v=9" />
   <link rel="stylesheet" href="more-apps.css?v=7" />
   <script>
     (function () {
@@ -64,7 +64,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "MacText",
-  "operatingSystem": "macOS",
+  "operatingSystem": "macOS, Windows",
   "applicationCategory": "UtilitiesApplication",
   "url": "https://linux503.github.io/MacText/",
   "description": "MacText is a native macOS text editor: multi-tab files, sidebar, find and replace, command palette, syntax highlight, and session restore. Fast AppKit, not Electron.",
@@ -179,15 +179,15 @@
     <header class="hero">
       <div class="hero-grid">
         <div>
-          <p class="eyebrow" data-i18n="hero.eye">Native · AppKit · Universal</p>
+          <p class="eyebrow" data-i18n="hero.eye">macOS · Windows · Same Ink design</p>
           <p class="mark"><span>Mac</span>Text</p>
           <div class="accent-bar" aria-hidden="true"></div>
-          <h1 data-i18n="hero.h1">A focused macOS editor with Sublime-like speed — without the Electron tax.</h1>
+          <h1 data-i18n="hero.h1">A focused editor for macOS and Windows — Sublime-like speed, same Ink design.</h1>
           <div class="actions">
-            <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg" data-i18n="hero.cta">Download Stable</a>
-            <a class="btn btn-beta" id="hero-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg" data-i18n="hero.beta">Try Beta</a>
+            <a class="btn btn-solid" id="hero-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg" data-i18n="hero.cta">Download for Mac</a>
+            <a class="btn btn-beta" id="hero-win" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe" data-i18n="hero.win">Download for Windows</a>
           </div>
-          <p class="meta" id="hero-meta">Stable v1.1.6 · Beta v1.1.7 · macOS 14+ · arm64 + x86_64</p>
+          <p class="meta" id="hero-meta">Stable v1.1.6 · Beta v1.1.7 · macOS 14+ · Windows 10+</p>
         </div>
         <aside class="hero-visual" aria-label="Product preview">
           <div class="hero-frame">
@@ -199,11 +199,11 @@
       <div class="ticker" aria-hidden="true">
         <div class="ticker-track">
           <span><b>Tabs</b> · Sidebar · Find · Palette · Indent · Session</span>
-          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Windows</b> · EXE · Windows 10+</span>
           <span><b>Themes</b> · Ink · Black · Paper · Snow</span>
           <span><b>Stable</b> + <b>Beta</b> channels</span>
           <span><b>Tabs</b> · Sidebar · Find · Palette · Indent · Session</span>
-          <span><b>Universal</b> · arm64 + x86_64</span>
+          <span><b>Windows</b> · EXE · Windows 10+</span>
           <span><b>Themes</b> · Ink · Black · Paper · Snow</span>
           <span><b>Stable</b> + <b>Beta</b> channels</span>
         </div>
@@ -286,7 +286,7 @@
           <div class="sec-head">
             <p class="kicker" data-i18n="k.k">Keyboard</p>
             <h2 class="h2" data-i18n="k.title">Muscle memory intact</h2>
-            <p class="lead" data-i18n="k.lead">Familiar shortcuts if you know Sublime Text.</p>
+            <p class="lead" data-i18n="k.lead">Familiar shortcuts if you know Sublime Text. On Windows, use Ctrl in place of ⌘.</p>
           </div>
           <div class="keys">
             <div><span data-i18n="k.new">New</span><kbd>⌘N</kbd></div>
@@ -309,31 +309,39 @@
     <section class="download reveal" id="download">
       <div class="sec-head">
         <p class="kicker" data-i18n="dl.k">Install</p>
-        <h2 class="h2" data-i18n="dl.title">One drag to Applications</h2>
-        <p class="lead" data-i18n="dl.lead">Open the DMG and drop MacText into Applications. Allow under Privacy &amp; Security if Gatekeeper asks. Stable is recommended; Beta ships the newest changes first.</p>
+        <h2 class="h2" data-i18n="dl.title">macOS and Windows</h2>
+        <p class="lead" data-i18n="dl.lead">Mac: open the DMG and drop MacText into Applications. Windows: download the EXE and run it — same Ink design, tabs, sidebar, find, and command palette. Windows 10 or later.</p>
       </div>
       <div class="dl-channels">
         <div class="dl-card">
-          <span class="label" data-i18n="dl.stableLabel">Stable</span>
+          <span class="label" data-i18n="dl.stableLabel">Mac · Stable</span>
           <div class="ver" id="dl-stable-ver">MacText 1.1.6</div>
-          <p class="hint" id="dl-stable-notes" data-i18n="dl.stableHint">Recommended for daily use. Previous release promoted after the latest ships.</p>
+          <p class="hint" id="dl-stable-notes" data-i18n="dl.stableHint">Recommended for daily use on macOS 14+.</p>
           <div class="actions">
-            <a class="btn btn-solid" id="dl-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg" data-i18n="dl.cta">Download Stable</a>
+            <a class="btn btn-solid" id="dl-stable" href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg" data-i18n="dl.cta">Download for Mac</a>
           </div>
         </div>
         <div class="dl-card is-beta">
-          <span class="label" data-i18n="dl.betaLabel">Beta</span>
+          <span class="label" data-i18n="dl.betaLabel">Mac · Beta</span>
           <div class="ver" id="dl-beta-ver">MacText 1.1.7</div>
-          <p class="hint" id="dl-beta-notes" data-i18n="dl.betaHint">Latest build for early access. Becomes Stable on the next release.</p>
+          <p class="hint" id="dl-beta-notes" data-i18n="dl.betaHint">Latest macOS build. Becomes Stable on the next release.</p>
           <div class="actions">
             <a class="btn btn-beta" id="dl-beta" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg" data-i18n="dl.beta">Download Beta</a>
+          </div>
+        </div>
+        <div class="dl-card is-win">
+          <span class="label" data-i18n="dl.winLabel">Windows</span>
+          <div class="ver" id="dl-win-ver">MacText 1.1.7</div>
+          <p class="hint" id="dl-win-notes" data-i18n="dl.winHint">Standalone EXE. Same Ink design as the Mac app. Windows 10+.</p>
+          <div class="actions">
+            <a class="btn btn-solid" id="dl-win" href="https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe" data-i18n="dl.win">Download EXE</a>
           </div>
         </div>
       </div>
     </section>
 
     <footer>
-      <span data-i18n="ft">© 2026 MacText · Native AppKit</span>
+      <span data-i18n="ft">© 2026 MacText · macOS &amp; Windows</span>
       <span><a href="./changelog.html" data-i18n="nav.changelog">Changelog</a> · <span id="footer-stable">Stable v1.1.6</span> · <span id="footer-beta">Beta v1.1.7</span></span>
     
       <p class="seo-contact" style="margin:.7rem 0 0;font-size:13px;line-height:1.5;opacity:.85">联系方式：<a href="mailto:abbtoe@yandex.com">abbtoe@yandex.com</a></p>
@@ -348,9 +356,9 @@
         ogTitle: "MacText — Native macOS Text Editor",
         ogDesc: "Sublime-like core. Native AppKit. Universal Binary.",
         "nav.shots": "Showcase", "nav.features": "Features", "nav.changelog": "Changelog", "nav.dl": "Download",
-        "hero.eye": "Native · AppKit · Universal",
-        "hero.h1": "A focused macOS editor with Sublime-like speed — without the Electron tax.",
-        "hero.cta": "Download Stable", "hero.beta": "Try Beta", "hero.src": "View source",
+        "hero.eye": "macOS · Windows · Same Ink design",
+        "hero.h1": "A focused editor for macOS and Windows — Sublime-like speed, same Ink design.",
+        "hero.cta": "Download for Mac", "hero.beta": "Try Beta", "hero.win": "Download for Windows", "hero.src": "View source",
         "stat.t1": "Runtime", "stat.t2": "Binary", "stat.t3": "Scope",
         "stat.1": "Native Cocoa stack", "stat.2": "Apple Silicon & Intel", "stat.3": "Editor essentials, polished",
         "shot1.t": "Product", "shot1.d": "Native AppKit · Universal · Ink", "shot1.alt": "MacText product introduction — native macOS editor",
@@ -367,16 +375,17 @@
         "th.k": "Appearance", "th.title": "Four calibrated themes",
         "th.lead": "Ink is the signature — charcoal, lime, copper — aligned with the Dock icon.",
         "th.black": "Pure OLED", "th.paper": "Warm light", "th.snow": "Cool light",
-        "k.k": "Keyboard", "k.title": "Muscle memory intact", "k.lead": "Familiar shortcuts if you know Sublime Text.",
+        "k.k": "Keyboard", "k.title": "Muscle memory intact", "k.lead": "Familiar shortcuts if you know Sublime Text. On Windows, use Ctrl in place of ⌘.",
         "k.new": "New", "k.open": "Open", "k.folder": "Open Folder", "k.save": "Save",
         "k.find": "Find", "k.pal": "Palette", "k.side": "Sidebar", "k.theme": "Theme",
-        "dl.k": "Install", "dl.title": "One drag to Applications",
-        "dl.lead": "Open the DMG and drop MacText into Applications. Allow under Privacy & Security if Gatekeeper asks. Stable is recommended; Beta ships the newest changes first.",
-        "dl.stableLabel": "Stable", "dl.betaLabel": "Beta",
-        "dl.stableHint": "Recommended for daily use. Previous release promoted after the latest ships.",
-        "dl.betaHint": "Latest build for early access. Becomes Stable on the next release.",
-        "dl.cta": "Download Stable", "dl.beta": "Download Beta", "dl.all": "All releases",
-        "ft": "© 2026 MacText · Native AppKit"
+        "dl.k": "Install", "dl.title": "macOS and Windows",
+        "dl.lead": "Mac: open the DMG and drop MacText into Applications. Windows: download the EXE and run it — same Ink design, tabs, sidebar, find, and command palette. Windows 10 or later.",
+        "dl.stableLabel": "Mac · Stable", "dl.betaLabel": "Mac · Beta", "dl.winLabel": "Windows",
+        "dl.stableHint": "Recommended for daily use on macOS 14+.",
+        "dl.betaHint": "Latest macOS build. Becomes Stable on the next release.",
+        "dl.winHint": "Standalone EXE. Same Ink design as the Mac app. Windows 10+.",
+        "dl.cta": "Download for Mac", "dl.beta": "Download Beta", "dl.win": "Download EXE", "dl.all": "All releases",
+        "ft": "© 2026 MacText · macOS & Windows"
       },
       zh: {
         title: "MacText — 原生 macOS 文本编辑器 | Sublime 级效率",
@@ -384,9 +393,9 @@
         ogTitle: "MacText — 原生 macOS 文本编辑器",
         ogDesc: "Sublime 核心体验。原生 AppKit。Universal Binary。",
         "nav.shots": "界面", "nav.features": "功能", "nav.changelog": "更新记录", "nav.dl": "下载",
-        "hero.eye": "原生 · AppKit · 通用二进制",
-        "hero.h1": "专注的 macOS 编辑器：Sublime 级手感，没有 Electron 的负担。",
-        "hero.cta": "下载稳定版", "hero.beta": "体验版", "hero.src": "查看源码",
+        "hero.eye": "macOS · Windows · 同款 Ink 设计",
+        "hero.h1": "macOS 与 Windows 同一套编辑器：Sublime 级手感，同款 Ink 设计。",
+        "hero.cta": "下载 Mac 版", "hero.beta": "体验版", "hero.win": "下载 Windows 版", "hero.src": "查看源码",
         "stat.t1": "运行时", "stat.t2": "二进制", "stat.t3": "范围",
         "stat.1": "原生 Cocoa 栈", "stat.2": "Apple Silicon 与 Intel", "stat.3": "核心编辑能力，精修打磨",
         "shot1.t": "产品介绍", "shot1.d": "原生 AppKit · Universal · Ink", "shot1.alt": "MacText 产品介绍图",
@@ -403,16 +412,17 @@
         "th.k": "外观", "th.title": "四套校准主题",
         "th.lead": "Ink 是标志性外观——炭黑、石灰绿、铜金——与程序坞图标一致。",
         "th.black": "纯黑 OLED", "th.paper": "暖色浅色", "th.snow": "冷色浅色",
-        "k.k": "快捷键", "k.title": "肌肉记忆不浪费", "k.lead": "熟悉 Sublime 的人会立刻上手。",
+        "k.k": "快捷键", "k.title": "肌肉记忆不浪费", "k.lead": "熟悉 Sublime 的人会立刻上手。Windows 上用 Ctrl 代替 ⌘。",
         "k.new": "新建", "k.open": "打开", "k.folder": "打开文件夹", "k.save": "保存",
         "k.find": "查找", "k.pal": "命令面板", "k.side": "侧边栏", "k.theme": "主题",
-        "dl.k": "安装", "dl.title": "拖进应用程序即可",
-        "dl.lead": "打开 DMG，将 MacText 拖到「应用程序」。若被拦截，请在「隐私与安全性」中允许。稳定版适合日常使用；体验版抢先拿到最新改动。",
-        "dl.stableLabel": "稳定版", "dl.betaLabel": "体验版",
-        "dl.stableHint": "推荐日常使用。每次发新版时，原体验版会晋升为稳定版。",
-        "dl.betaHint": "最新构建，抢先体验。下次发版时会变成稳定版。",
-        "dl.cta": "下载稳定版", "dl.beta": "下载体验版", "dl.all": "全部版本",
-        "ft": "© 2026 MacText · 原生 AppKit"
+        "dl.k": "安装", "dl.title": "支持 macOS 与 Windows",
+        "dl.lead": "Mac：打开 DMG，拖进「应用程序」。Windows：下载 EXE 直接运行，界面与 Mac 版同款 Ink 设计。需要 Windows 10 或更高版本。",
+        "dl.stableLabel": "Mac · 稳定版", "dl.betaLabel": "Mac · 体验版", "dl.winLabel": "Windows",
+        "dl.stableHint": "推荐在 macOS 14+ 日常使用。",
+        "dl.betaHint": "最新 macOS 构建。下次发版时会变成稳定版。",
+        "dl.winHint": "独立 EXE。与 Mac 版同款 Ink 设计。Windows 10+。",
+        "dl.cta": "下载 Mac 版", "dl.beta": "下载体验版", "dl.win": "下载 EXE", "dl.all": "全部版本",
+        "ft": "© 2026 MacText · macOS 与 Windows"
       }
     };
 
@@ -490,17 +500,23 @@
             if (stable.notes) setText("dl-stable-notes", stable.notes);
           }
           if (beta && beta.version) {
-            setHref("hero-beta", beta.dmg);
             setHref("dl-beta", beta.dmg);
             setText("dl-beta-ver", "MacText " + beta.version);
             setText("footer-beta", "Beta v" + beta.version);
             if (beta.notes) setText("dl-beta-notes", beta.notes);
           }
+          const exe = (beta && beta.exe) || data.exe;
+          if (exe) {
+            setHref("hero-win", exe);
+            setHref("dl-win", exe);
+            const winVer = (beta && beta.version) || stable.version;
+            if (winVer) setText("dl-win-ver", "MacText " + winVer);
+          }
           const meta = document.getElementById("hero-meta");
           if (meta && stable && beta) {
-            meta.textContent = "Stable v" + stable.version + " · Beta v" + beta.version + " · macOS 14+ · arm64 + x86_64";
+            meta.textContent = "Stable v" + stable.version + " · Beta v" + beta.version + " · macOS 14+ · Windows 10+";
           } else if (meta && stable) {
-            meta.textContent = "Stable v" + stable.version + " · macOS 14+ · arm64 + x86_64";
+            meta.textContent = "Stable v" + stable.version + " · macOS 14+ · Windows 10+";
           }
         })
         .catch(() => {});

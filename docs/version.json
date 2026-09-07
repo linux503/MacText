@@ -10,12 +10,14 @@
     "version": "1.1.7",
     "tag": "v1.1.7",
     "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7.dmg",
+    "exe": "https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe",
     "release": "https://github.com/linux503/MacText/releases/tag/v1.1.7",
     "notes": "纯文本粘贴并对齐表格；标签可拖出对比，也可合并回其他窗口。"
   },
   "version": "1.1.6",
   "tag": "v1.1.6",
   "dmg": "https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg",
+  "exe": "https://github.com/linux503/MacText/releases/download/v1.1.7/MacText-1.1.7-Windows-x64.exe",
   "release": "https://github.com/linux503/MacText/releases/tag/v1.1.6",
   "notes": "查找即时跳转、拖出标签对比、主题列表精简、可作为外部编辑器。"
 }
