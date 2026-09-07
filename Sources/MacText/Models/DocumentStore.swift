@@ -9,6 +9,7 @@ extension Notification.Name {
     static let macTextReplaceOne = Notification.Name("MacTextReplaceOne")
     static let macTextReplaceAll = Notification.Name("MacTextReplaceAll")
     static let macTextGoToLine = Notification.Name("MacTextGoToLine")
+    static let macTextFindResult = Notification.Name("MacTextFindResult")
 }
 
 enum EditorAction: String, CaseIterable {

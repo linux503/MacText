@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg"><strong>下载 DMG</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg"><strong>下载 DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/zh/">中文官网</a>
   ·
@@ -61,7 +61,7 @@
 
 ## 安装
 
-1. 下载 [MacText-1.1.5.dmg](https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg)
+1. 下载 [MacText-1.1.6.dmg](https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg)
 2. 将 **MacText** 拖入「应用程序」
 3. 若 Gatekeeper 拦截：系统设置 → 隐私与安全性 → 仍要打开
 

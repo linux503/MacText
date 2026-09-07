@@ -154,6 +154,109 @@ final class EditorTextView: NSTextView {
         NotificationCenter.default.post(name: .macTextInputDidUnmark, object: self)
     }
 
+    // MARK: - Paste
+
+    /// Plain txt only: no RTF/HTML. Tabular clipboard (TSV) is padded into aligned columns.
+    override func paste(_ sender: Any?) {
+        let pb = NSPasteboard.general
+        if let plain = pb.string(forType: .string) ?? pb.string(forType: .tabularText) {
+            let text = Self.plainTextForPaste(plain)
+            let range = selectedRange()
+            if shouldChangeText(in: range, replacementString: text) {
+                insertText(text, replacementRange: range)
+            }
+            return
+        }
+        super.pasteAsPlainText(sender)
+    }
+
+    /// Keep paste as ordinary txt; align multi-column tab tables with spaces.
+    private static func plainTextForPaste(_ raw: String) -> String {
+        let normalized = raw
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        guard let aligned = alignTabularPlainText(normalized) else { return normalized }
+        return aligned
+    }
+
+    /// If text looks like a TSV table (≥2 rows, ≥2 columns via tabs), pad columns with spaces.
+    private static func alignTabularPlainText(_ text: String) -> String? {
+        let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        let nonEmpty = lines.filter { !$0.isEmpty }
+        guard nonEmpty.count >= 2 else { return nil }
+
+        let parsed: [[String]] = nonEmpty.map { line in
+            line.split(separator: "\t", omittingEmptySubsequences: false).map {
+                String($0).trimmingCharacters(in: .whitespaces)
+            }
+        }
+        let colCount = parsed.map(\.count).max() ?? 0
+        guard colCount >= 2, parsed.allSatisfy({ $0.count >= 2 }) else { return nil }
+        let modeCount = Dictionary(grouping: parsed.map(\.count), by: { $0 })
+            .max(by: { $0.value.count < $1.value.count })?.key ?? colCount
+        guard modeCount >= 2 else { return nil }
+
+        func cells(for line: String) -> [String] {
+            var row = line.split(separator: "\t", omittingEmptySubsequences: false).map {
+                String($0).trimmingCharacters(in: .whitespaces)
+            }
+            while row.count < modeCount { row.append("") }
+            if row.count > modeCount { row = Array(row.prefix(modeCount)) }
+            return row
+        }
+
+        var widths = Array(repeating: 0, count: modeCount)
+        for line in nonEmpty {
+            for (i, cell) in cells(for: line).enumerated() {
+                widths[i] = max(widths[i], displayWidth(cell))
+            }
+        }
+
+        let gap = 2
+        let alignedLines: [String] = lines.map { line in
+            if line.isEmpty { return "" }
+            let row = cells(for: line)
+            return row.enumerated().map { i, cell in
+                let pad = widths[i] - displayWidth(cell)
+                let isLast = i == modeCount - 1
+                return isLast ? cell : cell + String(repeating: " ", count: max(0, pad) + gap)
+            }.joined()
+        }
+
+        let body = alignedLines.joined(separator: "\n")
+        if text.hasSuffix("\n") { return body + "\n" }
+        return body
+    }
+
+    /// Monospace column width: CJK / fullwidth ≈ 2, ASCII ≈ 1.
+    private static func displayWidth(_ s: String) -> Int {
+        var w = 0
+        for ch in s {
+            if ch == "\t" {
+                w += 4
+                continue
+            }
+            let scalars = ch.unicodeScalars
+            if let v = scalars.first, scalars.count == 1 {
+                // Fullwidth / wide East Asian
+                if (0x1100...0x115F).contains(v.value)
+                    || (0x2E80...0xA4CF).contains(v.value)
+                    || (0xAC00...0xD7A3).contains(v.value)
+                    || (0xF900...0xFAFF).contains(v.value)
+                    || (0xFE10...0xFE19).contains(v.value)
+                    || (0xFE30...0xFE6F).contains(v.value)
+                    || (0xFF00...0xFF60).contains(v.value)
+                    || (0xFFE0...0xFFE6).contains(v.value)
+                    || (0x1F300...0x1FAFF).contains(v.value) {
+                    w += 2
+                    continue
+                }
+            }
+            w += 1
+        }
+        return w
+    }
+
     // MARK: - Sublime-like indent / unindent
 
     override func insertTab(_ sender: Any?) {
@@ -536,15 +639,47 @@ final class EditorTextView: NSTextView {
     }
 
     private func commentMarker() -> String {
-        // Infer from filename via typing context — use store language if available.
-        if let lang = DocumentStore.shared.selectedDocument?.language {
-            switch lang {
-            case .python: return "#"
-            case .json: return "//"
-            default: return "//"
+        let doc = DocumentStore.shared.selectedDocument
+        let language: LanguageKind
+        if let doc {
+            if doc.language == .plain, !doc.content.isEmpty {
+                language = SyntaxHighlighter.inferLanguage(from: string.isEmpty ? doc.content : string)
+            } else {
+                language = doc.language
             }
+        } else {
+            language = SyntaxHighlighter.inferLanguage(from: string)
         }
-        return "//"
+        switch language {
+        case .python: return "#"
+        case .json: return "//"
+        default: return "//"
+        }
+    }
+
+    /// ⌘D — select word under caret, or jump selection to the next same occurrence.
+    @objc func selectNextOccurrence(_ sender: Any?) {
+        let ns = string as NSString
+        guard ns.length > 0 else { return }
+        let sel = selectedRange()
+        if sel.length == 0 {
+            let word = (ns as String).wordRange(at: sel.location) ?? NSRange(location: sel.location, length: 0)
+            guard word.length > 0 else { return }
+            setSelectedRange(word)
+            scrollRangeToVisible(word)
+            return
+        }
+        let needle = ns.substring(with: sel)
+        guard !needle.isEmpty else { return }
+        let start = NSMaxRange(sel)
+        let after = NSRange(location: start, length: max(0, ns.length - start))
+        var found = ns.range(of: needle, options: [], range: after)
+        if found.location == NSNotFound {
+            found = ns.range(of: needle, options: [], range: NSRange(location: 0, length: ns.length))
+        }
+        guard found.location != NSNotFound, found != sel else { return }
+        setSelectedRange(found)
+        scrollRangeToVisible(found)
     }
 
     /// ⌃M — jump to matching bracket
@@ -601,4 +736,32 @@ final class EditorTextView: NSTextView {
 
 extension Notification.Name {
     static let macTextInputDidUnmark = Notification.Name("MacTextInputDidUnmark")
+}
+
+private extension String {
+    /// Word under/near `utf16` offset (letters, digits, underscore).
+    func wordRange(at utf16Location: Int) -> NSRange? {
+        let ns = self as NSString
+        guard ns.length > 0 else { return nil }
+        let loc = min(max(0, utf16Location), ns.length)
+        let charset = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+        func isWord(_ i: Int) -> Bool {
+            guard i >= 0, i < ns.length else { return false }
+            let u = ns.character(at: i)
+            guard let scalar = UnicodeScalar(u) else { return false }
+            return charset.contains(scalar)
+        }
+        var start = loc
+        if start < ns.length, !isWord(start), start > 0, isWord(start - 1) {
+            start -= 1
+        }
+        guard isWord(start) || (start > 0 && isWord(start - 1)) else { return nil }
+        if !isWord(start) { start -= 1 }
+        var begin = start
+        while begin > 0, isWord(begin - 1) { begin -= 1 }
+        var end = start
+        while end < ns.length, isWord(end) { end += 1 }
+        guard end > begin else { return nil }
+        return NSRange(location: begin, length: end - begin)
+    }
 }

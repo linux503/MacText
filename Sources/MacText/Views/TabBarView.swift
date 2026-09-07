@@ -13,6 +13,8 @@ final class TabBarView: NSView, NSDraggingSource {
     var onDetach: ((UUID, NSPoint) -> Void)?
     var onReorder: ((UUID, Int) -> Void)?
     var onAcceptDrop: ((UUID, Int?) -> Bool)?
+    /// Merge tab into another existing window (restore after tear-off).
+    var onMergeInto: ((UUID, MainWindowController) -> Void)?
     weak var windowOwner: MainWindowController?
 
     private let sidebarButton = NSButton(frame: .zero)
@@ -24,6 +26,8 @@ final class TabBarView: NSView, NSDraggingSource {
     private var dragStartPoint: NSPoint = .zero
     private var didDrag = false
     private var dropIndex: Int?
+    /// True after `beginDraggingSession` until the session ends.
+    private(set) var isTabDraggingSessionActive = false
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -94,6 +98,7 @@ final class TabBarView: NSView, NSDraggingSource {
         let session = beginDraggingSession(with: [item], event: event, source: self)
         // Don't fly the tab back — tear-off / merge will place it.
         session.animatesToStartingPositionsOnCancelOrFail = false
+        isTabDraggingSessionActive = true
         dragDocumentID = nil
     }
 
@@ -135,6 +140,39 @@ final class TabBarView: NSView, NSDraggingSource {
                 moveNew.representedObject = doc.id
                 menu.addItem(moveNew)
             }
+
+            // Restore / merge into another MacText window.
+            let others = WindowManager.shared.windows.filter { $0 !== windowOwner }
+            if !others.isEmpty {
+                if others.count == 1, let only = others.first {
+                    let merge = NSMenuItem(
+                        title: L10n.mergeTabIntoWindow,
+                        action: #selector(contextMergeInto(_:)),
+                        keyEquivalent: ""
+                    )
+                    merge.target = self
+                    merge.representedObject = ["id": doc.id, "window": only] as [String: Any]
+                    menu.addItem(merge)
+                } else {
+                    let parent = NSMenuItem(title: L10n.mergeTabIntoWindow, action: nil, keyEquivalent: "")
+                    let sub = NSMenu(title: L10n.mergeTabIntoWindow)
+                    for win in others {
+                        let label = win.window?.title
+                            ?? win.selectedDocument?.displayTitle
+                            ?? "MacText"
+                        let item = NSMenuItem(
+                            title: String(format: L10n.mergeTabInto, label),
+                            action: #selector(contextMergeInto(_:)),
+                            keyEquivalent: ""
+                        )
+                        item.target = self
+                        item.representedObject = ["id": doc.id, "window": win] as [String: Any]
+                        sub.addItem(item)
+                    }
+                    parent.submenu = sub
+                    menu.addItem(parent)
+                }
+            }
         } else {
             let closeCurrent = NSMenuItem(title: L10n.closeTab, action: #selector(closeCurrentTab), keyEquivalent: "w")
             closeCurrent.keyEquivalentModifierMask = .command
@@ -163,7 +201,11 @@ final class TabBarView: NSView, NSDraggingSource {
     }
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
-        defer { dropIndex = nil; needsDisplay = true }
+        defer {
+            dropIndex = nil
+            isTabDraggingSessionActive = false
+            needsDisplay = true
+        }
         guard let raw = session.draggingPasteboard.string(forType: .string)
                 ?? session.draggingPasteboard.string(forType: .macTextTab),
               let id = UUID(uuidString: raw) else { return }
@@ -391,6 +433,13 @@ final class TabBarView: NSView, NSDraggingSource {
         onDetach?(id, screen)
     }
 
+    @objc private func contextMergeInto(_ sender: NSMenuItem) {
+        guard let info = sender.representedObject as? [String: Any],
+              let id = info["id"] as? UUID,
+              let target = info["window"] as? MainWindowController else { return }
+        onMergeInto?(id, target)
+    }
+
     @objc private func selectTab(_ sender: NSButton) {
         guard let raw = sender.identifier?.rawValue, let id = UUID(uuidString: raw) else { return }
         onSelect?(id)
@@ -403,16 +452,32 @@ final class TabBarView: NSView, NSDraggingSource {
 }
 
 /// Forwards press/drag to the tab bar so tabs can be torn off like Sublime.
+/// Uses an explicit tracking loop — NSButton often swallows mouseDragged otherwise.
 private final class TabChromeButton: NSButton {
     override func mouseDown(with event: NSEvent) {
-        superview?.mouseDown(with: event)
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        superview?.mouseDragged(with: event)
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        superview?.mouseUp(with: event)
+        guard let bar = superview as? TabBarView else {
+            super.mouseDown(with: event)
+            return
+        }
+        bar.mouseDown(with: event)
+        var keepGoing = true
+        while keepGoing {
+            guard let next = window?.nextEvent(
+                matching: [.leftMouseUp, .leftMouseDragged, .leftMouseDown]
+            ) else { break }
+            switch next.type {
+            case .leftMouseDragged:
+                bar.mouseDragged(with: next)
+                // Dragging session owns the mouse now — stop local tracking.
+                if bar.isTabDraggingSessionActive {
+                    keepGoing = false
+                }
+            case .leftMouseUp:
+                bar.mouseUp(with: next)
+                keepGoing = false
+            default:
+                keepGoing = false
+            }
+        }
     }
 }

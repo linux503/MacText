@@ -1,10 +1,34 @@
 {
-  "updated": "2026-08-20",
+  "updated": "2026-09-08",
   "entries": [
+    {
+      "version": "1.1.7",
+      "date": "2026-09-08",
+      "channel": "beta",
+      "tag": "v1.1.7",
+      "en": {
+        "title": "Plain-text paste, merge tabs back",
+        "highlights": [
+          "Paste stays plain text; spreadsheet tables align in columns with spaces",
+          "Tear a tab out to compare, then merge it back via drag or right-click",
+          "Find / replace / go-to-line affect only the front window; no-match flash; Esc returns focus",
+          "Soft wrap no longer repeats gutter line numbers; ⌘D selects the next occurrence"
+        ]
+      },
+      "zh": {
+        "title": "纯文本粘贴，标签可合并回来",
+        "highlights": [
+          "粘贴保持纯文本；表格按列用空格对齐",
+          "标签可拖出对比，也可拖回或右键「合并到其他窗口」还原",
+          "查找 / 替换 / 跳行只作用于当前窗口；无匹配会提示；Esc 回到编辑器",
+          "自动换行不再重复行号；⌘D 选择下一处相同内容"
+        ]
+      }
+    },
     {
       "version": "1.1.6",
       "date": "2026-08-20",
-      "channel": "beta",
+      "channel": "stable",
       "tag": "v1.1.6",
       "en": {
         "title": "Find, tear-off tabs, editor registration",

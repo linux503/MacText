@@ -330,6 +330,7 @@ final class EditorController: NSObject, NSTextViewDelegate {
     }
 
     @objc private func handleFindNext(_ note: Notification) {
+        guard textView.window?.isKeyWindow == true else { return }
         let query = (note.userInfo?["query"] as? String) ?? DocumentStore.shared.findQuery
         let forward = (note.userInfo?["forward"] as? Bool) ?? true
         let incremental = (note.userInfo?["incremental"] as? Bool) ?? false
@@ -337,18 +338,21 @@ final class EditorController: NSObject, NSTextViewDelegate {
     }
 
     @objc private func handleReplaceOne(_ note: Notification) {
+        guard textView.window?.isKeyWindow == true else { return }
         let find = (note.userInfo?["find"] as? String) ?? DocumentStore.shared.findQuery
         let replace = (note.userInfo?["replace"] as? String) ?? DocumentStore.shared.replaceQuery
         replaceOne(find: find, replace: replace)
     }
 
     @objc private func handleReplaceAll(_ note: Notification) {
+        guard textView.window?.isKeyWindow == true else { return }
         let find = (note.userInfo?["find"] as? String) ?? DocumentStore.shared.findQuery
         let replace = (note.userInfo?["replace"] as? String) ?? DocumentStore.shared.replaceQuery
         replaceAll(find: find, replace: replace)
     }
 
     @objc private func handleGoToLine(_ note: Notification) {
+        guard textView.window?.isKeyWindow == true else { return }
         guard let line = note.userInfo?["line"] as? Int else { return }
         goToLine(line)
     }
@@ -381,6 +385,17 @@ final class EditorController: NSObject, NSTextViewDelegate {
             }
             textView.setSelectedRange(found)
             textView.scrollRangeToVisible(found)
+            NotificationCenter.default.post(
+                name: .macTextFindResult,
+                object: textView.window,
+                userInfo: ["found": true, "query": query]
+            )
+        } else {
+            NotificationCenter.default.post(
+                name: .macTextFindResult,
+                object: textView.window,
+                userInfo: ["found": false, "query": query]
+            )
         }
     }
 

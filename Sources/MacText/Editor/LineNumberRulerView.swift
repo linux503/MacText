@@ -56,14 +56,17 @@ final class LineNumberRulerView: NSRulerView {
             )
             let charIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
             let text = textView.string as NSString
-            let lineNumber = text.lineNumber(for: charIndex)
-
-            let label = "\(lineNumber)" as NSString
-            let size = label.size(withAttributes: attrs)
-            let x = bounds.width - size.width - 8
-            let y = lineRect.minY + textView.textContainerInset.height - visibleRect.minY
-                + (lineRect.height - size.height) / 2
-            label.draw(at: NSPoint(x: x, y: y), withAttributes: attrs)
+            let hardLine = text.lineRange(for: NSRange(location: min(charIndex, max(0, text.length - 1)), length: 0))
+            // Soft-wrap: only number the first fragment of each logical line.
+            if text.length == 0 || charIndex == hardLine.location {
+                let lineNumber = text.length == 0 ? 1 : text.lineNumber(for: charIndex)
+                let label = "\(lineNumber)" as NSString
+                let size = label.size(withAttributes: attrs)
+                let x = bounds.width - size.width - 8
+                let y = lineRect.minY + textView.textContainerInset.height - visibleRect.minY
+                    + (lineRect.height - size.height) / 2
+                label.draw(at: NSPoint(x: x, y: y), withAttributes: attrs)
+            }
 
             glyphIndex = NSMaxRange(lineRange)
         }

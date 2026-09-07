@@ -88,6 +88,8 @@ enum L10n {
     static var close: String { t("关闭", "Close") }
     static var closeOthers: String { t("关闭其他", "Close Others") }
     static var moveTabToNewWindow: String { t("移到新窗口", "Move Tab to New Window") }
+    static var mergeTabIntoWindow: String { t("合并到其他窗口", "Merge into Other Window") }
+    static var mergeTabInto: String { t("合并到“%@”", "Merge into “%@”") }
 
     static var undo: String { t("撤销", "Undo") }
     static var redo: String { t("重做", "Redo") }
@@ -129,6 +131,14 @@ enum L10n {
     static var moveLineDown: String { t("下移行", "Move Line Down") }
     static var toggleComment: String { t("切换注释", "Toggle Comment") }
     static var matchingBracket: String { t("匹配括号", "Jump to Matching Bracket") }
+    static var selectNextOccurrence: String { t("选择下一处", "Select Next Occurrence") }
+    static var findNoMatches: String { t("无匹配", "No matches") }
+    static var findPreviousShort: String { t("上一个", "Previous") }
+    static var findNextShort: String { t("下一个", "Next") }
+    static var replaceOneShort: String { t("替换", "Replace") }
+    static var replaceAllShort: String { t("全部", "All") }
+    static var findPlaceholder: String { t("查找", "Find") }
+    static var replacePlaceholder: String { t("替换为", "Replace") }
 
     static var appearance: String { t("外观", "Appearance") }
     static var colorTheme: String { t("颜色主题", "Color Theme") }

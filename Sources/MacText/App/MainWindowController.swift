@@ -246,6 +246,10 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             }
             return false
         }
+        tabBar.onMergeInto = { [weak self] id, target in
+            guard let self else { return }
+            WindowManager.shared.moveTab(id, from: self, to: target, at: nil)
+        }
         tabBar.windowOwner = self
 
         editorColumn.addSubview(tabBar)
@@ -352,7 +356,7 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             showSidebar: store.showSidebar
         )
 
-        let findVisible = store.showFindBar && window?.isKeyWindow != false
+        let findWasVisible = findHeightConstraint.constant > 0
         let findHeight: CGFloat = store.showFindBar ? (store.showReplace ? 74 : 42) : 0
         findHeightConstraint.constant = findHeight
         findBar.isHidden = !store.showFindBar
@@ -362,6 +366,12 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
             query: store.findQuery,
             replace: store.replaceQuery
         )
+        // Esc / close find → return focus to editor.
+        if findWasVisible && !store.showFindBar, window?.isKeyWindow == true {
+            DispatchQueue.main.async { [weak self] in
+                self?.editor.focus()
+            }
+        }
         // Re-focus on first show and every subsequent ⌘F / ⌘⌥F (paste/search again).
         let needsFindFocus = store.showFindBar
             && window?.isKeyWindow == true
@@ -387,7 +397,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, NSSplitV
         statusBar.reload(store: store, document: selectedDocument)
         window?.contentView?.layer?.backgroundColor = store.theme.sidebarBackground.cgColor
         window?.backgroundColor = store.theme.sidebarBackground
-        _ = findVisible
     }
 
     func requestCloseTab(_ id: UUID) { closeTab(id) }

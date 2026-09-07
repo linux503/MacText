@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg"><strong>Download DMG</strong></a>
+  <a href="https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg"><strong>Download DMG</strong></a>
   ·
   <a href="https://linux503.github.io/MacText/">Website</a>
   ·
@@ -62,7 +62,7 @@
 
 ## Install
 
-1. Download [MacText-1.1.5.dmg](https://github.com/linux503/MacText/releases/download/v1.1.5/MacText-1.1.5.dmg)
+1. Download [MacText-1.1.6.dmg](https://github.com/linux503/MacText/releases/download/v1.1.6/MacText-1.1.6.dmg)
 2. Drag **MacText** into **Applications**
 3. If Gatekeeper blocks: **System Settings → Privacy & Security → Open Anyway**
 

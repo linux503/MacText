@@ -80,10 +80,7 @@ final class StatusBarView: NSView {
     @objc private func showThemeMenu(_ sender: NSButton) {
         let menu = NSMenu()
 
-        let darkHeader = NSMenuItem(title: "Dark", action: nil, keyEquivalent: "")
-        darkHeader.isEnabled = false
-        menu.addItem(darkHeader)
-        for theme in EditorTheme.darkThemes {
+        for theme in EditorTheme.all {
             let item = NSMenuItem(title: theme.name, action: #selector(pickTheme(_:)), keyEquivalent: "")
             item.target = self
             item.state = theme.name == DocumentStore.shared.theme.name ? .on : .off
@@ -92,19 +89,7 @@ final class StatusBarView: NSView {
         }
 
         menu.addItem(NSMenuItem.separator())
-        let lightHeader = NSMenuItem(title: "Light", action: nil, keyEquivalent: "")
-        lightHeader.isEnabled = false
-        menu.addItem(lightHeader)
-        for theme in EditorTheme.lightThemes {
-            let item = NSMenuItem(title: theme.name, action: #selector(pickTheme(_:)), keyEquivalent: "")
-            item.target = self
-            item.state = theme.name == DocumentStore.shared.theme.name ? .on : .off
-            item.representedObject = theme.name
-            menu.addItem(item)
-        }
-
-        menu.addItem(NSMenuItem.separator())
-        let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        let settings = NSMenuItem(title: L10n.settings, action: #selector(openSettings), keyEquivalent: ",")
         settings.keyEquivalentModifierMask = .command
         settings.target = self
         menu.addItem(settings)

@@ -125,6 +125,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let dup = NSMenuItem(title: L10n.duplicateLine, action: #selector(EditorTextView.duplicateLineOrSelection(_:)), keyEquivalent: "d")
         dup.keyEquivalentModifierMask = [.command, .shift]
         editMenu.addItem(dup)
+        let selectNext = NSMenuItem(title: L10n.selectNextOccurrence, action: #selector(EditorTextView.selectNextOccurrence(_:)), keyEquivalent: "d")
+        selectNext.keyEquivalentModifierMask = [.command]
+        editMenu.addItem(selectNext)
         let deleteLine = NSMenuItem(title: L10n.deleteLine, action: #selector(EditorTextView.deleteLinesSublime(_:)), keyEquivalent: "k")
         deleteLine.keyEquivalentModifierMask = [.control, .shift]
         editMenu.addItem(deleteLine)
@@ -134,8 +137,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let join = NSMenuItem(title: L10n.joinLines, action: #selector(EditorTextView.joinLines(_:)), keyEquivalent: "j")
         join.keyEquivalentModifierMask = [.command]
         editMenu.addItem(join)
-        editMenu.addItem(NSMenuItem(title: L10n.moveLineUp, action: #selector(EditorTextView.moveLineUp(_:)), keyEquivalent: ""))
-        editMenu.addItem(NSMenuItem(title: L10n.moveLineDown, action: #selector(EditorTextView.moveLineDown(_:)), keyEquivalent: ""))
+        let moveUp = NSMenuItem(title: L10n.moveLineUp, action: #selector(EditorTextView.moveLineUp(_:)), keyEquivalent: String(UnicodeScalar(NSUpArrowFunctionKey)!))
+        moveUp.keyEquivalentModifierMask = [.command, .control]
+        editMenu.addItem(moveUp)
+        let moveDown = NSMenuItem(title: L10n.moveLineDown, action: #selector(EditorTextView.moveLineDown(_:)), keyEquivalent: String(UnicodeScalar(NSDownArrowFunctionKey)!))
+        moveDown.keyEquivalentModifierMask = [.command, .control]
+        editMenu.addItem(moveDown)
         let comment = NSMenuItem(title: L10n.toggleComment, action: #selector(EditorTextView.toggleComment(_:)), keyEquivalent: "/")
         comment.keyEquivalentModifierMask = [.command]
         editMenu.addItem(comment)

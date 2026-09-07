@@ -3,17 +3,24 @@ import AppKit
 final class FindBarView: NSView, NSTextFieldDelegate {
     private let findField = NSTextField(string: "")
     private let replaceField = NSTextField(string: "")
-    private let previousButton = NSButton(title: "Previous", target: nil, action: nil)
-    private let nextButton = NSButton(title: "Next", target: nil, action: nil)
-    private let replaceButton = NSButton(title: "Replace", target: nil, action: nil)
-    private let replaceAllButton = NSButton(title: "All", target: nil, action: nil)
+    private let previousButton = NSButton(title: L10n.findPreviousShort, target: nil, action: nil)
+    private let nextButton = NSButton(title: L10n.findNextShort, target: nil, action: nil)
+    private let replaceButton = NSButton(title: L10n.replaceOneShort, target: nil, action: nil)
+    private let replaceAllButton = NSButton(title: L10n.replaceAllShort, target: nil, action: nil)
     private let closeButton = NSButton(image: NSImage(systemSymbolName: "xmark", accessibilityDescription: "Close")!, target: nil, action: nil)
     private let replaceRow = NSStackView()
+    private var flashToken = 0
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         wantsLayer = true
         configure()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFindResult(_:)),
+            name: .macTextFindResult,
+            object: nil
+        )
     }
 
     @available(*, unavailable)
@@ -21,14 +28,18 @@ final class FindBarView: NSView, NSTextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     private func configure() {
-        findField.placeholderString = "Find"
+        findField.placeholderString = L10n.findPlaceholder
         findField.font = NSFont.systemFont(ofSize: 13)
         findField.delegate = self
         findField.target = self
         findField.action = #selector(findSubmitted)
 
-        replaceField.placeholderString = "Replace"
+        replaceField.placeholderString = L10n.replacePlaceholder
         replaceField.font = NSFont.systemFont(ofSize: 13)
         replaceField.delegate = self
         replaceField.target = self
@@ -96,6 +107,12 @@ final class FindBarView: NSView, NSTextFieldDelegate {
     func apply(theme: EditorTheme, showReplace: Bool, query: String, replace: String) {
         layer?.backgroundColor = theme.findBarBackground.cgColor
         replaceRow.isHidden = !showReplace
+        previousButton.title = L10n.findPreviousShort
+        nextButton.title = L10n.findNextShort
+        replaceButton.title = L10n.replaceOneShort
+        replaceAllButton.title = L10n.replaceAllShort
+        findField.placeholderString = L10n.findPlaceholder
+        replaceField.placeholderString = L10n.replacePlaceholder
         if findField.stringValue != query {
             findField.stringValue = query
         }
@@ -122,6 +139,30 @@ final class FindBarView: NSView, NSTextFieldDelegate {
 
     override func cancelOperation(_ sender: Any?) {
         closeBar()
+    }
+
+    @objc private func handleFindResult(_ note: Notification) {
+        guard note.object as? NSWindow === window || note.object == nil else { return }
+        let found = (note.userInfo?["found"] as? Bool) ?? true
+        if found {
+            findField.layer?.backgroundColor = nil
+            return
+        }
+        flashNoMatch()
+    }
+
+    private func flashNoMatch() {
+        findField.wantsLayer = true
+        findField.layer?.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.28).cgColor
+        findField.toolTip = L10n.findNoMatches
+        flashToken += 1
+        let token = flashToken
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            guard let self, self.flashToken == token else { return }
+            self.findField.layer?.backgroundColor = nil
+            self.findField.toolTip = nil
+        }
+        NSSound.beep()
     }
 
     @objc private func findSubmitted() {
